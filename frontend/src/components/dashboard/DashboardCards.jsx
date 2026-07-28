@@ -1,33 +1,45 @@
+import StatsCard from "./StatsCard";
+
 function DashboardCards() {
   const cards = [
-    { title: "Total Leads", value: 0 },
-    { title: "Today's Follow-ups", value: 0 },
-    { title: "Bookings", value: 0 },
-    { title: "Revenue", value: "₹0" },
+    {
+      title: "Total Leads",
+      value: 120,
+      color: "#2563eb",
+    },
+    {
+      title: "Today's Follow-ups",
+      value: 18,
+      color: "#16a34a",
+    },
+    {
+      title: "Bookings",
+      value: 35,
+      color: "#f59e0b",
+    },
+    {
+      title: "Revenue",
+      value: "₹1,25,000",
+      color: "#dc2626",
+    },
   ];
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gridTemplateColumns: "repeat(4, 1fr)",
         gap: "20px",
         marginTop: "20px",
       }}
     >
       {cards.map((card, index) => (
-        <div
+        <StatsCard
           key={index}
-          style={{
-            background: "#ffffff",
-            borderRadius: "10px",
-            padding: "20px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h4>{card.title}</h4>
-          <h2>{card.value}</h2>
-        </div>
+          title={card.title}
+          value={card.value}
+          color={card.color}
+        />
       ))}
     </div>
   );

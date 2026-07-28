@@ -2,18 +2,19 @@ function StatsCard({ title, value, color = "#2563eb" }) {
   return (
     <div
       style={{
-        background: "#fff",
+        backgroundColor: "#ffffff",
         borderRadius: "10px",
         padding: "20px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
         borderLeft: `5px solid ${color}`,
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
       }}
     >
       <h4
         style={{
-          margin: 0,
-          color: "#666",
+          margin: "0",
+          color: "#6b7280",
           fontSize: "14px",
+          fontWeight: "500",
         }}
       >
         {title}
@@ -21,9 +22,11 @@ function StatsCard({ title, value, color = "#2563eb" }) {
 
       <h2
         style={{
-          marginTop: "10px",
+          marginTop: "12px",
+          marginBottom: "0",
           fontSize: "28px",
-          color: "#111",
+          fontWeight: "700",
+          color: "#111827",
         }}
       >
         {value}

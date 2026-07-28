@@ -28,14 +28,14 @@ function DashboardCards() {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
         gap: "20px",
         marginTop: "20px",
       }}
     >
-      {cards.map((card, index) => (
+      {cards.map((card) => (
         <StatsCard
-          key={index}
+          key={card.title}
           title={card.title}
           value={card.value}
           color={card.color}

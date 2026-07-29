@@ -1,115 +1,438 @@
 import { useState } from "react";
+import { supabase } from "../../services/supabase";
+import { useNavigate } from "react-router-dom";
+
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginType, setLoginType] = useState("customer");
 
-  const handleLogin = (e) => {
+
+  const navigate = useNavigate();
+
+
+  const [email,setEmail] = useState("");
+
+  const [password,setPassword] = useState("");
+
+  const [loginType,setLoginType] = useState("customer");
+
+  const [loading,setLoading] = useState(false);
+
+
+
+
+  const handleLogin = async (e)=>{
+
     e.preventDefault();
 
-    if (!email || !password) {
+
+
+    if(!email || !password){
+
       alert("Please enter email and password");
+
       return;
+
     }
 
-    alert(`${loginType} login successful!`);
+
+
+    try{
+
+
+      setLoading(true);
+
+
+
+      // Supabase Login
+
+      const {
+
+        data,
+
+        error
+
+      } = await supabase.auth.signInWithPassword({
+
+        email,
+
+        password
+
+      });
+
+
+
+      if(error){
+
+        throw error;
+
+      }
+
+
+
+      const user = data.user;
+
+
+
+      // Get Profile
+
+
+      const {
+
+        data:profile,
+
+        error:profileError
+
+      } = await supabase
+
+        .from("profiles")
+
+        .select("*")
+
+        .eq(
+          "id",
+          user.id
+        )
+
+        .single();
+
+
+
+      if(profileError){
+
+        throw profileError;
+
+      }
+
+
+
+      // Admin Login
+
+      if(profile.role === "admin"){
+
+        navigate("/admin-dashboard");
+
+        return;
+
+      }
+
+
+
+      // Customer Login
+
+      if(profile.role === "customer"){
+
+        navigate("/customer-dashboard");
+
+        return;
+
+      }
+
+
+
+      // Agent Subscription Check
+
+
+      const {
+
+        data:subscription,
+
+        error:subError
+
+      } = await supabase
+
+      .from("subscriptions")
+
+      .select("*")
+
+      .eq(
+
+        "user_id",
+
+        user.id
+
+      )
+
+      .order(
+
+        "created_at",
+
+        {
+
+          ascending:false
+
+        }
+
+      )
+
+      .limit(1)
+
+      .single();
+
+
+
+      if(subError){
+
+        navigate("/upgrade-plan");
+
+        return;
+
+      }
+
+
+
+
+      const today = new Date();
+
+
+      const expiry = new Date(
+
+        subscription.end_date
+
+      );
+
+
+
+
+      if(today > expiry){
+
+
+        navigate("/upgrade-plan");
+
+
+      }
+
+      else{
+
+
+        navigate("/agent-dashboard");
+
+
+      }
+
+
+
+    }
+
+
+    catch(error){
+
+
+      console.log(
+        "Login Error:",
+        error
+      );
+
+
+      alert(error.message);
+
+
+    }
+
+
+    finally{
+
+
+      setLoading(false);
+
+
+    }
+
+
   };
 
+
+
+
+
   return (
+
     <div className="login-page">
+
+
       <div className="login-card">
 
+
+
         <div className="login-logo">
+
           NR
+
         </div>
 
-        <h1>Welcome Back</h1>
+
+
+        <h1>
+          Welcome Back
+        </h1>
+
+
 
         <p className="login-subtitle">
-          Login to NR Travel CRM
+
+          Login to NR Travel SaaS Platform
+
         </p>
 
 
-        {/* Login Type Selection */}
 
-        <label>Login As</label>
+
+        <label>
+          Login As
+        </label>
+
+
 
         <select
+
           value={loginType}
-          onChange={(e) => setLoginType(e.target.value)}
+
+          onChange={(e)=>
+            setLoginType(e.target.value)
+          }
+
         >
+
           <option value="admin">
             Admin
           </option>
+
 
           <option value="b2b_agent">
             B2B Agent
           </option>
 
+
           <option value="customer">
             Customer
           </option>
+
+
         </select>
+
+
 
 
         <form onSubmit={handleLogin}>
 
-          <label>Email Address</label>
+
+          <label>
+            Email Address
+          </label>
+
 
           <input
+
             type="email"
+
             placeholder="Enter your email"
+
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+
+            onChange={(e)=>
+              setEmail(e.target.value)
+            }
+
           />
 
 
-          <label>Password</label>
+
+
+          <label>
+            Password
+          </label>
+
 
           <input
+
             type="password"
+
             placeholder="Enter your password"
+
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+
+            onChange={(e)=>
+              setPassword(e.target.value)
+            }
+
           />
 
 
-          <div className="forgot-password">
-            <a href="#">
-              Forgot Password?
-            </a>
-          </div>
+
 
 
           <button
+
             type="submit"
+
             className="login-submit"
+
+            disabled={loading}
+
           >
-            Login
+
+          {
+
+            loading
+
+            ?
+
+            "Checking..."
+
+            :
+
+            "Login"
+
+          }
+
+
           </button>
+
+
 
         </form>
 
 
+
+
         <p className="register-text">
+
           Don't have an account?{" "}
-          <a href="#">
+
+          <a href="/register">
             Register Now
           </a>
+
+
         </p>
 
 
+
+
         <button
+
           className="back-home"
-          onClick={() => (window.location.href = "/")}
+
+          onClick={()=>
+            navigate("/")
+          }
+
         >
+
           ← Back to Home
+
         </button>
 
+
+
       </div>
+
+
     </div>
+
   );
+
+
 }
+
 
 export default Login;

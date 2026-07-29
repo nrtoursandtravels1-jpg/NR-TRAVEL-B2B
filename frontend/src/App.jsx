@@ -51,6 +51,7 @@ import Reports from "./pages/reports/Reports";
 // Settings
 import Settings from "./pages/settings/Settings";
 
+import Destinations from "./pages/Destinations";
 
 function App() {
   return (
@@ -189,7 +190,14 @@ function App() {
           />
 
 
+        <Route 
+          path="/destinations" 
+          element={<Destinations />} 
+        />
+        
+        
         </Routes>
+
 
         <Footer />
 

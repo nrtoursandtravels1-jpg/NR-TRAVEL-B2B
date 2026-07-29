@@ -4,21 +4,29 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-// Pages
+// Main Pages
 import Landingpage from "./pages/Landingpage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 
-// CRM Pages
+// Authentication
+import Login from "./pages/auth/Login";
+import AdminLogin from "./pages/auth/AdminLogin";
+import AgentLogin from "./pages/auth/AgentLogin";
+import CustomerLogin from "./pages/auth/CustomerLogin";
+import Register from "./pages/Register";
+
+// Dashboards
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AgentDashboard from "./pages/agent/AgentDashboard";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
+
+// CRM
 import CRM from "./pages/CRM";
 import AddLead from "./pages/AddLead";
+import Leads from "./pages/Lead";
 import Hotel from "./pages/Hotel";
 
-// Lead Components
-import Leads from "./pages/Lead";
-
-// Tour Package Pages
+// Packages
 import Packages from "./pages/Packages/Packages";
 import CreatePackage from "./pages/Packages/CreatePackage";
 import EditPackage from "./pages/Packages/EditPackage";
@@ -28,22 +36,42 @@ import GirlsOnlyTours from "./pages/Packages/GirlsOnlyTours";
 import FamilyTours from "./pages/Packages/FamilyTours";
 import CustomTours from "./pages/Packages/CustomTours";
 
+// Operations
+import OperationsDashboard from "./pages/operations/OperationsDashboard";
+import Bookings from "./pages/operations/Bookings";
+import Itinerary from "./pages/operations/Itinerary";
+import Vendors from "./pages/operations/Vendors";
+import Documents from "./pages/operations/Documents";
+
+
 function App() {
   return (
     <BrowserRouter>
+
       <div className="min-h-screen bg-slate-900 text-white">
+
         <Navbar />
 
         <Routes>
+
           {/* Home */}
           <Route path="/" element={<Landingpage />} />
 
+
           {/* Authentication */}
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/agent-login" element={<AgentLogin />} />
+          <Route path="/customer-login" element={<CustomerLogin />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Dashboard */}
+
+          {/* Dashboards */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/agent-dashboard" element={<AgentDashboard />} />
+          <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+
 
           {/* CRM */}
           <Route path="/crm" element={<CRM />} />
@@ -51,7 +79,8 @@ function App() {
           <Route path="/leads" element={<Leads />} />
           <Route path="/hotel" element={<Hotel />} />
 
-          {/* Tour Package Management */}
+
+          {/* Package Management */}
           <Route path="/packages" element={<Packages />} />
           <Route path="/packages/create" element={<CreatePackage />} />
           <Route path="/packages/edit/:id" element={<EditPackage />} />
@@ -60,10 +89,41 @@ function App() {
           <Route path="/packages/girls" element={<GirlsOnlyTours />} />
           <Route path="/packages/family" element={<FamilyTours />} />
           <Route path="/packages/custom" element={<CustomTours />} />
+
+
+          {/* Operations Management */}
+          <Route 
+            path="/operations" 
+            element={<OperationsDashboard />} 
+          />
+
+          <Route 
+            path="/operations/bookings" 
+            element={<Bookings />} 
+          />
+
+          <Route 
+            path="/operations/itinerary" 
+            element={<Itinerary />} 
+          />
+
+          <Route 
+            path="/operations/vendors" 
+            element={<Vendors />} 
+          />
+
+          <Route 
+            path="/operations/documents" 
+            element={<Documents />} 
+          />
+
+
         </Routes>
 
         <Footer />
+
       </div>
+
     </BrowserRouter>
   );
 }

@@ -10,91 +10,69 @@ import { supabase } from "../services/supabase";
 
 function Leads() {
 
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [searchTerm,setSearchTerm] = useState("");
+  const [leads, setLeads] = useState([]);
 
-  const [leads,setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [loading,setLoading] = useState(true);
+  const [selectedLead, setSelectedLead] = useState(null);
 
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
     fetchLeads();
 
-  },[]);
+  }, []);
 
 
 
 
-  const fetchLeads = async()=>{
+  const fetchLeads = async () => {
 
+    try {
 
-    try{
-
-
-      const {
-
-        data:userData
-
-      } = await supabase.auth.getUser();
-
-
+      const { data:userData } = await supabase.auth.getUser();
 
       const user = userData.user;
 
 
-
       if(!user){
-
         return;
-
       }
 
 
 
       const {
-
         data,
-
         error
-
       } = await supabase
 
-      .from("leads")
+        .from("leads")
 
-      .select("*")
+        .select("*")
 
-      .eq(
+        .eq(
+          "agent_id",
+          user.id
+        )
 
-        "agent_id",
-
-        user.id
-
-      )
-
-      .order(
-
-        "created_at",
-
-        {
-          ascending:false
-        }
-
-      );
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        );
 
 
 
       if(error){
-
         throw error;
-
       }
 
 
-
-      setLeads(data);
+      setLeads(data || []);
 
 
 
@@ -113,7 +91,6 @@ function Leads() {
 
     }
 
-
   };
 
 
@@ -123,8 +100,7 @@ function Leads() {
   const filteredLeads = leads.filter((lead)=>{
 
 
-    const keyword =
-    searchTerm.toLowerCase();
+    const keyword = searchTerm.toLowerCase();
 
 
 
@@ -147,11 +123,11 @@ function Leads() {
       ?.toLowerCase()
       .includes(keyword)
 
-
     );
 
 
   });
+
 
 
 
@@ -177,6 +153,7 @@ function Leads() {
 
 
 
+
   return (
 
     <Layout>
@@ -190,6 +167,8 @@ function Leads() {
 
 
 
+
+
       <LeadSearch
 
         searchTerm={searchTerm}
@@ -200,11 +179,25 @@ function Leads() {
 
 
 
+
+
       <div className="mt-6">
 
-        <LeadForm />
+
+        <LeadForm
+
+          selectedLead={selectedLead}
+
+          clearSelectedLead={() => setSelectedLead(null)}
+
+          refreshLeads={fetchLeads}
+
+        />
+
 
       </div>
+
+
 
 
 
@@ -216,6 +209,10 @@ function Leads() {
 
           leads={filteredLeads}
 
+          setSelectedLead={setSelectedLead}
+
+          refreshLeads={fetchLeads}
+
         />
 
 
@@ -223,10 +220,10 @@ function Leads() {
 
 
 
+
     </Layout>
 
   );
-
 
 }
 

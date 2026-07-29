@@ -2,98 +2,22 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
 
 
-export default function LeadTable({ leads: propsLeads }) {
+export default function LeadTable({
+  leads: propsLeads,
+  setSelectedLead,
+  refreshLeads
+}) {
 
 
-  const [leads,setLeads] = useState(
-    propsLeads || []
-  );
+  const [leads,setLeads] = useState(propsLeads || []);
+
 
 
   useEffect(()=>{
 
-    if(propsLeads){
-
-      setLeads(propsLeads);
-
-    }
-    else{
-
-      fetchLeads();
-
-    }
+    setLeads(propsLeads || []);
 
   },[propsLeads]);
-
-
-
-
-
-  const fetchLeads = async()=>{
-
-
-    const {
-
-      data:userData
-
-    } = await supabase.auth.getUser();
-
-
-
-    const user = userData.user;
-
-
-
-    if(!user){
-
-      return;
-
-    }
-
-
-
-    const {
-
-      data,
-
-      error
-
-    } = await supabase
-
-    .from("leads")
-
-    .select("*")
-
-    .eq(
-      "agent_id",
-      user.id
-    )
-
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-
-
-    if(error){
-
-      console.log(
-        "Fetch Leads Error:",
-        error
-      );
-
-      return;
-
-    }
-
-
-    setLeads(data);
-
-
-  };
 
 
 
@@ -102,24 +26,18 @@ export default function LeadTable({ leads: propsLeads }) {
   const updateStatus = async(id,status)=>{
 
 
-    const {
+    const { error } = await supabase
 
-      error
+      .from("leads")
 
-    } = await supabase
+      .update({
+        status:status
+      })
 
-    .from("leads")
-
-    .update({
-
-      status:status
-
-    })
-
-    .eq(
-      "id",
-      id
-    );
+      .eq(
+        "id",
+        id
+      );
 
 
 
@@ -161,6 +79,66 @@ export default function LeadTable({ leads: propsLeads }) {
 
 
 
+
+  const deleteLead = async(id)=>{
+
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this lead?"
+    );
+
+
+    if(!confirmDelete){
+      return;
+    }
+
+
+
+    const { error } = await supabase
+
+      .from("leads")
+
+      .delete()
+
+      .eq(
+        "id",
+        id
+      );
+
+
+
+
+    if(error){
+
+      console.log(
+        "Delete Error:",
+        error
+      );
+
+      return;
+
+    }
+
+
+
+    alert("Lead Deleted Successfully");
+
+
+
+    if(refreshLeads){
+
+      refreshLeads();
+
+    }
+
+
+  };
+
+
+
+
+
+
   return (
 
     <div
@@ -179,6 +157,8 @@ export default function LeadTable({ leads: propsLeads }) {
 
 
 
+
+
       <table
         style={{
           width:"100%",
@@ -186,7 +166,6 @@ export default function LeadTable({ leads: propsLeads }) {
           marginTop:"15px"
         }}
       >
-
 
         <thead>
 
@@ -224,7 +203,9 @@ export default function LeadTable({ leads: propsLeads }) {
 
           </tr>
 
+
         </thead>
+
 
 
 
@@ -233,7 +214,6 @@ export default function LeadTable({ leads: propsLeads }) {
 
         {
           leads.map((lead)=>(
-
 
             <tr key={lead.id}>
 
@@ -264,19 +244,10 @@ export default function LeadTable({ leads: propsLeads }) {
 
               <td style={tdStyle}>
 
-                {lead.status}
-
-
-              </td>
-
-
-
-              <td style={tdStyle}>
-
 
                 <select
 
-                  value={lead.status || "new"}
+                  value={lead.status || "New"}
 
                   onChange={(e)=>
                     updateStatus(
@@ -287,27 +258,70 @@ export default function LeadTable({ leads: propsLeads }) {
 
                 >
 
-                  <option value="new">
+                  <option value="New">
                     New
                   </option>
 
-
-                  <option value="follow-up">
-                    Follow-up
+                  <option value="Contacted">
+                    Contacted
                   </option>
 
-
-                  <option value="converted">
-                    Converted
+                  <option value="Follow Up">
+                    Follow Up
                   </option>
 
+                  <option value="Booked">
+                    Booked
+                  </option>
 
-                  <option value="lost">
+                  <option value="Lost">
                     Lost
                   </option>
 
 
                 </select>
+
+
+              </td>
+
+
+
+
+
+              <td style={tdStyle}>
+
+
+                <button
+
+                  onClick={() =>
+                    setSelectedLead(lead)
+                  }
+
+                  style={editButton}
+
+                >
+
+                  Edit
+
+                </button>
+
+
+
+
+
+                <button
+
+                  onClick={() =>
+                    deleteLead(lead.id)
+                  }
+
+                  style={deleteButton}
+
+                >
+
+                  Delete
+
+                </button>
 
 
               </td>
@@ -330,6 +344,7 @@ export default function LeadTable({ leads: propsLeads }) {
 
 
 
+
       {
         leads.length === 0 &&
 
@@ -342,9 +357,11 @@ export default function LeadTable({ leads: propsLeads }) {
       }
 
 
+
     </div>
 
   );
+
 
 }
 
@@ -355,11 +372,8 @@ export default function LeadTable({ leads: propsLeads }) {
 const thStyle = {
 
   padding:"12px",
-
   background:"#2563eb",
-
   color:"#fff",
-
   textAlign:"left"
 
 };
@@ -369,7 +383,33 @@ const thStyle = {
 const tdStyle = {
 
   padding:"12px",
-
   borderBottom:"1px solid #ddd"
+
+};
+
+
+
+const editButton = {
+
+  padding:"6px 12px",
+  marginRight:"8px",
+  background:"#16a34a",
+  color:"#fff",
+  border:"none",
+  borderRadius:"5px",
+  cursor:"pointer"
+
+};
+
+
+
+const deleteButton = {
+
+  padding:"6px 12px",
+  background:"#dc2626",
+  color:"#fff",
+  border:"none",
+  borderRadius:"5px",
+  cursor:"pointer"
 
 };

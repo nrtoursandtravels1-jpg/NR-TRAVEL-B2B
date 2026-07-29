@@ -1,157 +1,305 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
-import AddUser from "../../components/admin/AddUser";
-
-export default function Users() {
-
-  const [users, setUsers] = useState([]);
-  const [refresh, setRefresh] = useState(false);
 
 
-  const fetchUsers = async () => {
+function Users(){
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const [agents,setAgents] = useState([]);
+
+  const [loading,setLoading] = useState(true);
 
 
-    if (error) {
-      console.log("Supabase Error:", error);
+
+  useEffect(()=>{
+
+    fetchAgents();
+
+  },[]);
+
+
+
+
+  const fetchAgents = async()=>{
+
+
+    const {
+
+      data,
+
+      error
+
+    } = await supabase
+
+    .from("profiles")
+
+    .select("*")
+
+    .eq(
+      "role",
+      "b2b_agent"
+    )
+
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    );
+
+
+
+    if(error){
+
+      console.log(error);
+
       return;
+
     }
 
-    setUsers(data || []);
+
+
+    setAgents(data);
+
+    setLoading(false);
+
 
   };
 
 
-  useEffect(() => {
-    fetchUsers();
-  }, [refresh]);
+
+
+
+  const updateStatus = async(id,status)=>{
+
+
+    const {
+
+      error
+
+    } = await supabase
+
+    .from("profiles")
+
+    .update({
+
+      status:status
+
+    })
+
+    .eq(
+      "id",
+      id
+    );
+
+
+
+    if(error){
+
+      console.log(error);
+
+      return;
+
+    }
+
+
+
+    fetchAgents();
+
+
+  };
+
+
+
+
+
+  if(loading){
+
+    return (
+
+      <h2 style={{padding:"30px"}}>
+
+        Loading Agents...
+
+      </h2>
+
+    );
+
+  }
+
+
 
 
 
   return (
-    <div style={{ padding: "30px" }}>
 
-      <h1>User Management</h1>
+    <div
+      style={{
+        padding:"30px"
+      }}
+    >
+
+
+      <h1>
+        B2B Agent Management
+      </h1>
+
 
       <p>
-        Manage NR Travel CRM users
+        Manage registered travel partners
       </p>
 
 
-      {/* Add User Form */}
-
-      <AddUser
-        onUserAdded={() => setRefresh(!refresh)}
-      />
 
 
+      <table
 
-      {/* User Count Cards */}
+      style={{
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: "20px",
-          marginTop: "30px"
-        }}
+        width:"100%",
+
+        marginTop:"30px",
+
+        background:"#fff",
+
+        color:"#000",
+
+        borderCollapse:"collapse"
+
+      }}
+
       >
 
-        <div>
-          <h2>{users.length}</h2>
-          <p>Total Users</p>
-        </div>
-
-
-        <div>
-          <h2>
-            {
-              users.filter(
-                user => user.role === "admin"
-              ).length
-            }
-          </h2>
-          <p>Admin</p>
-        </div>
-
-
-        <div>
-          <h2>
-            {
-              users.filter(
-                user => user.role === "agent"
-              ).length
-            }
-          </h2>
-          <p>B2B Agents</p>
-        </div>
-
-
-        <div>
-          <h2>
-            {
-              users.filter(
-                user => user.role === "customer"
-              ).length
-            }
-          </h2>
-          <p>Customers</p>
-        </div>
-
-
-      </div>
-
-
-
-      {/* Users Table */}
-
-      <h2 style={{ marginTop:"30px" }}>
-        User List
-      </h2>
-
-
-      <table width="100%" border="1">
 
         <thead>
+
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Status</th>
+
+            <th>
+              Name
+            </th>
+
+            <th>
+              Email
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Action
+            </th>
+
           </tr>
+
         </thead>
+
+
 
 
         <tbody>
 
+
         {
-          users.map((user)=>(
-            <tr key={user.id}>
+          agents.map((agent)=>(
 
-              <td>{user.full_name}</td>
 
-              <td>{user.email}</td>
+            <tr key={agent.id}>
 
-              <td>{user.phone}</td>
 
-              <td>{user.role}</td>
+              <td>
+                {agent.full_name}
+              </td>
 
-              <td>{user.status}</td>
+
+              <td>
+                {agent.email}
+              </td>
+
+
+
+              <td>
+                {agent.status}
+              </td>
+
+
+
+              <td>
+
+
+                {
+                  agent.status === "active"
+
+                  ?
+
+                  <button
+
+                  onClick={()=>updateStatus(
+                    agent.id,
+                    "inactive"
+                  )}
+
+                  >
+
+                    Disable
+
+                  </button>
+
+
+                  :
+
+
+                  <button
+
+                  onClick={()=>updateStatus(
+                    agent.id,
+                    "active"
+                  )}
+
+                  >
+
+                    Activate
+
+                  </button>
+
+                }
+
+
+              </td>
+
+
 
             </tr>
+
+
           ))
+
         }
 
+
         </tbody>
+
 
       </table>
 
 
+
+      {
+        agents.length===0 &&
+
+        <p>
+          No B2B agents found
+        </p>
+
+      }
+
+
+
     </div>
+
   );
+
 }
+
+
+export default Users;

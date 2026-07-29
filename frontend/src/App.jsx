@@ -23,9 +23,12 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Users from "./pages/admin/Users";
+
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentProfile from "./pages/agent/AgentProfile";
+
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
+
 
 
 // CRM
@@ -35,15 +38,18 @@ import Leads from "./pages/Lead";
 import Hotel from "./pages/Hotel";
 
 
+
 // Packages
 import Packages from "./pages/Packages/Packages";
 import CreatePackage from "./pages/Packages/CreatePackage";
 import EditPackage from "./pages/Packages/EditPackage";
+
 import UpcomingTours from "./pages/Packages/UpcomingTours";
 import GroupTours from "./pages/Packages/GroupTours";
 import GirlsOnlyTours from "./pages/Packages/GirlsOnlyTours";
 import FamilyTours from "./pages/Packages/FamilyTours";
 import CustomTours from "./pages/Packages/CustomTours";
+
 
 
 // Operations
@@ -54,28 +60,41 @@ import Vendors from "./pages/operations/Vendors";
 import Documents from "./pages/operations/Documents";
 
 
+
 // Reports
 import Reports from "./pages/reports/Reports";
+
 
 
 // Settings
 import Settings from "./pages/settings/Settings";
 
 
+
 // Other
 import Destinations from "./pages/Destinations";
+
 
 
 // Subscription
 import UpgradePlan from "./pages/subscription/UpgradePlan";
 
 
+// Admin Subscription
+import Subscriptions from "./pages/admin/Subscriptions";
+
+
+
+
 
 function App() {
 
+
   return (
 
+
     <BrowserRouter>
+
 
       <div className="min-h-screen bg-slate-900 text-white">
 
@@ -83,11 +102,12 @@ function App() {
         <Navbar />
 
 
+
         <Routes>
 
 
 
-          {/* Website */}
+          {/* WEBSITE */}
 
           <Route
             path="/"
@@ -96,7 +116,10 @@ function App() {
 
 
 
-          {/* Authentication */}
+
+
+          {/* AUTHENTICATION */}
+
 
           <Route
             path="/login"
@@ -130,7 +153,10 @@ function App() {
 
 
 
-          {/* Dashboards */}
+
+
+          {/* DASHBOARDS */}
+
 
 
           <Route
@@ -141,6 +167,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
 
 
 
@@ -159,6 +186,18 @@ function App() {
 
 
           <Route
+            path="/admin/subscriptions"
+            element={
+              <ProtectedRoute>
+                <Subscriptions />
+              </ProtectedRoute>
+            }
+          />
+
+
+
+
+          <Route
             path="/agent-dashboard"
             element={
               <ProtectedRoute>
@@ -166,6 +205,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
 
 
 
@@ -180,6 +220,7 @@ function App() {
 
 
 
+
           <Route
             path="/customer-dashboard"
             element={<CustomerDashboard />}
@@ -188,7 +229,11 @@ function App() {
 
 
 
+
+
+
           {/* CRM */}
+
 
 
           <Route
@@ -228,7 +273,11 @@ function App() {
 
 
 
-          {/* Packages */}
+
+
+
+          {/* PACKAGES */}
+
 
 
           <Route
@@ -237,10 +286,12 @@ function App() {
           />
 
 
+
           <Route
             path="/packages/create"
             element={<CreatePackage />}
           />
+
 
 
           <Route
@@ -249,10 +300,12 @@ function App() {
           />
 
 
+
           <Route
             path="/packages/upcoming"
             element={<UpcomingTours />}
           />
+
 
 
           <Route
@@ -261,16 +314,19 @@ function App() {
           />
 
 
+
           <Route
             path="/packages/girls"
             element={<GirlsOnlyTours />}
           />
 
 
+
           <Route
             path="/packages/family"
             element={<FamilyTours />}
           />
+
 
 
           <Route
@@ -281,7 +337,12 @@ function App() {
 
 
 
-          {/* Operations */}
+
+
+
+
+          {/* OPERATIONS */}
+
 
 
           <Route
@@ -316,7 +377,11 @@ function App() {
 
 
 
-          {/* Reports */}
+
+
+
+          {/* REPORTS */}
+
 
 
           <Route
@@ -327,7 +392,10 @@ function App() {
 
 
 
-          {/* Settings */}
+
+
+          {/* SETTINGS */}
+
 
 
           <Route
@@ -338,7 +406,10 @@ function App() {
 
 
 
-          {/* Destinations */}
+
+
+          {/* DESTINATIONS */}
+
 
 
           <Route
@@ -349,7 +420,10 @@ function App() {
 
 
 
-          {/* Subscription */}
+
+
+          {/* AGENT SUBSCRIPTION */}
+
 
 
           <Route
@@ -359,11 +433,15 @@ function App() {
 
 
 
+
+
         </Routes>
 
 
 
+
         <Footer />
+
 
 
       </div>
@@ -371,9 +449,11 @@ function App() {
 
     </BrowserRouter>
 
+
   );
 
 }
+
 
 
 export default App;

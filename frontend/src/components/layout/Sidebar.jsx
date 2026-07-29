@@ -28,6 +28,17 @@ function Sidebar() {
         </li>
 
 
+        {/* B2B Agent */}
+        <li>
+          <Link
+            to="/agent-profile"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Agent Profile
+          </Link>
+        </li>
+
+
         {/* CRM */}
         <li>
           <Link
@@ -86,7 +97,7 @@ function Sidebar() {
         </li>
 
 
-        {/* Existing Modules */}
+        {/* Travel Modules */}
         <li>
           <Link
             to="/hotel"
@@ -128,7 +139,7 @@ function Sidebar() {
         </li>
 
 
-        {/* Settings */}
+        {/* Admin Settings */}
         <li>
           <Link
             to="/settings"
@@ -137,7 +148,6 @@ function Sidebar() {
             Settings
           </Link>
         </li>
-
 
 
         {/* Website */}
@@ -149,6 +159,7 @@ function Sidebar() {
             Website
           </Link>
         </li>
+
 
       </ul>
 

@@ -19,6 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Users from "./pages/admin/Users";
 import AgentDashboard from "./pages/agent/AgentDashboard";
+import AgentProfile from "./pages/agent/AgentProfile";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
 // CRM
@@ -89,6 +90,10 @@ function App() {
           <Route 
             path="/agent-dashboard" 
             element={<AgentDashboard />} 
+          />
+          <Route 
+            path="/agent-profile" 
+            element={<AgentProfile />} 
           />
 
           <Route 

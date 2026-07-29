@@ -16,6 +16,8 @@ function Sidebar() {
       <hr />
 
       <ul style={{ listStyle: "none", padding: 0 }}>
+
+        {/* Dashboard */}
         <li>
           <Link
             to="/dashboard"
@@ -25,15 +27,66 @@ function Sidebar() {
           </Link>
         </li>
 
+
+        {/* CRM */}
         <li>
           <Link
             to="/crm"
             style={{ color: "#fff", textDecoration: "none" }}
           >
-            Leads
+            Leads CRM
           </Link>
         </li>
 
+
+        {/* Operations */}
+        <li>
+          <Link
+            to="/operations"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Operations Dashboard
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            to="/operations/bookings"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Bookings
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            to="/operations/itinerary"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Itinerary
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            to="/operations/vendors"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Vendors
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            to="/operations/documents"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Documents
+          </Link>
+        </li>
+
+
+        {/* Existing Modules */}
         <li>
           <Link
             to="/hotel"
@@ -42,6 +95,17 @@ function Sidebar() {
             Hotels
           </Link>
         </li>
+
+
+        <li>
+          <Link
+            to="/packages"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Packages
+          </Link>
+        </li>
+
 
         <li>
           <Link
@@ -52,6 +116,31 @@ function Sidebar() {
           </Link>
         </li>
 
+
+        {/* Reports */}
+        <li>
+          <Link
+            to="/reports"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Reports
+          </Link>
+        </li>
+
+
+        {/* Settings */}
+        <li>
+          <Link
+            to="/settings"
+            style={{ color: "#fff", textDecoration: "none" }}
+          >
+            Settings
+          </Link>
+        </li>
+
+
+
+        {/* Website */}
         <li>
           <Link
             to="/"
@@ -60,7 +149,9 @@ function Sidebar() {
             Website
           </Link>
         </li>
+
       </ul>
+
     </div>
   );
 }

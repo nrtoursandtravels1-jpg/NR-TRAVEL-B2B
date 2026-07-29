@@ -17,6 +17,7 @@ import Register from "./pages/Register";
 // Dashboards
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Users from "./pages/admin/Users";
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
@@ -43,6 +44,12 @@ import Itinerary from "./pages/operations/Itinerary";
 import Vendors from "./pages/operations/Vendors";
 import Documents from "./pages/operations/Documents";
 
+// Reports
+import Reports from "./pages/reports/Reports";
+
+// Settings
+import Settings from "./pages/settings/Settings";
+
 
 function App() {
   return (
@@ -68,9 +75,26 @@ function App() {
 
           {/* Dashboards */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/agent-dashboard" element={<AgentDashboard />} />
-          <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+
+          <Route 
+            path="/admin-dashboard" 
+            element={<AdminDashboard />} 
+          />
+
+          <Route 
+            path="/admin/users" 
+            element={<Users />} 
+          />
+
+          <Route 
+            path="/agent-dashboard" 
+            element={<AgentDashboard />} 
+          />
+
+          <Route 
+            path="/customer-dashboard" 
+            element={<CustomerDashboard />} 
+          />
 
 
           {/* CRM */}
@@ -82,16 +106,44 @@ function App() {
 
           {/* Package Management */}
           <Route path="/packages" element={<Packages />} />
-          <Route path="/packages/create" element={<CreatePackage />} />
-          <Route path="/packages/edit/:id" element={<EditPackage />} />
-          <Route path="/packages/upcoming" element={<UpcomingTours />} />
-          <Route path="/packages/group" element={<GroupTours />} />
-          <Route path="/packages/girls" element={<GirlsOnlyTours />} />
-          <Route path="/packages/family" element={<FamilyTours />} />
-          <Route path="/packages/custom" element={<CustomTours />} />
+
+          <Route 
+            path="/packages/create" 
+            element={<CreatePackage />} 
+          />
+
+          <Route 
+            path="/packages/edit/:id" 
+            element={<EditPackage />} 
+          />
+
+          <Route 
+            path="/packages/upcoming" 
+            element={<UpcomingTours />} 
+          />
+
+          <Route 
+            path="/packages/group" 
+            element={<GroupTours />} 
+          />
+
+          <Route 
+            path="/packages/girls" 
+            element={<GirlsOnlyTours />} 
+          />
+
+          <Route 
+            path="/packages/family" 
+            element={<FamilyTours />} 
+          />
+
+          <Route 
+            path="/packages/custom" 
+            element={<CustomTours />} 
+          />
 
 
-          {/* Operations Management */}
+          {/* Operations */}
           <Route 
             path="/operations" 
             element={<OperationsDashboard />} 
@@ -115,6 +167,20 @@ function App() {
           <Route 
             path="/operations/documents" 
             element={<Documents />} 
+          />
+
+
+          {/* Reports */}
+          <Route 
+            path="/reports" 
+            element={<Reports />} 
+          />
+
+
+          {/* Settings */}
+          <Route 
+            path="/settings" 
+            element={<Settings />} 
           />
 
 

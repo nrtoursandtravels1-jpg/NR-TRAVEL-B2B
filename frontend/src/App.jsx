@@ -16,7 +16,7 @@ import AddLead from "./pages/AddLead";
 import Hotel from "./pages/Hotel";
 
 // Lead Components
-import Leads from "./components/leads/Leads";
+import Leads from "./pages/Lead";
 
 // Tour Package Pages
 import Packages from "./pages/Packages/Packages";

@@ -1,7 +1,9 @@
 import { useState } from "react";
-import LeadSearch from "./LeadSearch";
-import LeadForm from "./LeadForm";
-import LeadTable from "./LeadTable";
+
+import Layout from "../components/layout/Layout";
+import LeadSearch from "../components/leads/LeadSearch";
+import LeadForm from "../components/leads/LeadForm";
+import LeadTable from "../components/leads/LeadTable";
 
 function Leads() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,8 +36,10 @@ function Leads() {
   });
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Lead Management</h1>
+    <Layout>
+      <h1 className="text-2xl font-bold mb-4">
+        Lead Management
+      </h1>
 
       <LeadSearch
         searchTerm={searchTerm}
@@ -49,7 +53,7 @@ function Leads() {
       <div className="mt-6">
         <LeadTable leads={filteredLeads} />
       </div>
-    </div>
+    </Layout>
   );
 }
 

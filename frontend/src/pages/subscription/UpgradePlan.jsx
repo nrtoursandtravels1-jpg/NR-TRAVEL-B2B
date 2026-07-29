@@ -1,35 +1,232 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
 
+
 function UpgradePlan() {
 
+
   const [plans, setPlans] = useState([]);
+  const [loading,setLoading] = useState(true);
 
 
-  const fetchPlans = async () => {
 
-    const { data, error } = await supabase
-      .from("subscription_plans")
-      .select("*")
-      .eq("status", "active")
-      .neq("duration_type", "trial")
-      .order("price", { ascending: true });
+  useEffect(()=>{
+
+    fetchPlans();
+
+  },[]);
+
+
+
+
+  const fetchPlans = async()=>{
+
+
+    const {
+      data,
+      error
+    } = await supabase
+
+    .from("subscription_plans")
+
+    .select("*")
+
+    .order(
+      "created_at",
+      {
+        ascending:true
+      }
+    );
+
 
 
     if(error){
-      console.log("Plan Error:", error);
+
+      console.log(error);
+
       return;
+
     }
+
 
 
     setPlans(data);
 
+    setLoading(false);
+
+
   };
 
 
-  useEffect(() => {
-    fetchPlans();
-  }, []);
+
+
+
+
+  const choosePlan = async(plan)=>{
+
+
+    try{
+
+
+      const {
+        data:userData
+      } = await supabase.auth.getUser();
+
+
+
+      const user = userData.user;
+
+
+
+      if(!user){
+
+        alert(
+          "Please login first"
+        );
+
+        return;
+
+      }
+
+
+
+
+      // Create Subscription
+
+
+      const startDate = new Date();
+
+
+      const endDate = new Date();
+
+
+
+      endDate.setMonth(
+
+        endDate.getMonth()+1
+
+      );
+
+
+
+      const {
+        error
+      } = await supabase
+
+      .from("subscriptions")
+
+      .insert({
+
+
+        user_id:user.id,
+
+
+        plan_id:plan.id,
+
+
+        status:"active",
+
+
+        start_date:
+        startDate,
+
+
+        end_date:
+        endDate
+
+
+      });
+
+
+
+
+      if(error){
+
+        throw error;
+
+      }
+
+
+
+
+
+      // Create Lead Wallet
+
+
+      await supabase
+
+      .from("lead_wallets")
+
+      .insert({
+
+
+        user_id:user.id,
+
+
+        total_leads:
+        plan.lead_limit,
+
+
+        used_leads:0,
+
+
+        remaining_leads:
+        plan.lead_limit
+
+
+      });
+
+
+
+
+
+      alert(
+        "Plan Activated Successfully"
+      );
+
+
+
+      window.location.href="/agent-dashboard";
+
+
+
+    }
+    catch(error){
+
+
+      console.log(error);
+
+
+      alert(error.message);
+
+
+    }
+
+
+  };
+
+
+
+
+
+
+
+  if(loading){
+
+    return (
+
+      <h2 style={{padding:"40px"}}>
+
+        Loading Plans...
+
+      </h2>
+
+    );
+
+  }
+
+
+
 
 
 
@@ -37,110 +234,98 @@ function UpgradePlan() {
 
     <div
       style={{
-        minHeight:"100vh",
-        padding:"50px",
-        background:"#0f172a",
-        color:"white"
+        padding:"40px"
       }}
     >
 
-      <h1 style={{textAlign:"center"}}>
+
+      <h1>
         Your Trial Expired
       </h1>
 
 
-      <p
-        style={{
-          textAlign:"center",
-          fontSize:"18px"
-        }}
-      >
-        Choose a subscription plan to continue using the platform.
+      <p>
+        Choose your subscription plan
+        to continue using the platform.
       </p>
 
 
 
+
+
       <div
+
         style={{
+
           display:"grid",
+
           gridTemplateColumns:
-          "repeat(auto-fit,minmax(250px,1fr))",
-          gap:"25px",
-          marginTop:"40px"
+          "repeat(3,1fr)",
+
+          gap:"20px",
+
+          marginTop:"30px"
+
         }}
+
       >
+
 
 
       {
         plans.map((plan)=>(
 
+
           <div
+
             key={plan.id}
+
             style={{
-              background:"#1e293b",
-              padding:"30px",
-              borderRadius:"15px",
-              textAlign:"center"
+
+              background:"#fff",
+
+              color:"#000",
+
+              padding:"25px",
+
+              borderRadius:"12px"
+
             }}
+
           >
+
 
             <h2>
               {plan.plan_name}
             </h2>
 
 
-            <h1>
-              ${plan.price}
-            </h1>
-
-
-            <p>
-              {plan.duration_days} Days
-            </p>
-
-
-
-            <ul
-              style={{
-                textAlign:"left"
-              }}
-            >
-
-            {
-              plan.features?.map((item,index)=>(
-
-                <li key={index}>
-                  ✓ {item}
-                </li>
-
-              ))
-            }
-
-            </ul>
+            <h3>
+              Leads:
+              {" "}
+              {plan.lead_limit}
+            </h3>
 
 
 
             <button
-              onClick={() =>
-                alert(
-                  "Payment integration will be connected next."
-                )
+
+              onClick={()=>
+                choosePlan(plan)
               }
-              style={{
-                marginTop:"20px",
-                padding:"12px 25px",
-                cursor:"pointer"
-              }}
+
             >
 
-              Subscribe Now
+              Select Plan
 
             </button>
 
 
           </div>
 
+
         ))
+
       }
 
 
@@ -150,6 +335,7 @@ function UpgradePlan() {
     </div>
 
   );
+
 
 }
 

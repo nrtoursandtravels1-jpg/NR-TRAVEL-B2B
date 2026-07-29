@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import LeadSearch from "../components/leads/LeadSearch";
 import LeadForm from "../components/leads/LeadForm";
 import LeadTable from "../components/leads/LeadTable";
+import BulkLeadUpload from "../components/leads/BulkLeadUpload";
 
 import { supabase } from "../services/supabase";
 
@@ -196,6 +197,17 @@ function Leads() {
 
 
       </div>
+
+
+
+
+
+
+     <div className="mt-6">
+
+  <BulkLeadUpload />
+
+</div>
 
 
 

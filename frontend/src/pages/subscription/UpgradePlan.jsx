@@ -4,56 +4,118 @@ import { supabase } from "../../services/supabase";
 
 function UpgradePlan() {
 
-
   const [plans, setPlans] = useState([]);
-  const [loading,setLoading] = useState(true);
+  const [subscription, setSubscription] = useState(null);
+  const [loading, setLoading] = useState(true);
 
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    fetchPlans();
+    loadData();
 
-  },[]);
-
-
+  }, []);
 
 
-  const fetchPlans = async()=>{
 
 
-    const {
-      data,
-      error
-    } = await supabase
+  const loadData = async () => {
 
-    .from("subscription_plans")
+    try {
 
-    .select("*")
+      const {
+        data:userData
+      } = await supabase.auth.getUser();
 
-    .order(
-      "created_at",
-      {
-        ascending:true
+
+      const user = userData.user;
+
+
+      if(!user){
+        return;
       }
-    );
 
 
 
-    if(error){
+      // Check current subscription
+
+      const {
+        data:subData
+      } = await supabase
+
+      .from("subscriptions")
+
+      .select(`
+        *,
+        subscription_plans (
+          plan_name,
+          lead_limit
+        )
+      `)
+
+      .eq(
+        "user_id",
+        user.id
+      )
+
+      .eq(
+        "status",
+        "active"
+      )
+
+      .maybeSingle();
+
+
+
+      setSubscription(subData);
+
+
+
+      // Load plans
+
+      const {
+        data:planData,
+        error
+      } = await supabase
+
+      .from("subscription_plans")
+
+      .select("*")
+
+      .order(
+        "created_at",
+        {
+          ascending:true
+        }
+      );
+
+
+
+      if(error){
+
+        console.log(error);
+
+        return;
+
+      }
+
+
+
+      setPlans(planData);
+
+
+
+    }
+    catch(error){
 
       console.log(error);
 
-      return;
+    }
+    finally{
+
+      setLoading(false);
 
     }
-
-
-
-    setPlans(data);
-
-    setLoading(false);
-
 
   };
 
@@ -91,21 +153,16 @@ function UpgradePlan() {
 
 
 
-      // Create Subscription
-
-
       const startDate = new Date();
 
 
       const endDate = new Date();
 
 
-
       endDate.setMonth(
-
         endDate.getMonth()+1
-
       );
+
 
 
 
@@ -117,26 +174,17 @@ function UpgradePlan() {
 
       .insert({
 
-
         user_id:user.id,
-
 
         plan_id:plan.id,
 
-
         status:"active",
 
+        start_date:startDate,
 
-        start_date:
-        startDate,
-
-
-        end_date:
-        endDate
-
+        end_date:endDate
 
       });
-
 
 
 
@@ -148,57 +196,21 @@ function UpgradePlan() {
 
 
 
-
-
-      // Create Lead Wallet
-
-
-      await supabase
-
-      .from("lead_wallets")
-
-      .insert({
-
-
-        user_id:user.id,
-
-
-        total_leads:
-        plan.lead_limit,
-
-
-        used_leads:0,
-
-
-        remaining_leads:
-        plan.lead_limit
-
-
-      });
-
-
-
-
-
       alert(
         "Plan Activated Successfully"
       );
 
 
-
-      window.location.href="/agent-dashboard";
+      window.location.reload();
 
 
 
     }
     catch(error){
 
-
       console.log(error);
 
-
       alert(error.message);
-
 
     }
 
@@ -210,15 +222,12 @@ function UpgradePlan() {
 
 
 
-
   if(loading){
 
     return (
 
       <h2 style={{padding:"40px"}}>
-
         Loading Plans...
-
       </h2>
 
     );
@@ -239,105 +248,155 @@ function UpgradePlan() {
     >
 
 
-      <h1>
-        Your Trial Expired
-      </h1>
-
-
-      <p>
-        Choose your subscription plan
-        to continue using the platform.
-      </p>
-
-
-
-
-
-      <div
-
-        style={{
-
-          display:"grid",
-
-          gridTemplateColumns:
-          "repeat(3,1fr)",
-
-          gap:"20px",
-
-          marginTop:"30px"
-
-        }}
-
-      >
-
-
-
       {
-        plans.map((plan)=>(
+        subscription ?
+
+
+        (
+
+          <>
+
+          <h1>
+            Current Plan
+          </h1>
+
+
+          <p>
+            Plan:
+            {" "}
+            {subscription.subscription_plans?.plan_name}
+          </p>
+
+
+          <p>
+            Lead Limit:
+            {" "}
+            {subscription.subscription_plans?.lead_limit}
+          </p>
+
+
+          <p>
+            Status:
+            {" "}
+            {subscription.status}
+          </p>
+
+
+          </>
+
+
+        )
+
+
+        :
+
+
+        (
+
+          <>
+
+          <h1>
+            Choose Subscription Plan
+          </h1>
+
+
+          <p>
+            Select a plan to continue using CRM.
+          </p>
+
 
 
           <div
 
-            key={plan.id}
+          style={{
 
-            style={{
+            display:"grid",
 
-              background:"#fff",
+            gridTemplateColumns:
+            "repeat(3,1fr)",
 
-              color:"#000",
+            gap:"20px",
 
-              padding:"25px",
+            marginTop:"30px"
 
-              borderRadius:"12px"
-
-            }}
+          }}
 
           >
 
 
-            <h2>
-              {plan.plan_name}
-            </h2>
+          {
+            plans.map((plan)=>(
 
 
-            <h3>
-              Leads:
-              {" "}
-              {plan.lead_limit}
-            </h3>
+              <div
+
+              key={plan.id}
+
+              style={{
+
+                background:"#fff",
+
+                color:"#000",
+
+                padding:"25px",
+
+                borderRadius:"12px"
+
+              }}
+
+              >
 
 
+                <h2>
+                  {plan.plan_name}
+                </h2>
 
-            <button
 
-              onClick={()=>
-                choosePlan(plan)
-              }
+                <h3>
+                  Leads:
+                  {" "}
+                  {plan.lead_limit}
+                </h3>
 
-            >
 
-              Select Plan
+                <button
 
-            </button>
+                onClick={()=>
+                  choosePlan(plan)
+                }
+
+                >
+
+                  Select Plan
+
+                </button>
+
+
+              </div>
+
+
+            ))
+          }
 
 
           </div>
 
 
-        ))
+          </>
+
+        )
+
 
       }
 
-
-      </div>
 
 
     </div>
 
   );
 
-
 }
+
 
 
 export default UpgradePlan;

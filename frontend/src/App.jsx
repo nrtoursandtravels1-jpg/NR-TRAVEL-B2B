@@ -30,13 +30,11 @@ import AgentProfile from "./pages/agent/AgentProfile";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
 
-
 // CRM
 import CRM from "./pages/CRM";
 import AddLead from "./pages/AddLead";
 import Leads from "./pages/Lead";
 import Hotel from "./pages/Hotel";
-
 
 
 // Packages
@@ -51,7 +49,6 @@ import FamilyTours from "./pages/Packages/FamilyTours";
 import CustomTours from "./pages/Packages/CustomTours";
 
 
-
 // Operations
 import OperationsDashboard from "./pages/operations/OperationsDashboard";
 import Bookings from "./pages/operations/Bookings";
@@ -60,41 +57,29 @@ import Vendors from "./pages/operations/Vendors";
 import Documents from "./pages/operations/Documents";
 
 
-
 // Reports
 import Reports from "./pages/reports/Reports";
-
 
 
 // Settings
 import Settings from "./pages/settings/Settings";
 
 
-
 // Other
 import Destinations from "./pages/Destinations";
 
 
-
 // Subscription
 import UpgradePlan from "./pages/subscription/UpgradePlan";
-
-
-// Admin Subscription
 import Subscriptions from "./pages/admin/Subscriptions";
-
-
 
 
 
 function App() {
 
-
   return (
 
-
     <BrowserRouter>
-
 
       <div className="min-h-screen bg-slate-900 text-white">
 
@@ -102,62 +87,48 @@ function App() {
         <Navbar />
 
 
-
         <Routes>
 
 
+          {/* HOME */}
 
-          {/* WEBSITE */}
-
-          <Route
-            path="/"
-            element={<Landingpage />}
+          <Route 
+            path="/" 
+            element={<Landingpage />} 
           />
 
 
 
+          {/* AUTH */}
 
-
-          {/* AUTHENTICATION */}
-
-
-          <Route
-            path="/login"
-            element={<Login />}
+          <Route 
+            path="/login" 
+            element={<Login />} 
           />
 
-
-          <Route
-            path="/admin-login"
-            element={<AdminLogin />}
+          <Route 
+            path="/admin-login" 
+            element={<AdminLogin />} 
           />
 
-
-          <Route
-            path="/agent-login"
-            element={<AgentLogin />}
+          <Route 
+            path="/agent-login" 
+            element={<AgentLogin />} 
           />
 
-
-          <Route
-            path="/customer-login"
-            element={<CustomerLogin />}
+          <Route 
+            path="/customer-login" 
+            element={<CustomerLogin />} 
           />
 
-
-          <Route
-            path="/register"
-            element={<Register />}
+          <Route 
+            path="/register" 
+            element={<Register />} 
           />
 
 
 
-
-
-
-          {/* DASHBOARDS */}
-
-
+          {/* DASHBOARD */}
 
           <Route
             path="/dashboard"
@@ -169,13 +140,10 @@ function App() {
           />
 
 
-
-
           <Route
             path="/admin-dashboard"
             element={<AdminDashboard />}
           />
-
 
 
           <Route
@@ -185,6 +153,8 @@ function App() {
 
 
 
+          {/* ADMIN SUBSCRIPTION */}
+
           <Route
             path="/admin/subscriptions"
             element={
@@ -193,7 +163,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
 
 
 
@@ -207,8 +176,6 @@ function App() {
           />
 
 
-
-
           <Route
             path="/agent-profile"
             element={
@@ -219,8 +186,6 @@ function App() {
           />
 
 
-
-
           <Route
             path="/customer-dashboard"
             element={<CustomerDashboard />}
@@ -229,18 +194,12 @@ function App() {
 
 
 
-
-
-
           {/* CRM */}
-
-
 
           <Route
             path="/crm"
             element={<CRM />}
           />
-
 
 
           <Route
@@ -253,7 +212,6 @@ function App() {
           />
 
 
-
           <Route
             path="/leads"
             element={
@@ -264,7 +222,6 @@ function App() {
           />
 
 
-
           <Route
             path="/hotel"
             element={<Hotel />}
@@ -273,61 +230,42 @@ function App() {
 
 
 
-
-
-
           {/* PACKAGES */}
-
-
 
           <Route
             path="/packages"
             element={<Packages />}
           />
 
-
-
           <Route
             path="/packages/create"
             element={<CreatePackage />}
           />
-
-
 
           <Route
             path="/packages/edit/:id"
             element={<EditPackage />}
           />
 
-
-
           <Route
             path="/packages/upcoming"
             element={<UpcomingTours />}
           />
-
-
 
           <Route
             path="/packages/group"
             element={<GroupTours />}
           />
 
-
-
           <Route
             path="/packages/girls"
             element={<GirlsOnlyTours />}
           />
 
-
-
           <Route
             path="/packages/family"
             element={<FamilyTours />}
           />
-
-
 
           <Route
             path="/packages/custom"
@@ -337,13 +275,7 @@ function App() {
 
 
 
-
-
-
-
           {/* OPERATIONS */}
-
-
 
           <Route
             path="/operations"
@@ -377,12 +309,7 @@ function App() {
 
 
 
-
-
-
           {/* REPORTS */}
-
-
 
           <Route
             path="/reports"
@@ -392,11 +319,7 @@ function App() {
 
 
 
-
-
           {/* SETTINGS */}
-
-
 
           <Route
             path="/settings"
@@ -406,11 +329,7 @@ function App() {
 
 
 
-
-
           {/* DESTINATIONS */}
-
-
 
           <Route
             path="/destinations"
@@ -420,11 +339,7 @@ function App() {
 
 
 
-
-
           {/* AGENT SUBSCRIPTION */}
-
-
 
           <Route
             path="/upgrade-plan"
@@ -433,15 +348,11 @@ function App() {
 
 
 
-
-
         </Routes>
 
 
 
-
         <Footer />
-
 
 
       </div>
@@ -449,11 +360,9 @@ function App() {
 
     </BrowserRouter>
 
-
   );
 
 }
-
 
 
 export default App;

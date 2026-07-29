@@ -1,48 +1,71 @@
-import StatsCard from "./StatsCard";
+import { useEffect, useState } from "react";
+import { supabase } from "../../services/supabase";
 
-function DashboardCards() {
+export default function DashboardCards() {
+
+  const [totalLeads, setTotalLeads] = useState(0);
+
+  useEffect(() => {
+    getLeadCount();
+  }, []);
+
+  const getLeadCount = async () => {
+    const { count, error } = await supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true });
+
+    if (error) {
+      console.log("Lead Count Error:", error);
+      return;
+    }
+
+    setTotalLeads(count);
+  };
+
+
   const cards = [
     {
       title: "Total Leads",
-      value: 120,
-      color: "#2563eb",
+      value: totalLeads,
     },
     {
       title: "Today's Follow-ups",
-      value: 18,
-      color: "#16a34a",
+      value: 0,
     },
     {
       title: "Bookings",
-      value: 35,
-      color: "#f59e0b",
+      value: 0,
     },
     {
       title: "Revenue",
-      value: "₹1,25,000",
-      color: "#dc2626",
+      value: "₹0",
     },
   ];
+
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gridTemplateColumns: "repeat(4, 1fr)",
         gap: "20px",
-        marginTop: "20px",
       }}
     >
-      {cards.map((card) => (
-        <StatsCard
-          key={card.title}
-          title={card.title}
-          value={card.value}
-          color={card.color}
-        />
+      {cards.map((card, index) => (
+        <div
+          key={index}
+          style={{
+            background: "#fff",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            textAlign: "center",
+          }}
+        >
+          <h2>{card.value}</h2>
+          <p>{card.title}</p>
+        </div>
       ))}
     </div>
   );
 }
-
-export default DashboardCards;

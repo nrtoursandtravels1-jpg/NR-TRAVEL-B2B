@@ -1,150 +1,131 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
 
-
-export default function CustomerForm({ onCustomerAdded }) {
-
-
+export default function CustomerForm({
+  selectedCustomer,
+  onCustomerAdded,
+}) {
   const [customer, setCustomer] = useState({
-
-    full_name: "",
+    customer_name: "",
+    mobile: "",
     email: "",
-    phone: "",
     address: "",
-    status: "active"
-
+    city: "",
+    state: "",
+    country: "",
+    notes: "",
   });
 
+  useEffect(() => {
+    if (selectedCustomer) {
+      setCustomer({
+        customer_name: selectedCustomer.customer_name || "",
+        mobile: selectedCustomer.mobile || "",
+        email: selectedCustomer.email || "",
+        address: selectedCustomer.address || "",
+        city: selectedCustomer.city || "",
+        state: selectedCustomer.state || "",
+        country: selectedCustomer.country || "",
+        notes: selectedCustomer.notes || "",
+      });
+    }
+  }, [selectedCustomer]);
 
-
-  const handleChange = (e)=>{
-
+  const handleChange = (e) => {
     setCustomer({
-
       ...customer,
-
-      [e.target.name]: e.target.value
-
+      [e.target.name]: e.target.value,
     });
-
   };
 
-
-
-
-  const handleSubmit = async(e)=>{
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let error;
 
-
-    const { error } = await supabase
-
-      .from("customers")
-
-      .insert([customer]);
-
-
-
-    if(error){
-
-      console.log(
-        "Customer Add Error:",
-        error
-      );
-
-      alert("Customer creation failed");
-
-      return;
-
+    if (selectedCustomer) {
+      ({ error } = await supabase
+        .from("customers")
+        .update(customer)
+        .eq("id", selectedCustomer.id));
+    } else {
+      ({ error } = await supabase
+        .from("customers")
+        .insert([customer]));
     }
 
+    if (error) {
+      console.log(error);
+      alert("Failed to save customer");
+      return;
+    }
 
-
-    alert("Customer added successfully");
-
-
+    alert(
+      selectedCustomer
+        ? "Customer updated successfully"
+        : "Customer added successfully"
+    );
 
     setCustomer({
-
-      full_name:"",
-      email:"",
-      phone:"",
-      address:"",
-      status:"active"
-
+      customer_name: "",
+      mobile: "",
+      email: "",
+      address: "",
+      city: "",
+      state: "",
+      country: "",
+      notes: "",
     });
 
-
-
-    if(onCustomerAdded){
-
+    if (onCustomerAdded) {
       onCustomerAdded();
-
     }
-
-
   };
 
-
-
-
-
   return (
-
     <div
       style={{
-        background:"#fff",
-        padding:"20px",
-        borderRadius:"10px",
-        marginTop:"20px",
-        color:"#000"
+        background: "#fff",
+        color: "#000",
+        padding: "20px",
+        borderRadius: "10px",
+        marginTop: "20px",
       }}
     >
-
       <h2>
-        Add Customer
+        {selectedCustomer ? "Edit Customer" : "Add Customer"}
       </h2>
 
-
-
       <form onSubmit={handleSubmit}>
-
-
         <input
-          name="full_name"
+          name="customer_name"
           placeholder="Customer Name"
-          value={customer.full_name}
+          value={customer.customer_name}
           onChange={handleChange}
           required
         />
 
-
-        <br/><br/>
-
+        <br /><br />
 
         <input
+          name="mobile"
+          placeholder="Mobile Number"
+          value={customer.mobile}
+          onChange={handleChange}
+          required
+        />
+
+        <br /><br />
+
+        <input
+          type="email"
           name="email"
           placeholder="Email"
-          type="email"
           value={customer.email}
           onChange={handleChange}
         />
 
-
-        <br/><br/>
-
-
-        <input
-          name="phone"
-          placeholder="Phone Number"
-          value={customer.phone}
-          onChange={handleChange}
-        />
-
-
-        <br/><br/>
-
+        <br /><br />
 
         <input
           name="address"
@@ -153,42 +134,48 @@ export default function CustomerForm({ onCustomerAdded }) {
           onChange={handleChange}
         />
 
+        <br /><br />
 
-        <br/><br/>
-
-
-        <select
-          name="status"
-          value={customer.status}
+        <input
+          name="city"
+          placeholder="City"
+          value={customer.city}
           onChange={handleChange}
-        >
+        />
 
-          <option value="active">
-            Active
-          </option>
+        <br /><br />
 
+        <input
+          name="state"
+          placeholder="State"
+          value={customer.state}
+          onChange={handleChange}
+        />
 
-          <option value="inactive">
-            Inactive
-          </option>
+        <br /><br />
 
+        <input
+          name="country"
+          placeholder="Country"
+          value={customer.country}
+          onChange={handleChange}
+        />
 
-        </select>
+        <br /><br />
 
+        <textarea
+          name="notes"
+          placeholder="Notes"
+          value={customer.notes}
+          onChange={handleChange}
+        />
 
-        <br/><br/>
-
+        <br /><br />
 
         <button type="submit">
-          Save Customer
+          {selectedCustomer ? "Update Customer" : "Save Customer"}
         </button>
-
-
       </form>
-
-
     </div>
-
   );
-
 }

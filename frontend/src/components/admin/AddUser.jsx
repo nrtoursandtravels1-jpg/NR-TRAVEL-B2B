@@ -6,21 +6,24 @@ export default function AddUser({ onUserAdded }) {
   const [user, setUser] = useState({
     full_name: "",
     email: "",
-    phone: "",
+    phone_number: "",
     role: "customer",
     status: "active",
   });
 
 
   const handleChange = (e) => {
+
     setUser({
       ...user,
       [e.target.name]: e.target.value,
     });
+
   };
 
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
 
@@ -30,9 +33,13 @@ export default function AddUser({ onUserAdded }) {
 
 
     if (error) {
+
       console.log(error);
+
       alert("User creation failed");
+
       return;
+
     }
 
 
@@ -40,103 +47,156 @@ export default function AddUser({ onUserAdded }) {
 
 
     setUser({
+
       full_name: "",
       email: "",
-      phone: "",
+      phone_number: "",
       role: "customer",
       status: "active",
+
     });
 
 
+
     if (onUserAdded) {
+
       onUserAdded();
+
     }
 
   };
 
 
+
   return (
+
     <div>
 
-      <h2>Add New User</h2>
+      <h2>
+        Add New User
+      </h2>
+
 
 
       <form onSubmit={handleSubmit}>
 
 
         <input
+
           name="full_name"
+
           placeholder="Full Name"
+
           value={user.full_name}
+
           onChange={handleChange}
+
         />
 
 
+
         <input
+
           name="email"
+
           placeholder="Email"
+
           type="email"
+
           value={user.email}
+
           onChange={handleChange}
+
         />
+
 
 
         <input
-          name="phone"
-          placeholder="Phone"
-          value={user.phone}
+
+          name="phone_number"
+
+          placeholder="Phone Number"
+
+          value={user.phone_number}
+
           onChange={handleChange}
+
         />
+
 
 
         <select
+
           name="role"
+
           value={user.role}
+
           onChange={handleChange}
+
         >
+
           <option value="admin">
             Admin
           </option>
 
-          <option value="agent">
-            B2B Agent
+
+          <option value="b2b_agent">
+            Travel Agent
           </option>
+
 
           <option value="customer">
             Customer
           </option>
 
+
           <option value="staff">
             Staff
           </option>
 
+
         </select>
 
 
+
+
         <select
+
           name="status"
+
           value={user.status}
+
           onChange={handleChange}
+
         >
 
           <option value="active">
             Active
           </option>
 
+
           <option value="inactive">
             Inactive
           </option>
 
+
         </select>
 
 
+
+
         <button type="submit">
+
           Save User
+
         </button>
 
 
       </form>
 
+
     </div>
+
   );
+
 }

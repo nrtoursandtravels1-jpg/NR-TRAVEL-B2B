@@ -2,115 +2,72 @@ import { useState } from "react";
 import { supabase } from "../../services/supabase";
 import { useNavigate } from "react-router-dom";
 
-
 function Login() {
-
 
   const navigate = useNavigate();
 
-
-  const [email,setEmail] = useState("");
-
-  const [password,setPassword] = useState("");
-
-  const [loginType,setLoginType] = useState("customer");
-
-  const [loading,setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginType, setLoginType] = useState("customer");
+  const [loading, setLoading] = useState(false);
 
 
-
-
-  const handleLogin = async (e)=>{
+  const handleLogin = async (e) => {
 
     e.preventDefault();
 
-
-
-    if(!email || !password){
-
+    if (!email || !password) {
       alert("Please enter email and password");
-
       return;
-
     }
 
 
-
-    try{
-
+    try {
 
       setLoading(true);
 
 
+      // Supabase Authentication
 
-      // Supabase Login
-
-      const {
-
-        data,
-
-        error
-
-      } = await supabase.auth.signInWithPassword({
-
-        email,
-
-        password
-
-      });
+      const { data, error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
 
 
-
-      if(error){
-
+      if (error) {
         throw error;
-
       }
-
 
 
       const user = data.user;
 
 
-
-      // Get Profile
-
+      // Get User Profile
 
       const {
-
-        data:profile,
-
-        error:profileError
-
+        data: profile,
+        error: profileError
       } = await supabase
-
         .from("profiles")
-
         .select("*")
-
-        .eq(
-          "id",
-          user.id
-        )
-
+        .eq("id", user.id)
         .single();
 
 
 
-      if(profileError){
-
+      if (profileError) {
         throw profileError;
-
       }
 
 
 
       // Admin Login
 
-      if(profile.role === "admin"){
+      if (profile.role === "admin") {
 
         navigate("/admin-dashboard");
-
         return;
 
       }
@@ -119,60 +76,65 @@ function Login() {
 
       // Customer Login
 
-      if(profile.role === "customer"){
+      if (profile.role === "customer") {
 
         navigate("/customer-dashboard");
-
         return;
 
       }
 
 
 
-      // Agent Subscription Check
+      // Travel Agent Login
+
+      if (profile.role === "b2b_agent") {
 
 
-      const {
+        const {
+          data: subscription,
+          error: subError
 
-        data:subscription,
+        } = await supabase
+          .from("subscriptions")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", {
+            ascending: false
+          })
+          .limit(1)
+          .single();
 
-        error:subError
 
-      } = await supabase
 
-      .from("subscriptions")
+        if (subError) {
 
-      .select("*")
-
-      .eq(
-
-        "user_id",
-
-        user.id
-
-      )
-
-      .order(
-
-        "created_at",
-
-        {
-
-          ascending:false
+          navigate("/upgrade-plan");
+          return;
 
         }
 
-      )
-
-      .limit(1)
-
-      .single();
 
 
+        const today = new Date();
 
-      if(subError){
+        const expiry = new Date(
+          subscription.end_date
+        );
 
-        navigate("/upgrade-plan");
+
+
+        if (today > expiry) {
+
+          navigate("/upgrade-plan");
+
+        }
+
+        else {
+
+          navigate("/agent-dashboard");
+
+        }
+
 
         return;
 
@@ -180,67 +142,31 @@ function Login() {
 
 
 
-
-      const today = new Date();
-
-
-      const expiry = new Date(
-
-        subscription.end_date
-
-      );
-
-
-
-
-      if(today > expiry){
-
-
-        navigate("/upgrade-plan");
-
-
-      }
-
-      else{
-
-
-        navigate("/agent-dashboard");
-
-
-      }
-
+      alert("Invalid user role");
 
 
     }
 
 
-    catch(error){
-
+    catch(error) {
 
       console.log(
         "Login Error:",
         error
       );
 
-
       alert(error.message);
-
 
     }
 
 
-    finally{
-
+    finally {
 
       setLoading(false);
 
-
     }
 
-
   };
-
-
 
 
 
@@ -248,17 +174,12 @@ function Login() {
 
     <div className="login-page">
 
-
       <div className="login-card">
 
 
-
         <div className="login-logo">
-
           NR
-
         </div>
-
 
 
         <h1>
@@ -266,20 +187,15 @@ function Login() {
         </h1>
 
 
-
         <p className="login-subtitle">
-
           Login to NR Travel SaaS Platform
-
         </p>
-
 
 
 
         <label>
           Login As
         </label>
-
 
 
         <select
@@ -298,7 +214,7 @@ function Login() {
 
 
           <option value="b2b_agent">
-            B2B Agent
+            Travel Agent
           </option>
 
 
@@ -308,7 +224,6 @@ function Login() {
 
 
         </select>
-
 
 
 
@@ -336,7 +251,6 @@ function Login() {
 
 
 
-
           <label>
             Password
           </label>
@@ -358,8 +272,6 @@ function Login() {
 
 
 
-
-
           <button
 
             type="submit"
@@ -370,27 +282,17 @@ function Login() {
 
           >
 
-          {
-
-            loading
-
-            ?
-
-            "Checking..."
-
-            :
-
-            "Login"
-
-          }
+            {
+              loading
+              ? "Checking..."
+              : "Login"
+            }
 
 
           </button>
 
 
-
         </form>
-
 
 
 
@@ -402,9 +304,7 @@ function Login() {
             Register Now
           </a>
 
-
         </p>
-
 
 
 
@@ -412,7 +312,7 @@ function Login() {
 
           className="back-home"
 
-          onClick={()=>
+          onClick={() =>
             navigate("/")
           }
 
@@ -423,14 +323,11 @@ function Login() {
         </button>
 
 
-
       </div>
-
 
     </div>
 
   );
-
 
 }
 

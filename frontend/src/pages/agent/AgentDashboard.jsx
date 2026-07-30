@@ -271,7 +271,7 @@ function AgentDashboard() {
 
 
       <p>
-        B2B Travel Agent Dashboard
+        Travel Agent Dashboard
       </p>
 
 

@@ -59,14 +59,10 @@ import Destinations from "./pages/Destinations";
 // Subscription
 import UpgradePlan from "./pages/subscription/UpgradePlan";
 
-// New Booking Management
-import Bookings from "./pages/bookings/Bookings";
-
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-slate-900 text-white">
-
         <Navbar />
 
         <Suspense
@@ -76,59 +72,22 @@ function App() {
             </div>
           }
         >
-
           <Routes>
 
             {/* HOME */}
-
-            <Route
-              path="/"
-              element={<Landingpage />}
-            />
+            <Route path="/" element={<Landingpage />} />
 
             {/* AUTH */}
-
-            <Route
-              path="/login"
-              element={<Login />}
-            />
-
-            <Route
-              path="/admin-login"
-              element={<AdminLogin />}
-            />
-
-            <Route
-              path="/agent-login"
-              element={<AgentLogin />}
-            />
-
-            <Route
-              path="/customer-login"
-              element={<CustomerLogin />}
-            />
-
-            <Route
-              path="/register"
-              element={<Register />}
-            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/agent-login" element={<AgentLogin />} />
+            <Route path="/customer-login" element={<CustomerLogin />} />
+            <Route path="/register" element={<Register />} />
 
             {/* ADMIN */}
-
-            <Route
-              path="/admin-dashboard"
-              element={<AdminDashboard />}
-            />
-
-            <Route
-              path="/admin/users"
-              element={<Users />}
-            />
-
-            <Route
-              path="/admin/customers"
-              element={<Customers />}
-            />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/customers" element={<Customers />} />
 
             <Route
               path="/admin/subscriptions"
@@ -140,7 +99,6 @@ function App() {
             />
 
             {/* AGENT */}
-
             <Route
               path="/agent-dashboard"
               element={
@@ -160,18 +118,13 @@ function App() {
             />
 
             {/* CUSTOMER */}
-
             <Route
               path="/customer-dashboard"
               element={<CustomerDashboard />}
             />
 
             {/* CRM */}
-
-            <Route
-              path="/crm"
-              element={<CRM />}
-            />
+            <Route path="/crm" element={<CRM />} />
 
             <Route
               path="/add-lead"
@@ -191,96 +144,66 @@ function App() {
               }
             />
 
-            <Route
-              path="/hotel"
-              element={<Hotel />}
-            />
+            <Route path="/hotel" element={<Hotel />} />
 
-            {/* NEW BOOKINGS */}
-
+            {/* BOOKINGS */}
+            <Route path="/bookings" element={<Bookings />} />
             <Route
-              path="/bookings"
-              element={<Bookings />}
+              path="/operations/bookings"
+              element={<OperationsBookings />}
             />
 
             {/* PACKAGES */}
-
-            <Route
-              path="/packages"
-              element={<Packages />}
-            />
-
+            <Route path="/packages" element={<Packages />} />
             <Route
               path="/packages/create"
               element={<CreatePackage />}
             />
-
             <Route
               path="/packages/edit/:id"
               element={<EditPackage />}
             />
 
             {/* OPERATIONS */}
-
             <Route
               path="/operations"
               element={<OperationsDashboard />}
             />
-
-            <Route
-              path="/operations/bookings"
-              element={<OperationsBookings />}
-            />
-
             <Route
               path="/operations/itinerary"
               element={<Itinerary />}
             />
-
             <Route
               path="/operations/vendors"
               element={<Vendors />}
             />
-
             <Route
               path="/operations/documents"
               element={<Documents />}
             />
 
             {/* REPORTS */}
-
-            <Route
-              path="/reports"
-              element={<Reports />}
-            />
+            <Route path="/reports" element={<Reports />} />
 
             {/* SETTINGS */}
-
-            <Route
-              path="/settings"
-              element={<Settings />}
-            />
+            <Route path="/settings" element={<Settings />} />
 
             {/* DESTINATIONS */}
-
             <Route
               path="/destinations"
               element={<Destinations />}
             />
 
             {/* SUBSCRIPTION */}
-
             <Route
               path="/upgrade-plan"
               element={<UpgradePlan />}
             />
 
           </Routes>
-
         </Suspense>
 
         <Footer />
-
       </div>
     </BrowserRouter>
   );

@@ -1,25 +1,35 @@
 import { useState } from "react";
 import { supabase } from "../../services/supabase";
 
+
 export default function AddUser({ onUserAdded }) {
 
+
   const [user, setUser] = useState({
+
     full_name: "",
     email: "",
-    phone_number: "",
-    role: "customer",
+    phone: "",
+    role: "travel_agent",
     status: "active",
+
   });
+
 
 
   const handleChange = (e) => {
 
     setUser({
+
       ...user,
+
       [e.target.name]: e.target.value,
+
     });
 
   };
+
+
 
 
   const handleSubmit = async (e) => {
@@ -27,34 +37,49 @@ export default function AddUser({ onUserAdded }) {
     e.preventDefault();
 
 
+
     const { error } = await supabase
+
       .from("profiles")
+
       .insert([user]);
+
+
 
 
     if (error) {
 
-      console.log(error);
+      console.log(
+        "User Creation Error:",
+        error
+      );
 
-      alert("User creation failed");
+      alert(error.message);
 
       return;
 
     }
 
 
-    alert("User created successfully");
+
+
+    alert(
+      "User created successfully"
+    );
+
+
 
 
     setUser({
 
       full_name: "",
       email: "",
-      phone_number: "",
-      role: "customer",
+      phone: "",
+      role: "travel_agent",
       status: "active",
 
     });
+
 
 
 
@@ -64,17 +89,38 @@ export default function AddUser({ onUserAdded }) {
 
     }
 
+
   };
+
+
+
 
 
 
   return (
 
-    <div>
+    <div
+
+      style={{
+
+        background:"#ffffff",
+
+        padding:"20px",
+
+        borderRadius:"10px",
+
+        marginTop:"20px"
+
+      }}
+
+    >
+
+
 
       <h2>
         Add New User
       </h2>
+
 
 
 
@@ -91,7 +137,10 @@ export default function AddUser({ onUserAdded }) {
 
           onChange={handleChange}
 
+          required
+
         />
+
 
 
 
@@ -107,21 +156,28 @@ export default function AddUser({ onUserAdded }) {
 
           onChange={handleChange}
 
+          required
+
         />
+
 
 
 
         <input
 
-          name="phone_number"
+          name="phone"
 
           placeholder="Phone Number"
 
-          value={user.phone_number}
+          value={user.phone}
 
           onChange={handleChange}
 
+          required
+
         />
+
+
 
 
 
@@ -140,7 +196,12 @@ export default function AddUser({ onUserAdded }) {
           </option>
 
 
-          <option value="b2b_agent">
+          <option value="staff">
+            Staff
+          </option>
+
+
+          <option value="travel_agent">
             Travel Agent
           </option>
 
@@ -150,12 +211,8 @@ export default function AddUser({ onUserAdded }) {
           </option>
 
 
-          <option value="staff">
-            Staff
-          </option>
-
-
         </select>
+
 
 
 
@@ -185,14 +242,21 @@ export default function AddUser({ onUserAdded }) {
 
 
 
-        <button type="submit">
+
+        <button
+
+          type="submit"
+
+        >
 
           Save User
 
         </button>
 
 
+
       </form>
+
 
 
     </div>

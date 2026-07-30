@@ -5,9 +5,14 @@ import { supabase } from "../../services/supabase";
 function AdminDashboard(){
 
   const [stats,setStats] = useState({
+
+    staff:0,
     agents:0,
+    customers:0,
+    leads:0,
     subscriptions:0,
-    leads:0
+    bookings:0
+
   });
 
 
@@ -23,41 +28,71 @@ function AdminDashboard(){
 
 
 
-
   const loadStats = async()=>{
 
 
     try{
 
 
-      const {count:agents}=await supabase
-
+      const {count:staff}=await supabase
       .from("profiles")
-
       .select("*",
       {
         count:"exact",
         head:true
       })
-
       .eq(
         "role",
-        "b2b_agent"
+        "staff"
       );
 
 
 
 
-      const {count:subscriptions}=await supabase
-
-      .from("subscriptions")
-
+      const {count:agents}=await supabase
+      .from("profiles")
       .select("*",
       {
         count:"exact",
         head:true
       })
+      .eq(
+        "role",
+        "travel_agent"
+      );
 
+
+
+
+      const {count:customers}=await supabase
+      .from("customers")
+      .select("*",
+      {
+        count:"exact",
+        head:true
+      });
+
+
+
+
+      const {count:leads}=await supabase
+      .from("leads")
+      .select("*",
+      {
+        count:"exact",
+        head:true
+      });
+
+
+
+
+      const {count:subscriptions}=await supabase
+      .from("subscriptions")
+      .select("*",
+      {
+        count:"exact",
+        head:true
+      })
       .eq(
         "status",
         "active"
@@ -66,28 +101,19 @@ function AdminDashboard(){
 
 
 
-
-      const {count:leads}=await supabase
-
-      .from("leads")
-
-      .select("*",
-      {
-        count:"exact",
-        head:true
-      });
-
-
-
-
-
       setStats({
 
-        agents:agents || 0,
+        staff: staff || 0,
 
-        subscriptions:subscriptions || 0,
+        agents: agents || 0,
 
-        leads:leads || 0
+        customers: customers || 0,
+
+        leads: leads || 0,
+
+        subscriptions: subscriptions || 0,
+
+        bookings:0
 
       });
 
@@ -96,7 +122,10 @@ function AdminDashboard(){
     }
     catch(error){
 
-      console.log(error);
+      console.log(
+        "Dashboard Error:",
+        error
+      );
 
     }
     finally{
@@ -111,13 +140,12 @@ function AdminDashboard(){
 
 
 
-
   if(loading){
 
-    return (
+    return(
 
       <h2 style={{padding:"30px"}}>
-        Loading Admin Dashboard...
+        Loading Dashboard...
       </h2>
 
     );
@@ -130,60 +158,61 @@ function AdminDashboard(){
   return(
 
     <div
-      style={{
-        padding:"30px"
-      }}
+    style={{
+      padding:"30px"
+    }}
     >
 
 
       <h1>
-        Admin Dashboard
+        NR Travel Admin Dashboard
       </h1>
 
 
       <p>
-        Travel SaaS Platform Control Center
+        Internal Management + SaaS Control Center
       </p>
 
 
 
 
+      <h2 style={{marginTop:"30px"}}>
+        Company Management
+      </h2>
+
+
+
 
       <div
-
       style={{
-
         display:"grid",
-
-        gridTemplateColumns:
-        "repeat(3,1fr)",
-
+        gridTemplateColumns:"repeat(4,1fr)",
         gap:"20px",
-
-        marginTop:"30px"
-
+        marginTop:"20px"
       }}
-
       >
 
 
+        <Card
+          title="Staff"
+          value={stats.staff}
+        />
+
 
         <Card
-          title="B2B Agents"
+          title="Travel Agents"
           value={stats.agents}
         />
 
 
-
         <Card
-          title="Active Subscriptions"
-          value={stats.subscriptions}
+          title="Customers"
+          value={stats.customers}
         />
 
 
-
         <Card
-          title="Total Leads"
+          title="Leads"
           value={stats.leads}
         />
 
@@ -194,42 +223,95 @@ function AdminDashboard(){
 
 
 
+      <h2 style={{marginTop:"40px"}}>
+        SaaS Management
+      </h2>
+
+
+
+
       <div
-        style={{
-          marginTop:"40px"
-        }}
+      style={{
+        display:"grid",
+        gridTemplateColumns:"repeat(3,1fr)",
+        gap:"20px",
+        marginTop:"20px"
+      }}
       >
 
-        <h2>
-          Management
-        </h2>
+
+        <Card
+          title="Active Subscriptions"
+          value={stats.subscriptions}
+        />
 
 
-        <button
-          onClick={()=>
-            window.location.href="/admin/users"
-          }
-        >
-          Manage Agents
-        </button>
+        <Card
+          title="Bookings"
+          value={stats.bookings}
+        />
 
 
-
-        <button
-          style={{
-            marginLeft:"15px"
-          }}
-
-          onClick={()=>
-            window.location.href="/upgrade-plan"
-          }
-        >
-          Manage Plans
-        </button>
-
+        <Card
+          title="Plans"
+          value="Manage"
+        />
 
 
       </div>
+
+
+
+
+
+      <div
+      style={{
+        marginTop:"40px"
+      }}
+      >
+
+
+        <button
+        onClick={()=>
+          window.location.href="/admin/users"
+        }
+        >
+          Manage Users
+        </button>
+
+
+
+
+
+        <button
+        style={{
+          marginLeft:"15px"
+        }}
+        onClick={()=>
+          window.location.href="/admin/customers"
+        }
+        >
+          Manage Customers
+        </button>
+
+
+
+
+
+        <button
+        style={{
+          marginLeft:"15px"
+        }}
+        onClick={()=>
+          window.location.href="/admin/subscriptions"
+        }
+        >
+          Manage Subscriptions
+        </button>
+
+
+      </div>
+
 
 
     </div>
@@ -241,38 +323,44 @@ function AdminDashboard(){
 
 
 
+
 function Card({title,value}){
 
-  return(
 
-    <div
+return (
 
-    style={{
+<div
 
-      background:"#fff",
+style={{
 
-      color:"#000",
+background:"#fff",
 
-      padding:"25px",
+color:"#000",
 
-      borderRadius:"12px"
+padding:"25px",
 
-    }}
+borderRadius:"12px",
 
-    >
+boxShadow:"0 2px 8px #ddd"
 
-      <h3>
-        {title}
-      </h3>
+}}
 
-      <h1>
-        {value}
-      </h1>
+>
+
+<h3>
+{title}
+</h3>
 
 
-    </div>
+<h1>
+{value}
+</h1>
 
-  );
+
+</div>
+
+);
+
 
 }
 

@@ -4,7 +4,8 @@ import { supabase } from "../../services/supabase";
 
 function Users(){
 
-  const [agents,setAgents] = useState([]);
+
+  const [users,setUsers] = useState([]);
 
   const [loading,setLoading] = useState(true);
 
@@ -12,14 +13,15 @@ function Users(){
 
   useEffect(()=>{
 
-    fetchAgents();
+    fetchUsers();
 
   },[]);
 
 
 
 
-  const fetchAgents = async()=>{
+
+  const fetchUsers = async()=>{
 
 
     const {
@@ -34,23 +36,24 @@ function Users(){
 
     .select("*")
 
-    .eq(
-      "role",
-      "b2b_agent"
-    )
-
     .order(
+
       "created_at",
+
       {
         ascending:false
       }
+
     );
 
 
 
     if(error){
 
-      console.log(error);
+      console.log(
+        "Users Fetch Error:",
+        error
+      );
 
       return;
 
@@ -58,12 +61,13 @@ function Users(){
 
 
 
-    setAgents(data);
+    setUsers(data || []);
 
     setLoading(false);
 
 
   };
+
 
 
 
@@ -87,8 +91,11 @@ function Users(){
     })
 
     .eq(
+
       "id",
+
       id
+
     );
 
 
@@ -103,7 +110,7 @@ function Users(){
 
 
 
-    fetchAgents();
+    fetchUsers();
 
 
   };
@@ -112,13 +119,15 @@ function Users(){
 
 
 
+
+
   if(loading){
 
-    return (
+    return(
 
       <h2 style={{padding:"30px"}}>
 
-        Loading Agents...
+        Loading Users...
 
       </h2>
 
@@ -130,22 +139,27 @@ function Users(){
 
 
 
-  return (
+  return(
 
     <div
-      style={{
-        padding:"30px"
-      }}
+
+    style={{
+
+      padding:"30px"
+
+    }}
+
     >
 
 
+
       <h1>
-        B2B Agent Management
+        User & Team Management
       </h1>
 
 
       <p>
-        Manage registered travel partners
+        Manage Admin, Staff, Travel Agents and Customers
       </p>
 
 
@@ -170,127 +184,166 @@ function Users(){
       >
 
 
-        <thead>
 
-          <tr>
-
-            <th>
-              Name
-            </th>
-
-            <th>
-              Email
-            </th>
-
-            <th>
-              Status
-            </th>
-
-            <th>
-              Action
-            </th>
-
-          </tr>
-
-        </thead>
+      <thead>
 
 
+        <tr>
+
+          <th>
+            Name
+          </th>
 
 
-        <tbody>
+          <th>
+            Email
+          </th>
 
 
-        {
-          agents.map((agent)=>(
+          <th>
+            Phone
+          </th>
 
 
-            <tr key={agent.id}>
+          <th>
+            Role
+          </th>
 
 
-              <td>
-                {agent.full_name}
-              </td>
+          <th>
+            Status
+          </th>
 
 
-              <td>
-                {agent.email}
-              </td>
+          <th>
+            Action
+          </th>
+
+
+        </tr>
+
+
+      </thead>
 
 
 
-              <td>
-                {agent.status}
-              </td>
+
+
+      <tbody>
+
+
+      {
+
+      users.map((user)=>(
+
+
+        <tr key={user.id}>
+
+
+          <td>
+            {user.full_name}
+          </td>
 
 
 
-              <td>
-
-
-                {
-                  agent.status === "active"
-
-                  ?
-
-                  <button
-
-                  onClick={()=>updateStatus(
-                    agent.id,
-                    "inactive"
-                  )}
-
-                  >
-
-                    Disable
-
-                  </button>
-
-
-                  :
-
-
-                  <button
-
-                  onClick={()=>updateStatus(
-                    agent.id,
-                    "active"
-                  )}
-
-                  >
-
-                    Activate
-
-                  </button>
-
-                }
-
-
-              </td>
+          <td>
+            {user.email}
+          </td>
 
 
 
-            </tr>
+          <td>
+            {user.phone}
+          </td>
 
 
-          ))
 
-        }
+          <td>
+            {user.role}
+          </td>
 
 
-        </tbody>
+
+          <td>
+            {user.status}
+          </td>
+
+
+
+
+          <td>
+
+
+          {
+
+          user.status==="active"
+
+
+          ?
+
+
+          <button
+
+          onClick={()=>updateStatus(
+            user.id,
+            "inactive"
+          )}
+
+          >
+
+            Disable
+
+          </button>
+
+
+          :
+
+
+          <button
+
+          onClick={()=>updateStatus(
+            user.id,
+            "active"
+          )}
+
+          >
+
+            Activate
+
+          </button>
+
+
+          }
+
+
+          </td>
+
+
+
+        </tr>
+
+
+      ))
+
+      }
+
+
+      </tbody>
+
 
 
       </table>
 
 
 
+
+
       {
-        agents.length===0 &&
+        users.length===0 &&
 
         <p>
-          No B2B agents found
+          No users found
         </p>
-
       }
 
 
@@ -298,6 +351,7 @@ function Users(){
     </div>
 
   );
+
 
 }
 

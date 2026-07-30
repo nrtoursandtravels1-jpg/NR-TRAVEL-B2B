@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
 
 
 // Layout
@@ -19,14 +20,19 @@ import CustomerLogin from "./pages/auth/CustomerLogin";
 import Register from "./pages/Register";
 
 
-// Dashboards
-import Dashboard from "./pages/Dashboard";
+// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Users from "./pages/admin/Users";
+import Customers from "./pages/admin/Customers";
+import Subscriptions from "./pages/admin/Subscriptions";
 
+
+// Agent
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentProfile from "./pages/agent/AgentProfile";
 
+
+// Customer
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
 
@@ -41,12 +47,6 @@ import Hotel from "./pages/Hotel";
 import Packages from "./pages/Packages/Packages";
 import CreatePackage from "./pages/Packages/CreatePackage";
 import EditPackage from "./pages/Packages/EditPackage";
-
-import UpcomingTours from "./pages/Packages/UpcomingTours";
-import GroupTours from "./pages/Packages/GroupTours";
-import GirlsOnlyTours from "./pages/Packages/GirlsOnlyTours";
-import FamilyTours from "./pages/Packages/FamilyTours";
-import CustomTours from "./pages/Packages/CustomTours";
 
 
 // Operations
@@ -71,15 +71,16 @@ import Destinations from "./pages/Destinations";
 
 // Subscription
 import UpgradePlan from "./pages/subscription/UpgradePlan";
-import Subscriptions from "./pages/admin/Subscriptions";
 
 
 
 function App() {
 
+
   return (
 
     <BrowserRouter>
+
 
       <div className="min-h-screen bg-slate-900 text-white">
 
@@ -87,269 +88,294 @@ function App() {
         <Navbar />
 
 
-        <Routes>
+        <Suspense
+          fallback={
+            <div style={{padding:"30px"}}>
+              Loading...
+            </div>
+          }
+        >
 
 
-          {/* HOME */}
+          <Routes>
 
-          <Route 
-            path="/" 
-            element={<Landingpage />} 
-          />
 
+            {/* HOME */}
 
+            <Route
+              path="/"
+              element={<Landingpage />}
+            />
 
-          {/* AUTH */}
 
-          <Route 
-            path="/login" 
-            element={<Login />} 
-          />
 
-          <Route 
-            path="/admin-login" 
-            element={<AdminLogin />} 
-          />
+            {/* AUTH */}
 
-          <Route 
-            path="/agent-login" 
-            element={<AgentLogin />} 
-          />
+            <Route
+              path="/login"
+              element={<Login />}
+            />
 
-          <Route 
-            path="/customer-login" 
-            element={<CustomerLogin />} 
-          />
 
-          <Route 
-            path="/register" 
-            element={<Register />} 
-          />
+            <Route
+              path="/admin-login"
+              element={<AdminLogin />}
+            />
 
 
+            <Route
+              path="/agent-login"
+              element={<AgentLogin />}
+            />
 
-          {/* DASHBOARD */}
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/customer-login"
+              element={<CustomerLogin />}
+            />
 
 
-          <Route
-            path="/admin-dashboard"
-            element={<AdminDashboard />}
-          />
+            <Route
+              path="/register"
+              element={<Register />}
+            />
 
 
-          <Route
-            path="/admin/users"
-            element={<Users />}
-          />
 
 
 
-          {/* ADMIN SUBSCRIPTION */}
+            {/* ADMIN MANAGEMENT */}
 
-          <Route
-            path="/admin/subscriptions"
-            element={
-              <ProtectedRoute>
-                <Subscriptions />
-              </ProtectedRoute>
-            }
-          />
 
+            <Route
+              path="/admin-dashboard"
+              element={<AdminDashboard />}
+            />
 
 
-          <Route
-            path="/agent-dashboard"
-            element={
-              <ProtectedRoute>
-                <AgentDashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/admin/users"
+              element={<Users />}
+            />
 
 
-          <Route
-            path="/agent-profile"
-            element={
-              <ProtectedRoute>
-                <AgentProfile />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/admin/customers"
+              element={<Customers />}
+            />
 
 
-          <Route
-            path="/customer-dashboard"
-            element={<CustomerDashboard />}
-          />
+            <Route
+              path="/admin/subscriptions"
+              element={
+                <ProtectedRoute>
+                  <Subscriptions />
+                </ProtectedRoute>
+              }
+            />
 
 
 
 
-          {/* CRM */}
 
-          <Route
-            path="/crm"
-            element={<CRM />}
-          />
 
+            {/* AGENT */}
 
-          <Route
-            path="/add-lead"
-            element={
-              <ProtectedRoute>
-                <AddLead />
-              </ProtectedRoute>
-            }
-          />
 
+            <Route
+              path="/agent-dashboard"
+              element={
+                <ProtectedRoute>
+                  <AgentDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/leads"
-            element={
-              <ProtectedRoute>
-                <Leads />
-              </ProtectedRoute>
-            }
-          />
 
+            <Route
+              path="/agent-profile"
+              element={
+                <ProtectedRoute>
+                  <AgentProfile />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/hotel"
-            element={<Hotel />}
-          />
 
 
 
 
-          {/* PACKAGES */}
+            {/* CUSTOMER */}
 
-          <Route
-            path="/packages"
-            element={<Packages />}
-          />
 
-          <Route
-            path="/packages/create"
-            element={<CreatePackage />}
-          />
+            <Route
+              path="/customer-dashboard"
+              element={<CustomerDashboard />}
+            />
 
-          <Route
-            path="/packages/edit/:id"
-            element={<EditPackage />}
-          />
 
-          <Route
-            path="/packages/upcoming"
-            element={<UpcomingTours />}
-          />
 
-          <Route
-            path="/packages/group"
-            element={<GroupTours />}
-          />
 
-          <Route
-            path="/packages/girls"
-            element={<GirlsOnlyTours />}
-          />
 
-          <Route
-            path="/packages/family"
-            element={<FamilyTours />}
-          />
 
-          <Route
-            path="/packages/custom"
-            element={<CustomTours />}
-          />
 
+            {/* CRM */}
 
 
+            <Route
+              path="/crm"
+              element={<CRM />}
+            />
 
-          {/* OPERATIONS */}
 
-          <Route
-            path="/operations"
-            element={<OperationsDashboard />}
-          />
+            <Route
+              path="/add-lead"
+              element={
+                <ProtectedRoute>
+                  <AddLead />
+                </ProtectedRoute>
+              }
+            />
 
 
-          <Route
-            path="/operations/bookings"
-            element={<Bookings />}
-          />
+            <Route
+              path="/leads"
+              element={
+                <ProtectedRoute>
+                  <Leads />
+                </ProtectedRoute>
+              }
+            />
 
 
-          <Route
-            path="/operations/itinerary"
-            element={<Itinerary />}
-          />
+            <Route
+              path="/hotel"
+              element={<Hotel />}
+            />
 
 
-          <Route
-            path="/operations/vendors"
-            element={<Vendors />}
-          />
 
 
-          <Route
-            path="/operations/documents"
-            element={<Documents />}
-          />
 
 
 
+            {/* PACKAGES */}
 
-          {/* REPORTS */}
 
-          <Route
-            path="/reports"
-            element={<Reports />}
-          />
+            <Route
+              path="/packages"
+              element={<Packages />}
+            />
 
 
+            <Route
+              path="/packages/create"
+              element={<CreatePackage />}
+            />
 
 
-          {/* SETTINGS */}
+            <Route
+              path="/packages/edit/:id"
+              element={<EditPackage />}
+            />
 
-          <Route
-            path="/settings"
-            element={<Settings />}
-          />
 
 
 
 
-          {/* DESTINATIONS */}
 
-          <Route
-            path="/destinations"
-            element={<Destinations />}
-          />
 
+            {/* OPERATIONS */}
 
 
+            <Route
+              path="/operations"
+              element={<OperationsDashboard />}
+            />
 
-          {/* AGENT SUBSCRIPTION */}
 
-          <Route
-            path="/upgrade-plan"
-            element={<UpgradePlan />}
-          />
+            <Route
+              path="/operations/bookings"
+              element={<Bookings />}
+            />
 
 
+            <Route
+              path="/operations/itinerary"
+              element={<Itinerary />}
+            />
 
-        </Routes>
 
+            <Route
+              path="/operations/vendors"
+              element={<Vendors />}
+            />
+
+
+            <Route
+              path="/operations/documents"
+              element={<Documents />}
+            />
+
+
+
+
+
+
+
+            {/* REPORTS */}
+
+
+            <Route
+              path="/reports"
+              element={<Reports />}
+            />
+
+
+
+
+
+
+            {/* SETTINGS */}
+
+
+            <Route
+              path="/settings"
+              element={<Settings />}
+            />
+
+
+
+
+
+
+            {/* DESTINATION */}
+
+
+            <Route
+              path="/destinations"
+              element={<Destinations />}
+            />
+
+
+
+
+
+
+            {/* PLAN */}
+
+
+            <Route
+              path="/upgrade-plan"
+              element={<UpgradePlan />}
+            />
+
+
+
+          </Routes>
+
+
+        </Suspense>
 
 
         <Footer />

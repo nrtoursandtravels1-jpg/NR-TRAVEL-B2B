@@ -23,7 +23,7 @@ function Packages() {
   async function loadStatistics() {
     try {
       const { count } = await supabase
-        .from("packages")
+        .from("tour_packages")
         .select("*", {
           count: "exact",
           head: true,
@@ -162,9 +162,7 @@ function Packages() {
             marginTop: "25px",
           }}
         >
-          <PackageTable
-            search={search}
-          />
+          <PackageTable search={search} />
         </div>
       </div>
     </div>

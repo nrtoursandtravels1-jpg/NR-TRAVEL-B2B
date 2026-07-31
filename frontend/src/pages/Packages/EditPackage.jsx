@@ -7,6 +7,7 @@ function EditPackage() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
     package_name: "",
@@ -18,6 +19,7 @@ function EditPackage() {
     transport: "",
     meals: "",
     description: "",
+    featured: false,
     status: "Active",
   });
 
@@ -27,7 +29,7 @@ function EditPackage() {
 
   async function fetchPackage() {
     const { data, error } = await supabase
-      .from("packages")
+      .from("tour_packages")
       .select("*")
       .eq("id", id)
       .single();
@@ -39,35 +41,43 @@ function EditPackage() {
       return;
     }
 
-    setForm(data);
+    setForm({
+      package_name: data.package_name || "",
+      destination: data.destination || "",
+      duration: data.duration || "",
+      package_type: data.package_type || "",
+      price: data.price || "",
+      hotel_category: data.hotel_category || "",
+      transport: data.transport || "",
+      meals: data.meals || "",
+      description: data.description || "",
+      featured: data.featured || false,
+      status: data.status || "Active",
+    });
+
     setLoading(false);
   }
 
   function handleChange(e) {
+    const { name, value, type, checked } = e.target;
+
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
 
+    setSaving(true);
+
     const { error } = await supabase
-      .from("packages")
-      .update({
-        package_name: form.package_name,
-        destination: form.destination,
-        duration: form.duration,
-        package_type: form.package_type,
-        price: form.price,
-        hotel_category: form.hotel_category,
-        transport: form.transport,
-        meals: form.meals,
-        description: form.description,
-        status: form.status,
-      })
+      .from("tour_packages")
+      .update(form)
       .eq("id", id);
+
+    setSaving(false);
 
     if (error) {
       console.log(error);
@@ -76,40 +86,44 @@ function EditPackage() {
     }
 
     alert("Package updated successfully");
+
     navigate("/packages");
   }
 
   if (loading) {
     return (
-      <h2 className="p-6">
-        Loading Package...
-      </h2>
+      <div className="p-6">
+        <h2>Loading Package...</h2>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-6">
 
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-3xl font-bold mb-2">
         Edit Tour Package
       </h1>
 
+      <p className="text-gray-500 mb-8">
+        Update your package information.
+      </p>
+
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 bg-white p-6 rounded-xl shadow"
+        className="bg-white shadow rounded-xl p-6 space-y-4"
       >
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="package_name"
           value={form.package_name}
           onChange={handleChange}
           placeholder="Package Name"
-          required
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="destination"
           value={form.destination}
           onChange={handleChange}
@@ -117,7 +131,7 @@ function EditPackage() {
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="duration"
           value={form.duration}
           onChange={handleChange}
@@ -125,7 +139,7 @@ function EditPackage() {
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="package_type"
           value={form.package_type}
           onChange={handleChange}
@@ -133,7 +147,7 @@ function EditPackage() {
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           type="number"
           name="price"
           value={form.price}
@@ -142,7 +156,7 @@ function EditPackage() {
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="hotel_category"
           value={form.hotel_category}
           onChange={handleChange}
@@ -150,7 +164,7 @@ function EditPackage() {
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="transport"
           value={form.transport}
           onChange={handleChange}
@@ -158,7 +172,7 @@ function EditPackage() {
         />
 
         <input
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="meals"
           value={form.meals}
           onChange={handleChange}
@@ -167,28 +181,39 @@ function EditPackage() {
 
         <textarea
           rows="4"
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="description"
           value={form.description}
           onChange={handleChange}
           placeholder="Description"
         />
 
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="featured"
+            checked={form.featured}
+            onChange={handleChange}
+          />
+          Featured Package
+        </label>
+
         <select
-          className="w-full border p-3 rounded"
+          className="w-full border rounded-lg p-3"
           name="status"
           value={form.status}
           onChange={handleChange}
         >
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
+          <option>Active</option>
+          <option>Inactive</option>
         </select>
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
+          disabled={saving}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
         >
-          Update Package
+          {saving ? "Updating..." : "Update Package"}
         </button>
 
       </form>

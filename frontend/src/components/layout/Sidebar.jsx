@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-function Sidebar() {
+export default function Sidebar() {
   const location = useLocation();
 
   const menus = [
@@ -10,9 +10,23 @@ function Sidebar() {
 
     { name: "🏨 Hotels", path: "/hotel" },
 
-    { name: "📅 Bookings", path: "/bookings" },
-
     { name: "📦 Packages", path: "/packages" },
+
+    { name: "🚗 Cab", path: "/cab" },
+
+    { name: "🚌 Bus", path: "/bus" },
+
+    { name: "✈️ Flight", path: "/flight" },
+
+    { name: "🚆 Train", path: "/train" },
+
+    { name: "🛂 Visa", path: "/visa" },
+
+    { name: "📄 Quotations", path: "/quotation" },
+
+    { name: "🧾 Invoices", path: "/invoice" },
+
+    { name: "📅 Bookings", path: "/bookings" },
 
     { name: "⚙️ Operations", path: "/operations" },
 
@@ -43,15 +57,15 @@ function Sidebar() {
         width: "260px",
         minHeight: "100vh",
         background: "#0f172a",
-        color: "#fff",
+        color: "#ffffff",
         padding: "20px",
         overflowY: "auto",
       }}
     >
       <h2
         style={{
-          marginBottom: "20px",
           textAlign: "center",
+          marginBottom: "20px",
         }}
       >
         NR Tours CRM
@@ -73,8 +87,8 @@ function Sidebar() {
             padding: "12px 15px",
             marginBottom: "8px",
             borderRadius: "8px",
-            color: "#fff",
             textDecoration: "none",
+            color: "#ffffff",
             background:
               location.pathname === menu.path
                 ? "#2563eb"
@@ -88,5 +102,3 @@ function Sidebar() {
     </aside>
   );
 }
-
-export default Sidebar;

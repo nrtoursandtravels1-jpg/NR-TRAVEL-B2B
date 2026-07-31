@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../services/supabase";
 
-export default function PackageTable({ search }) {
+export default function PackageTable({ search = "" }) {
   const navigate = useNavigate();
 
   const [packages, setPackages] = useState([]);
@@ -16,14 +16,13 @@ export default function PackageTable({ search }) {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("packages")
+      .from("tour_packages")
       .select("*")
-      .order("created_at", {
-        ascending: false,
-      });
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.log("Package Fetch Error:", error);
+      console.error(error);
+      alert("Unable to load packages.");
     } else {
       setPackages(data || []);
     }
@@ -39,12 +38,12 @@ export default function PackageTable({ search }) {
     if (!confirmDelete) return;
 
     const { error } = await supabase
-      .from("packages")
+      .from("tour_packages")
       .delete()
       .eq("id", id);
 
     if (error) {
-      alert("Failed to delete package.");
+      alert(error.message);
       return;
     }
 
@@ -52,117 +51,148 @@ export default function PackageTable({ search }) {
     fetchPackages();
   }
 
-  const filteredPackages = packages.filter((pkg) =>
-    (
-      (pkg.package_name || "") +
-      " " +
-      (pkg.destination || "")
-    )
-      .toLowerCase()
-      .includes((search || "").toLowerCase())
-  );
+  const filteredPackages = packages.filter((pkg) => {
+    return (
+      `${pkg.package_name || ""} ${pkg.destination || ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  });
 
   if (loading) {
-    return <h2>Loading Packages...</h2>;
+    return (
+      <div className="p-6">
+        <h2>Loading Packages...</h2>
+      </div>
+    );
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="bg-white rounded-lg shadow p-4">
 
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">
-          Total Packages : {filteredPackages.length}
-        </h3>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">
+          Tour Packages
+        </h2>
+
+        <span className="bg-blue-600 text-white px-3 py-1 rounded">
+          Total : {filteredPackages.length}
+        </span>
       </div>
 
-      <table className="min-w-full border border-gray-300 bg-white">
+      <div className="overflow-x-auto">
 
-        <thead className="bg-gray-100">
+        <table className="min-w-full border">
 
-          <tr>
-            <th className="p-3 text-left">Package</th>
-            <th className="p-3 text-left">Destination</th>
-            <th className="p-3 text-left">Duration</th>
-            <th className="p-3 text-left">Price</th>
-            <th className="p-3 text-left">Status</th>
-            <th className="p-3 text-center">Action</th>
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {filteredPackages.length > 0 ? (
-
-            filteredPackages.map((pkg) => (
-
-              <tr
-                key={pkg.id}
-                className="border-t hover:bg-gray-50"
-              >
-                <td className="p-3 font-medium">
-                  {pkg.package_name}
-                </td>
-
-                <td className="p-3">
-                  {pkg.destination}
-                </td>
-
-                <td className="p-3">
-                  {pkg.duration}
-                </td>
-
-                <td className="p-3">
-                  ₹ {pkg.price}
-                </td>
-
-                <td className="p-3">
-                  {pkg.status}
-                </td>
-
-                <td className="p-3 text-center">
-
-                  <button
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2"
-                    onClick={() =>
-                      navigate(`/packages/edit/${pkg.id}`)
-                    }
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                    onClick={() =>
-                      deletePackage(pkg.id)
-                    }
-                  >
-                    Delete
-                  </button>
-
-                </td>
-              </tr>
-
-            ))
-
-          ) : (
+          <thead className="bg-gray-100">
 
             <tr>
 
-              <td
-                colSpan="6"
-                className="text-center p-8 text-gray-500"
-              >
-                No packages found.
-              </td>
+              <th className="border p-3">Package</th>
+
+              <th className="border p-3">Type</th>
+
+              <th className="border p-3">Destination</th>
+
+              <th className="border p-3">Duration</th>
+
+              <th className="border p-3">Price</th>
+
+              <th className="border p-3">Featured</th>
+
+              <th className="border p-3">Status</th>
+
+              <th className="border p-3">Actions</th>
 
             </tr>
 
-          )}
+          </thead>
 
-        </tbody>
+          <tbody>
 
-      </table>
+            {filteredPackages.length === 0 ? (
+
+              <tr>
+
+                <td
+                  colSpan="8"
+                  className="text-center p-8"
+                >
+                  No Packages Found
+                </td>
+
+              </tr>
+
+            ) : (
+
+              filteredPackages.map((pkg) => (
+
+                <tr
+                  key={pkg.id}
+                  className="hover:bg-gray-50"
+                >
+
+                  <td className="border p-3 font-semibold">
+                    {pkg.package_name}
+                  </td>
+
+                  <td className="border p-3">
+                    {pkg.package_type}
+                  </td>
+
+                  <td className="border p-3">
+                    {pkg.destination}
+                  </td>
+
+                  <td className="border p-3">
+                    {pkg.duration}
+                  </td>
+
+                  <td className="border p-3">
+                    ₹ {pkg.price}
+                  </td>
+
+                  <td className="border p-3">
+                    {pkg.featured ? "⭐ Yes" : "No"}
+                  </td>
+
+                  <td className="border p-3">
+                    {pkg.status}
+                  </td>
+
+                  <td className="border p-3">
+
+                    <button
+                      onClick={() =>
+                        navigate(`/packages/edit/${pkg.id}`)
+                      }
+                      className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deletePackage(pkg.id)
+                      }
+                      className="bg-red-600 text-white px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))
+
+            )}
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
   );

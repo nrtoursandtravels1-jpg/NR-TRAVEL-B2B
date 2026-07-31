@@ -9,6 +9,8 @@ import ProtectedRoute from "./components/layout/ProtectedRoute";
 // Main Pages
 import Landingpage from "./pages/Landingpage";
 import Dashboard from "./pages/Dashboard";
+import Train from "./pages/Train";
+import Visa from "./pages/Visa";
 import CRM from "./pages/CRM";
 import AddLead from "./pages/AddLead";
 import Leads from "./pages/Lead";
@@ -38,6 +40,7 @@ import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
 // Booking
 import Bookings from "./pages/booking/Bookings";
+import Invoice from "./pages/Invoice";
 
 // Operations
 import OperationsDashboard from "./pages/operations/OperationsDashboard";
@@ -84,7 +87,8 @@ function App() {
             {/* ================= HOME ================= */}
 
             <Route path="/" element={<Landingpage />} />
-
+            <Route path="/train" element={<Train />} />
+            <Route path="/visa" element={<Visa />} />
             {/* ================= AUTH ================= */}
 
             <Route path="/login" element={<Login />} />
@@ -224,6 +228,8 @@ function App() {
               }
             />
 
+            <Route path="/invoice" element={<Invoice />} />
+            
             <Route
               path="/operations/bookings"
               element={

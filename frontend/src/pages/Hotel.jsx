@@ -2,20 +2,22 @@ import { useState } from "react";
 
 import Layout from "../components/layout/Layout";
 import HotelForm from "../components/hotel/HotelForm";
+import HotelSearch from "../components/hotel/HotelSearch";
 import HotelTable from "../components/hotel/HotelTable";
 
 function Hotel() {
   const [refresh, setRefresh] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState(null);
+  const [search, setSearch] = useState("");
 
-  const handleHotelSaved = () => {
+  function handleHotelSaved() {
     setRefresh((prev) => !prev);
     setSelectedHotel(null);
-  };
+  }
 
-  const handleEditHotel = (hotel) => {
+  function handleEditHotel(hotel) {
     setSelectedHotel(hotel);
-  };
+  }
 
   return (
     <Layout>
@@ -23,27 +25,69 @@ function Hotel() {
         style={{
           padding: "30px",
           minHeight: "100%",
+          background: "#f8fafc",
         }}
       >
-        <h1>Hotel Management</h1>
-
-        <p
+        <div
           style={{
-            color: "#666",
             marginBottom: "25px",
           }}
         >
-          Add, edit and manage hotel partners.
-        </p>
+          <h1
+            style={{
+              fontSize: "32px",
+              fontWeight: "bold",
+              color: "#0f172a",
+            }}
+          >
+            Hotel Management
+          </h1>
 
-        <HotelForm
-          selectedHotel={selectedHotel}
-          onHotelAdded={handleHotelSaved}
-        />
+          <p
+            style={{
+              color: "#64748b",
+              marginTop: "8px",
+            }}
+          >
+            Manage Hotel Partners, Room Inventory and Accommodation Details.
+          </p>
+        </div>
 
-        <div style={{ marginTop: "30px" }}>
+        {/* Hotel Form */}
+
+        <div
+          style={{
+            background: "#fff",
+            padding: "25px",
+            borderRadius: "12px",
+            marginBottom: "30px",
+            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+          }}
+        >
+          <HotelForm
+            selectedHotel={selectedHotel}
+            onHotelAdded={handleHotelSaved}
+          />
+        </div>
+
+        {/* Hotel List */}
+
+        <div
+          style={{
+            background: "#fff",
+            padding: "25px",
+            borderRadius: "12px",
+            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+          }}
+        >
+          <HotelSearch
+            search={search}
+            setSearch={setSearch}
+          />
+
           <HotelTable
             refresh={refresh}
+            search={search}
             setSelectedHotel={handleEditHotel}
           />
         </div>

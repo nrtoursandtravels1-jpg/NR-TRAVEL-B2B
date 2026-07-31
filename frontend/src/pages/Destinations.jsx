@@ -1,114 +1,31 @@
-import destinations from "../data/destinations";
-
 function Destinations() {
   return (
-    <div style={{ padding: "40px" }}>
-
-      <h1>
-        Explore Destinations
+    <div className="p-6">
+      <h1 className="text-3xl font-bold">
+        Destinations
       </h1>
 
-      <p>
-        Discover India and international travel destinations with NR Travel.
+      <p className="mt-4">
+        Destination Management Module
       </p>
 
+      <div className="mt-8 rounded-lg border p-6">
+        <h2>Coming Soon</h2>
 
-      {/* India Destinations */}
+        <p>
+          Here you will be able to manage:
+        </p>
 
-      <h2 style={{ marginTop: "40px" }}>
-        🇮🇳 India Destinations
-      </h2>
-
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: "20px"
-        }}
-      >
-
-        {destinations.india.map((item, index) => (
-
-          <div
-            key={index}
-            style={{
-              padding:"20px",
-              border:"1px solid #ddd",
-              borderRadius:"10px"
-            }}
-          >
-
-            <h3>
-              {item.state}
-            </h3>
-
-
-            {item.places.map((place, i)=>(
-              <p key={i}>
-                📍 {place}
-              </p>
-            ))}
-
-
-          </div>
-
-        ))}
-
+        <ul>
+          <li>✅ India Destinations</li>
+          <li>✅ International Destinations</li>
+          <li>✅ Tour Packages</li>
+          <li>✅ Hotels</li>
+          <li>✅ Sightseeing</li>
+        </ul>
       </div>
-
-
-
-
-      {/* International */}
-
-      <h2 style={{ marginTop:"40px" }}>
-        🌍 International Destinations
-      </h2>
-
-
-      <div
-        style={{
-          display:"grid",
-          gridTemplateColumns:"repeat(3,1fr)",
-          gap:"20px"
-        }}
-      >
-
-        {destinations.international.map((item,index)=>(
-
-          <div
-            key={index}
-            style={{
-              padding:"20px",
-              border:"1px solid #ddd",
-              borderRadius:"10px"
-            }}
-          >
-
-            <h3>
-              {item.country}
-            </h3>
-
-
-            {item.places.map((place,i)=>(
-              <p key={i}>
-                ✈️ {place}
-              </p>
-            ))}
-
-
-          </div>
-
-        ))}
-
-
-      </div>
-
-
     </div>
   );
 }
-
 
 export default Destinations;

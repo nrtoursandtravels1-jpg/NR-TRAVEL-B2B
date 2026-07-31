@@ -156,3 +156,5 @@ export default function InvoicePreview() {
         </button>
       </div>
     </div>
+  );
+}

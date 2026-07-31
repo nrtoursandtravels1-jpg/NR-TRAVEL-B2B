@@ -12,7 +12,7 @@ export default function PackageTable({ search }) {
     fetchPackages();
   }, []);
 
-  const fetchPackages = async () => {
+  async function fetchPackages() {
     setLoading(true);
 
     const { data, error } = await supabase
@@ -24,17 +24,16 @@ export default function PackageTable({ search }) {
 
     if (error) {
       console.log("Package Fetch Error:", error);
-      setLoading(false);
-      return;
+    } else {
+      setPackages(data || []);
     }
 
-    setPackages(data || []);
     setLoading(false);
-  };
+  }
 
-  const deletePackage = async (id) => {
+  async function deletePackage(id) {
     const confirmDelete = window.confirm(
-      "Delete this package?"
+      "Are you sure you want to delete this package?"
     );
 
     if (!confirmDelete) return;
@@ -45,19 +44,22 @@ export default function PackageTable({ search }) {
       .eq("id", id);
 
     if (error) {
-      console.log(error);
-      alert("Delete failed");
+      alert("Failed to delete package.");
       return;
     }
 
-    alert("Package deleted successfully");
+    alert("Package deleted successfully.");
     fetchPackages();
-  };
+  }
 
   const filteredPackages = packages.filter((pkg) =>
-    pkg.package_name
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
+    (
+      (pkg.package_name || "") +
+      " " +
+      (pkg.destination || "")
+    )
+      .toLowerCase()
+      .includes((search || "").toLowerCase())
   );
 
   if (loading) {
@@ -67,17 +69,23 @@ export default function PackageTable({ search }) {
   return (
     <div className="overflow-x-auto">
 
-      <table className="min-w-full border border-slate-700">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">
+          Total Packages : {filteredPackages.length}
+        </h3>
+      </div>
 
-        <thead className="bg-slate-700">
+      <table className="min-w-full border border-gray-300 bg-white">
+
+        <thead className="bg-gray-100">
 
           <tr>
-            <th className="p-3">Package</th>
-            <th className="p-3">Destination</th>
-            <th className="p-3">Duration</th>
-            <th className="p-3">Price</th>
-            <th className="p-3">Status</th>
-            <th className="p-3">Action</th>
+            <th className="p-3 text-left">Package</th>
+            <th className="p-3 text-left">Destination</th>
+            <th className="p-3 text-left">Duration</th>
+            <th className="p-3 text-left">Price</th>
+            <th className="p-3 text-left">Status</th>
+            <th className="p-3 text-center">Action</th>
           </tr>
 
         </thead>
@@ -90,10 +98,9 @@ export default function PackageTable({ search }) {
 
               <tr
                 key={pkg.id}
-                className="border-t border-slate-700"
+                className="border-t hover:bg-gray-50"
               >
-
-                <td className="p-3">
+                <td className="p-3 font-medium">
                   {pkg.package_name}
                 </td>
 
@@ -113,10 +120,10 @@ export default function PackageTable({ search }) {
                   {pkg.status}
                 </td>
 
-                <td className="p-3">
+                <td className="p-3 text-center">
 
                   <button
-                    className="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded mr-2"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2"
                     onClick={() =>
                       navigate(`/packages/edit/${pkg.id}`)
                     }
@@ -125,7 +132,7 @@ export default function PackageTable({ search }) {
                   </button>
 
                   <button
-                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
                     onClick={() =>
                       deletePackage(pkg.id)
                     }
@@ -134,7 +141,6 @@ export default function PackageTable({ search }) {
                   </button>
 
                 </td>
-
               </tr>
 
             ))
@@ -145,7 +151,7 @@ export default function PackageTable({ search }) {
 
               <td
                 colSpan="6"
-                className="text-center p-6"
+                className="text-center p-8 text-gray-500"
               >
                 No packages found.
               </td>

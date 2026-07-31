@@ -5,7 +5,7 @@ export default function CustomerForm({
   selectedCustomer,
   onCustomerAdded,
 }) {
-  const [customer, setCustomer] = useState({
+  const emptyCustomer = {
     customer_name: "",
     mobile: "",
     email: "",
@@ -14,7 +14,10 @@ export default function CustomerForm({
     state: "",
     country: "",
     notes: "",
-  });
+  };
+
+  const [customer, setCustomer] = useState(emptyCustomer);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (selectedCustomer) {
@@ -28,6 +31,8 @@ export default function CustomerForm({
         country: selectedCustomer.country || "",
         notes: selectedCustomer.notes || "",
       });
+    } else {
+      setCustomer(emptyCustomer);
     }
   }, [selectedCustomer]);
 
@@ -40,6 +45,8 @@ export default function CustomerForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setSaving(true);
 
     let error;
 
@@ -54,50 +61,46 @@ export default function CustomerForm({
         .insert([customer]));
     }
 
+    setSaving(false);
+
     if (error) {
+      alert("Unable to save customer.");
       console.log(error);
-      alert("Failed to save customer");
       return;
     }
 
     alert(
       selectedCustomer
-        ? "Customer updated successfully"
-        : "Customer added successfully"
+        ? "Customer updated successfully."
+        : "Customer added successfully."
     );
 
-    setCustomer({
-      customer_name: "",
-      mobile: "",
-      email: "",
-      address: "",
-      city: "",
-      state: "",
-      country: "",
-      notes: "",
-    });
+    setCustomer(emptyCustomer);
 
     if (onCustomerAdded) {
       onCustomerAdded();
     }
   };
 
+  const inputStyle = {
+    width: "100%",
+    padding: "10px",
+    marginTop: "10px",
+    marginBottom: "15px",
+    borderRadius: "6px",
+    border: "1px solid #d1d5db",
+    boxSizing: "border-box",
+  };
+
   return (
-    <div
-      style={{
-        background: "#fff",
-        color: "#000",
-        padding: "20px",
-        borderRadius: "10px",
-        marginTop: "20px",
-      }}
-    >
-      <h2>
+    <div>
+      <h2 style={{ marginBottom: "20px" }}>
         {selectedCustomer ? "Edit Customer" : "Add Customer"}
       </h2>
 
       <form onSubmit={handleSubmit}>
         <input
+          style={inputStyle}
           name="customer_name"
           placeholder="Customer Name"
           value={customer.customer_name}
@@ -105,9 +108,8 @@ export default function CustomerForm({
           required
         />
 
-        <br /><br />
-
         <input
+          style={inputStyle}
           name="mobile"
           placeholder="Mobile Number"
           value={customer.mobile}
@@ -115,65 +117,75 @@ export default function CustomerForm({
           required
         />
 
-        <br /><br />
-
         <input
+          style={inputStyle}
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="Email Address"
           value={customer.email}
           onChange={handleChange}
         />
 
-        <br /><br />
-
         <input
+          style={inputStyle}
           name="address"
           placeholder="Address"
           value={customer.address}
           onChange={handleChange}
         />
 
-        <br /><br />
-
         <input
+          style={inputStyle}
           name="city"
           placeholder="City"
           value={customer.city}
           onChange={handleChange}
         />
 
-        <br /><br />
-
         <input
+          style={inputStyle}
           name="state"
           placeholder="State"
           value={customer.state}
           onChange={handleChange}
         />
 
-        <br /><br />
-
         <input
+          style={inputStyle}
           name="country"
           placeholder="Country"
           value={customer.country}
           onChange={handleChange}
         />
 
-        <br /><br />
-
         <textarea
+          style={{
+            ...inputStyle,
+            minHeight: "100px",
+          }}
           name="notes"
           placeholder="Notes"
           value={customer.notes}
           onChange={handleChange}
         />
 
-        <br /><br />
-
-        <button type="submit">
-          {selectedCustomer ? "Update Customer" : "Save Customer"}
+        <button
+          type="submit"
+          disabled={saving}
+          style={{
+            padding: "12px 25px",
+            background: "#2563eb",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: saving ? "not-allowed" : "pointer",
+          }}
+        >
+          {saving
+            ? "Saving..."
+            : selectedCustomer
+            ? "Update Customer"
+            : "Save Customer"}
         </button>
       </form>
     </div>

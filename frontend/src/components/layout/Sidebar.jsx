@@ -1,169 +1,91 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
+  const location = useLocation();
+
+  const menus = [
+    { name: "📊 Dashboard", path: "/admin-dashboard" },
+
+    { name: "👥 Leads CRM", path: "/crm" },
+
+    { name: "🏨 Hotels", path: "/hotel" },
+
+    { name: "📅 Bookings", path: "/bookings" },
+
+    { name: "📦 Packages", path: "/packages" },
+
+    { name: "⚙️ Operations", path: "/operations" },
+
+    { name: "🗺️ Itinerary", path: "/operations/itinerary" },
+
+    { name: "🤝 Vendors", path: "/operations/vendors" },
+
+    { name: "📄 Documents", path: "/operations/documents" },
+
+    { name: "👤 Agent Profile", path: "/agent-profile" },
+
+    { name: "👨‍💼 Users", path: "/admin/users" },
+
+    { name: "👥 Customers", path: "/admin/customers" },
+
+    { name: "💳 Subscriptions", path: "/admin/subscriptions" },
+
+    { name: "📈 Reports", path: "/reports" },
+
+    { name: "⚙️ Settings", path: "/settings" },
+
+    { name: "🌐 Website", path: "/" },
+  ];
+
   return (
-    <div
+    <aside
       style={{
-        width: "250px",
-        height: "100vh",
-        background: "#1e293b",
+        width: "260px",
+        minHeight: "100vh",
+        background: "#0f172a",
         color: "#fff",
         padding: "20px",
+        overflowY: "auto",
       }}
     >
-      <h2>NR Tours CRM</h2>
+      <h2
+        style={{
+          marginBottom: "20px",
+          textAlign: "center",
+        }}
+      >
+        NR Tours CRM
+      </h2>
 
-      <hr />
+      <hr
+        style={{
+          borderColor: "#334155",
+          marginBottom: "20px",
+        }}
+      />
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
-
-        {/* Dashboard */}
-        <li>
-          <Link
-            to="/dashboard"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Dashboard
-          </Link>
-        </li>
-
-
-        {/* B2B Agent */}
-        <li>
-          <Link
-            to="/agent-profile"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Agent Profile
-          </Link>
-        </li>
-
-
-        {/* CRM */}
-        <li>
-          <Link
-            to="/crm"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Leads CRM
-          </Link>
-        </li>
-
-
-        {/* Operations */}
-        <li>
-          <Link
-            to="/operations"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Operations Dashboard
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            to="/operations/bookings"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Bookings
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            to="/operations/itinerary"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Itinerary
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            to="/operations/vendors"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Vendors
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            to="/operations/documents"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Documents
-          </Link>
-        </li>
-
-
-        {/* Travel Modules */}
-        <li>
-          <Link
-            to="/hotel"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Hotels
-          </Link>
-        </li>
-
-
-        <li>
-          <Link
-            to="/packages"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Packages
-          </Link>
-        </li>
-
-
-        <li>
-          <Link
-            to="/partners"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Partners
-          </Link>
-        </li>
-
-
-        {/* Reports */}
-        <li>
-          <Link
-            to="/reports"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Reports
-          </Link>
-        </li>
-
-
-        {/* Admin Settings */}
-        <li>
-          <Link
-            to="/settings"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Settings
-          </Link>
-        </li>
-
-
-        {/* Website */}
-        <li>
-          <Link
-            to="/"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-            Website
-          </Link>
-        </li>
-
-
-      </ul>
-
-    </div>
+      {menus.map((menu) => (
+        <Link
+          key={menu.path}
+          to={menu.path}
+          style={{
+            display: "block",
+            padding: "12px 15px",
+            marginBottom: "8px",
+            borderRadius: "8px",
+            color: "#fff",
+            textDecoration: "none",
+            background:
+              location.pathname === menu.path
+                ? "#2563eb"
+                : "transparent",
+            transition: "0.3s",
+          }}
+        >
+          {menu.name}
+        </Link>
+      ))}
+    </aside>
   );
 }
 

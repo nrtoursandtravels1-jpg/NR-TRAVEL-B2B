@@ -4,17 +4,24 @@ import { Suspense } from "react";
 // Layout
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
-// Main
+// Main Pages
 import Landingpage from "./pages/Landingpage";
+import Dashboard from "./pages/Dashboard";
+import CRM from "./pages/CRM";
+import AddLead from "./pages/AddLead";
+import Leads from "./pages/Lead";
+import Hotel from "./pages/Hotel";
+import Destinations from "./pages/Destinations";
+import Partners from "./pages/Partners";
+import Register from "./pages/Register";
 
 // Authentication
 import Login from "./pages/auth/Login";
 import AdminLogin from "./pages/auth/AdminLogin";
 import AgentLogin from "./pages/auth/AgentLogin";
 import CustomerLogin from "./pages/auth/CustomerLogin";
-import Register from "./pages/Register";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -29,17 +36,8 @@ import AgentProfile from "./pages/agent/AgentProfile";
 // Customer
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
-// CRM
-import CRM from "./pages/CRM";
-import AddLead from "./pages/AddLead";
-import Leads from "./pages/Lead";
-import Hotel from "./pages/Hotel";
-import Bookings from "./pages/booking/Bookings"; // ✅ Missing import added
-
-// Packages
-import Packages from "./pages/Packages/Packages";
-import CreatePackage from "./pages/Packages/CreatePackage";
-import EditPackage from "./pages/Packages/EditPackage";
+// Booking
+import Bookings from "./pages/booking/Bookings";
 
 // Operations
 import OperationsDashboard from "./pages/operations/OperationsDashboard";
@@ -48,14 +46,21 @@ import Itinerary from "./pages/operations/Itinerary";
 import Vendors from "./pages/operations/Vendors";
 import Documents from "./pages/operations/Documents";
 
+// Packages
+import Packages from "./pages/Packages/Packages";
+import CreatePackage from "./pages/Packages/CreatePackage";
+import EditPackage from "./pages/Packages/EditPackage";
+import UpcomingTours from "./pages/Packages/UpcomingTours";
+import GroupTours from "./pages/Packages/GroupTours";
+import GirlsOnlyTours from "./pages/Packages/GirlsOnlyTours";
+import FamilyTours from "./pages/Packages/FamilyTours";
+import CustomTours from "./pages/Packages/CustomTours";
+
 // Reports
 import Reports from "./pages/reports/Reports";
 
 // Settings
 import Settings from "./pages/settings/Settings";
-
-// Other
-import Destinations from "./pages/Destinations";
 
 // Subscription
 import UpgradePlan from "./pages/subscription/UpgradePlan";
@@ -63,31 +68,70 @@ import UpgradePlan from "./pages/subscription/UpgradePlan";
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-900 text-white">
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col">
+
         <Navbar />
 
         <Suspense
           fallback={
-            <div style={{ padding: "30px" }}>
+            <div className="p-8 text-center">
               Loading...
             </div>
           }
         >
           <Routes>
-            {/* HOME */}
+
+            {/* ================= HOME ================= */}
+
             <Route path="/" element={<Landingpage />} />
 
-            {/* AUTH */}
+            {/* ================= AUTH ================= */}
+
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/agent-login" element={<AgentLogin />} />
             <Route path="/customer-login" element={<CustomerLogin />} />
-            <Route path="/register" element={<Register />} />
 
-            {/* ADMIN */}
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/customers" element={<Customers />} />
+            {/* ================= DASHBOARD ================= */}
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ================= ADMIN ================= */}
+
+            <Route
+              path="/admin-dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/customers"
+              element={
+                <ProtectedRoute>
+                  <Customers />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/admin/subscriptions"
@@ -98,7 +142,8 @@ function App() {
               }
             />
 
-            {/* AGENT */}
+            {/* ================= AGENT ================= */}
+
             <Route
               path="/agent-dashboard"
               element={
@@ -117,14 +162,27 @@ function App() {
               }
             />
 
-            {/* CUSTOMER */}
+            {/* ================= CUSTOMER ================= */}
+
             <Route
               path="/customer-dashboard"
-              element={<CustomerDashboard />}
+              element={
+                <ProtectedRoute>
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              }
             />
 
-            {/* CRM */}
-            <Route path="/crm" element={<CRM />} />
+            {/* ================= LEADS CRM ================= */}
+
+            <Route
+              path="/crm"
+              element={
+                <ProtectedRoute>
+                  <CRM />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/add-lead"
@@ -144,66 +202,205 @@ function App() {
               }
             />
 
-            <Route path="/hotel" element={<Hotel />} />
+            {/* ================= HOTEL ================= */}
 
-            {/* BOOKINGS */}
-            <Route path="/bookings" element={<Bookings />} />
+            <Route
+              path="/hotel"
+              element={
+                <ProtectedRoute>
+                  <Hotel />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ================= BOOKINGS ================= */}
+
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <Bookings />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/operations/bookings"
-              element={<OperationsBookings />}
+              element={
+                <ProtectedRoute>
+                  <OperationsBookings />
+                </ProtectedRoute>
+              }
             />
 
-            {/* PACKAGES */}
-            <Route path="/packages" element={<Packages />} />
+            {/* ================= PACKAGES ================= */}
+
+            <Route
+              path="/packages"
+              element={
+                <ProtectedRoute>
+                  <Packages />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/packages/create"
-              element={<CreatePackage />}
+              element={
+                <ProtectedRoute>
+                  <CreatePackage />
+                </ProtectedRoute>
+              }
             />
+
             <Route
               path="/packages/edit/:id"
-              element={<EditPackage />}
+              element={
+                <ProtectedRoute>
+                  <EditPackage />
+                </ProtectedRoute>
+              }
             />
 
-            {/* OPERATIONS */}
+            <Route
+              path="/packages/upcoming"
+              element={
+                <ProtectedRoute>
+                  <UpcomingTours />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/packages/group"
+              element={
+                <ProtectedRoute>
+                  <GroupTours />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/packages/girls-only"
+              element={
+                <ProtectedRoute>
+                  <GirlsOnlyTours />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/packages/family"
+              element={
+                <ProtectedRoute>
+                  <FamilyTours />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/packages/custom"
+              element={
+                <ProtectedRoute>
+                  <CustomTours />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ================= OPERATIONS ================= */}
+
             <Route
               path="/operations"
-              element={<OperationsDashboard />}
+              element={
+                <ProtectedRoute>
+                  <OperationsDashboard />
+                </ProtectedRoute>
+              }
             />
+
             <Route
               path="/operations/itinerary"
-              element={<Itinerary />}
+              element={
+                <ProtectedRoute>
+                  <Itinerary />
+                </ProtectedRoute>
+              }
             />
+
             <Route
               path="/operations/vendors"
-              element={<Vendors />}
+              element={
+                <ProtectedRoute>
+                  <Vendors />
+                </ProtectedRoute>
+              }
             />
+
             <Route
               path="/operations/documents"
-              element={<Documents />}
+              element={
+                <ProtectedRoute>
+                  <Documents />
+                </ProtectedRoute>
+              }
             />
 
-            {/* REPORTS */}
-            <Route path="/reports" element={<Reports />} />
+            {/* ================= REPORTS ================= */}
 
-            {/* SETTINGS */}
-            <Route path="/settings" element={<Settings />} />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* DESTINATIONS */}
+            {/* ================= SETTINGS ================= */}
+
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ================= OTHER ================= */}
+
+            <Route
+              path="/partners"
+              element={
+                <ProtectedRoute>
+                  <Partners />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/destinations"
-              element={<Destinations />}
+              element={
+                <ProtectedRoute>
+                  <Destinations />
+                </ProtectedRoute>
+              }
             />
 
-            {/* SUBSCRIPTION */}
             <Route
               path="/upgrade-plan"
-              element={<UpgradePlan />}
+              element={
+                <ProtectedRoute>
+                  <UpgradePlan />
+                </ProtectedRoute>
+              }
             />
+
           </Routes>
         </Suspense>
 
         <Footer />
+
       </div>
     </BrowserRouter>
   );

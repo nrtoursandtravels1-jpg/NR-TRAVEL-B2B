@@ -2,91 +2,228 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
 
 function Subscriptions() {
-  const [loading, setLoading] = useState(true);
   const [subscriptions, setSubscriptions] = useState([]);
+  const [filteredSubscriptions, setFilteredSubscriptions] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSubscriptions();
   }, []);
 
-  const fetchSubscriptions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("id, user_id, plan_id, status, start_date, end_date")
-        .order("created_at", { ascending: false });
+  useEffect(() => {
+    const keyword = search.toLowerCase();
 
-      if (error) {
-        throw error;
-      }
+    setFilteredSubscriptions(
+      subscriptions.filter((subscription) =>
+        (
+          subscription.user_id +
+          " " +
+          subscription.plan_id +
+          " " +
+          subscription.status
+        )
+          .toLowerCase()
+          .includes(keyword)
+      )
+    );
+  }, [search, subscriptions]);
 
-      setSubscriptions(data || []);
-    } catch (error) {
+  async function fetchSubscriptions() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .order("created_at", {
+        ascending: false,
+      });
+
+    if (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
+    } else {
+      setSubscriptions(data || []);
+      setFilteredSubscriptions(data || []);
     }
-  };
+
+    setLoading(false);
+  }
+
+  async function updateStatus(id, status) {
+    const { error } = await supabase
+      .from("subscriptions")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) {
+      alert("Unable to update subscription.");
+      return;
+    }
+
+    fetchSubscriptions();
+  }
 
   if (loading) {
     return (
-      <h2 style={{ padding: "40px" }}>
-        Loading subscriptions...
+      <h2 style={{ padding: "30px" }}>
+        Loading Subscriptions...
       </h2>
     );
   }
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>Admin Subscriptions</h1>
-      <p>Review and manage active subscriptions for your platform.</p>
+    <div
+      style={{
+        padding: "30px",
+        minHeight: "100vh",
+        background: "#f8fafc",
+      }}
+    >
+      <h1>Subscription Management</h1>
 
-      {subscriptions.length === 0 ? (
-        <p>No subscriptions found.</p>
-      ) : (
-        <div
+      <p
+        style={{
+          color: "#64748b",
+          marginBottom: "25px",
+        }}
+      >
+        Manage all subscription plans and their status.
+      </p>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+        }}
+      >
+        <h3>
+          Total Subscriptions: {filteredSubscriptions.length}
+        </h3>
+
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: "20px",
-            marginTop: "30px"
+            padding: "10px",
+            width: "250px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+          }}
+        />
+      </div>
+
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          background: "#fff",
+          borderRadius: "10px",
+        }}
+      >
+        <thead
+          style={{
+            background: "#e2e8f0",
           }}
         >
-          {subscriptions.map((subscription) => (
-            <div
+          <tr>
+            <th style={{ padding: "12px" }}>User</th>
+            <th>Plan</th>
+            <th>Status</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredSubscriptions.map((subscription) => (
+            <tr
               key={subscription.id}
               style={{
-                background: "#fff",
-                color: "#000",
-                padding: "25px",
-                borderRadius: "12px"
+                borderBottom: "1px solid #eee",
               }}
             >
-              <h2>Subscription #{subscription.id}</h2>
-              <p>
-                <strong>User ID:</strong> {subscription.user_id}
-              </p>
-              <p>
-                <strong>Plan ID:</strong> {subscription.plan_id}
-              </p>
-              <p>
-                <strong>Status:</strong> {subscription.status}
-              </p>
-              <p>
-                <strong>Start:</strong>{" "}
+              <td style={{ padding: "12px" }}>
+                {subscription.user_id}
+              </td>
+
+              <td>{subscription.plan_id}</td>
+
+              <td>{subscription.status}</td>
+
+              <td>
                 {subscription.start_date
-                  ? new Date(subscription.start_date).toLocaleDateString()
+                  ? new Date(
+                      subscription.start_date
+                    ).toLocaleDateString()
                   : "-"}
-              </p>
-              <p>
-                <strong>End:</strong>{" "}
+              </td>
+
+              <td>
                 {subscription.end_date
-                  ? new Date(subscription.end_date).toLocaleDateString()
+                  ? new Date(
+                      subscription.end_date
+                    ).toLocaleDateString()
                   : "-"}
-              </p>
-            </div>
+              </td>
+
+              <td>
+                {subscription.status === "active" ? (
+                  <button
+                    onClick={() =>
+                      updateStatus(
+                        subscription.id,
+                        "inactive"
+                      )
+                    }
+                    style={{
+                      background: "#dc2626",
+                      color: "#fff",
+                      border: "none",
+                      padding: "8px 14px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Deactivate
+                  </button>
+                ) : (
+                  <button
+                    onClick={() =>
+                      updateStatus(
+                        subscription.id,
+                        "active"
+                      )
+                    }
+                    style={{
+                      background: "#16a34a",
+                      color: "#fff",
+                      border: "none",
+                      padding: "8px 14px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Activate
+                  </button>
+                )}
+              </td>
+            </tr>
           ))}
-        </div>
+        </tbody>
+      </table>
+
+      {filteredSubscriptions.length === 0 && (
+        <p
+          style={{
+            marginTop: "20px",
+          }}
+        >
+          No subscriptions found.
+        </p>
       )}
     </div>
   );

@@ -1,4 +1,6 @@
 import { useState } from "react";
+
+import Layout from "../components/layout/Layout";
 import HotelForm from "../components/hotel/HotelForm";
 import HotelTable from "../components/hotel/HotelTable";
 
@@ -16,31 +18,37 @@ function Hotel() {
   };
 
   return (
-    <div
-      style={{
-        padding: "30px",
-        minHeight: "100vh",
-        background: "#f5f6fa",
-      }}
-    >
-      <h1 style={{ marginBottom: "5px" }}>Hotel Management</h1>
+    <Layout>
+      <div
+        style={{
+          padding: "30px",
+          minHeight: "100%",
+        }}
+      >
+        <h1>Hotel Management</h1>
 
-      <p style={{ color: "#666", marginBottom: "25px" }}>
-        Add, edit and manage hotel partners.
-      </p>
+        <p
+          style={{
+            color: "#666",
+            marginBottom: "25px",
+          }}
+        >
+          Add, edit and manage hotel partners.
+        </p>
 
-      <HotelForm
-        selectedHotel={selectedHotel}
-        onHotelAdded={handleHotelSaved}
-      />
-
-      <div style={{ marginTop: "30px" }}>
-        <HotelTable
-          refresh={refresh}
-          setSelectedHotel={handleEditHotel}
+        <HotelForm
+          selectedHotel={selectedHotel}
+          onHotelAdded={handleHotelSaved}
         />
+
+        <div style={{ marginTop: "30px" }}>
+          <HotelTable
+            refresh={refresh}
+            setSelectedHotel={handleEditHotel}
+          />
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

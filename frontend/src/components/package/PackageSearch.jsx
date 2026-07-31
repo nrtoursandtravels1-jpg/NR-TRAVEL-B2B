@@ -3,18 +3,26 @@ export default function PackageSearch({
   setSearch,
 }) {
   return (
-    <div className="mb-5">
-
+    <div
+      style={{
+        marginBottom: "20px",
+      }}
+    >
       <input
         type="text"
-        placeholder="Search package..."
+        placeholder="🔍 Search package by name or destination..."
         value={search}
-        onChange={(e) =>
-          setSearch(e.target.value)
-        }
-        className="w-full md:w-96 p-3 rounded-lg border border-gray-300 text-black focus:outline-none"
+        onChange={(e) => setSearch(e.target.value)}
+        style={{
+          width: "100%",
+          maxWidth: "400px",
+          padding: "12px 16px",
+          border: "1px solid #d1d5db",
+          borderRadius: "8px",
+          fontSize: "15px",
+          outline: "none",
+        }}
       />
-
     </div>
   );
 }

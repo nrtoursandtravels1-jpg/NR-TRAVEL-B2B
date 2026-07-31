@@ -6,35 +6,49 @@ export default function HotelTable({
   setSelectedHotel,
 }) {
   const [hotels, setHotels] = useState([]);
+  const [filteredHotels, setFilteredHotels] = useState([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchHotels();
   }, [refresh]);
 
-  const fetchHotels = async () => {
+  useEffect(() => {
+    const keyword = search.toLowerCase();
+
+    setFilteredHotels(
+      hotels.filter(
+        (hotel) =>
+          hotel.hotel_name?.toLowerCase().includes(keyword) ||
+          hotel.city?.toLowerCase().includes(keyword) ||
+          hotel.contact_person?.toLowerCase().includes(keyword)
+      )
+    );
+  }, [search, hotels]);
+
+  async function fetchHotels() {
     setLoading(true);
 
     const { data, error } = await supabase
       .from("hotels")
       .select("*")
-      .order("created_at", {
-        ascending: false,
-      });
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.log(error);
+      alert(error.message);
       setLoading(false);
       return;
     }
 
     setHotels(data || []);
+    setFilteredHotels(data || []);
     setLoading(false);
-  };
+  }
 
-  const deleteHotel = async (id) => {
+  async function deleteHotel(id) {
     const confirmDelete = window.confirm(
-      "Delete this hotel?"
+      "Are you sure you want to delete this hotel?"
     );
 
     if (!confirmDelete) return;
@@ -45,14 +59,14 @@ export default function HotelTable({
       .eq("id", id);
 
     if (error) {
-      console.log(error);
-      alert("Delete failed");
+      alert(error.message);
       return;
     }
 
-    alert("Hotel deleted successfully");
+    alert("Hotel deleted successfully.");
+
     fetchHotels();
-  };
+  }
 
   if (loading) {
     return <h3>Loading Hotels...</h3>;
@@ -62,15 +76,28 @@ export default function HotelTable({
     <div
       style={{
         background: "#fff",
-        color: "#000",
-        padding: "20px",
-        borderRadius: "10px",
-        marginTop: "20px",
+        padding: 20,
+        borderRadius: 10,
+        marginTop: 20,
       }}
     >
       <h2>Hotel List</h2>
 
+      <input
+        type="text"
+        placeholder="Search hotel..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{
+          width: "300px",
+          padding: "8px",
+          marginBottom: "20px",
+        }}
+      />
+
       <table
+        border="1"
+        cellPadding="10"
         style={{
           width: "100%",
           borderCollapse: "collapse",
@@ -83,49 +110,53 @@ export default function HotelTable({
             <th>Contact</th>
             <th>Mobile</th>
             <th>Room</th>
-            <th>Price/Night</th>
+            <th>Price</th>
             <th>Status</th>
-            <th>Action</th>
+            <th width="170">Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {hotels.map((hotel) => (
-            <tr key={hotel.id}>
-              <td>{hotel.hotel_name}</td>
-              <td>{hotel.city}</td>
-              <td>{hotel.contact_person}</td>
-              <td>{hotel.mobile}</td>
-              <td>{hotel.room_type}</td>
-              <td>₹ {hotel.price_per_night}</td>
-              <td>{hotel.status}</td>
+          {filteredHotels.length > 0 ? (
+            filteredHotels.map((hotel) => (
+              <tr key={hotel.id}>
+                <td>{hotel.hotel_name}</td>
+                <td>{hotel.city}</td>
+                <td>{hotel.contact_person}</td>
+                <td>{hotel.mobile}</td>
+                <td>{hotel.room_type}</td>
+                <td>₹ {hotel.price_per_night}</td>
+                <td>{hotel.status}</td>
 
-              <td>
-                <button
-                  onClick={() =>
-                    setSelectedHotel(hotel)
-                  }
-                >
-                  Edit
-                </button>
+                <td>
+                  <button
+                    onClick={() => setSelectedHotel(hotel)}
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  style={{ marginLeft: "10px" }}
-                  onClick={() =>
-                    deleteHotel(hotel.id)
-                  }
-                >
-                  Delete
-                </button>
+                  <button
+                    style={{
+                      marginLeft: 10,
+                    }}
+                    onClick={() =>
+                      deleteHotel(hotel.id)
+                    }
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" align="center">
+                No hotels found.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-
-      {hotels.length === 0 && (
-        <p>No hotels found.</p>
-      )}
     </div>
   );
 }

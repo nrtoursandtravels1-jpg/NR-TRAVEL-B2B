@@ -34,6 +34,7 @@ import CRM from "./pages/CRM";
 import AddLead from "./pages/AddLead";
 import Leads from "./pages/Lead";
 import Hotel from "./pages/Hotel";
+import Bookings from "./pages/booking/Bookings"; // ✅ Missing import added
 
 // Packages
 import Packages from "./pages/Packages/Packages";
@@ -73,7 +74,6 @@ function App() {
           }
         >
           <Routes>
-
             {/* HOME */}
             <Route path="/" element={<Landingpage />} />
 
@@ -148,6 +148,7 @@ function App() {
 
             {/* BOOKINGS */}
             <Route path="/bookings" element={<Bookings />} />
+
             <Route
               path="/operations/bookings"
               element={<OperationsBookings />}
@@ -199,7 +200,6 @@ function App() {
               path="/upgrade-plan"
               element={<UpgradePlan />}
             />
-
           </Routes>
         </Suspense>
 

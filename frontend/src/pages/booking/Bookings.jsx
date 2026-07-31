@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import BookingForm from "../components/bookings/BookingForm";
-import BookingTable from "../components/bookings/BookingTable";
+import BookingForm from "../../components/booking/BookingForm";
+import BookingTable from "../../components/booking/BookingTable";
 
 function Bookings() {
   const [refresh, setRefresh] = useState(false);
@@ -12,30 +12,18 @@ function Bookings() {
     setSelectedBooking(null);
   };
 
-  const handleEditBooking = (booking) => {
-    setSelectedBooking(booking);
-  };
-
   return (
     <div
       style={{
         padding: "30px",
         minHeight: "100vh",
         background: "#f5f6fa",
+        color: "#111",
       }}
     >
-      <h1 style={{ marginBottom: "5px" }}>
-        Booking Management
-      </h1>
+      <h1>Booking Management</h1>
 
-      <p
-        style={{
-          color: "#666",
-          marginBottom: "25px",
-        }}
-      >
-        Create, edit and manage customer bookings.
-      </p>
+      <p>Create, edit and manage customer bookings.</p>
 
       <BookingForm
         selectedBooking={selectedBooking}
@@ -45,7 +33,7 @@ function Bookings() {
       <div style={{ marginTop: "30px" }}>
         <BookingTable
           refresh={refresh}
-          setSelectedBooking={handleEditBooking}
+          setSelectedBooking={setSelectedBooking}
         />
       </div>
     </div>

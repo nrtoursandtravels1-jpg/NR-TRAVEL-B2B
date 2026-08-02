@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../services/supabase";
 
-function NavbarCRM() {
+export default function NavbarCRM() {
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -17,122 +17,50 @@ function NavbarCRM() {
   });
 
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: "260px",
-        right: 0,
-        height: "75px",
-        background: "#ffffff",
-        borderBottom: "1px solid #e5e7eb",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "0 30px",
-        zIndex: 999,
-        boxShadow: "0 2px 10px rgba(0,0,0,.05)",
-      }}
-    >
+    <header className="fixed top-0 left-[260px] right-0 h-[75px] bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-8 z-50">
+
       {/* Left */}
-
       <div>
-        <h2
-          style={{
-            margin: 0,
-            color: "#0f172a",
-            fontSize: "24px",
-          }}
-        >
-          NR Tours & Travels
-        </h2>
+        <h1 className="text-2xl font-bold text-slate-800">
+          🌍 WorldTrip Connect
+        </h1>
 
-        <small
-          style={{
-            color: "#64748b",
-            fontSize: "13px",
-          }}
-        >
-          Complete Travel ERP System
-        </small>
+        <p className="text-sm text-slate-500">
+          Smart Travel ERP & CRM Platform
+        </p>
       </div>
 
       {/* Center */}
-
-      <div
-        style={{
-          background: "#f8fafc",
-          padding: "10px 20px",
-          borderRadius: "10px",
-          color: "#334155",
-          fontWeight: "600",
-        }}
-      >
+      <div className="hidden md:flex bg-slate-100 px-5 py-2 rounded-xl text-slate-700 font-medium">
         📅 {today}
       </div>
 
       {/* Right */}
+      <div className="flex items-center gap-5">
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "18px",
-        }}
-      >
-        <div
-          style={{
-            width: "42px",
-            height: "42px",
-            borderRadius: "50%",
-            background: "#2563eb",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "700",
-            fontSize: "18px",
-          }}
-        >
+        <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow">
           A
         </div>
 
-        <div>
-          <div
-            style={{
-              fontWeight: "700",
-              color: "#0f172a",
-            }}
-          >
+        <div className="hidden sm:block">
+          <h3 className="font-semibold text-slate-800">
             Administrator
-          </div>
+          </h3>
 
-          <small
-            style={{
-              color: "#64748b",
-            }}
-          >
+          <p className="text-sm text-slate-500">
             Super Admin
-          </small>
+          </p>
         </div>
 
         <button
           onClick={handleLogout}
-          style={{
-            background: "#dc2626",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
+          className="bg-red-600 hover:bg-red-700 transition text-white px-5 py-2 rounded-xl font-semibold shadow"
         >
           Logout
         </button>
+
       </div>
+
     </header>
   );
 }
-
-export default NavbarCRM;

@@ -8,7 +8,13 @@ export default function CustomerForm({
   const emptyCustomer = {
     customer_name: "",
     mobile: "",
-    email: "",
+    email: "",  
+    passport_no: "",
+    aadhaar_no: "",
+    dob: "",
+    anniversary: "",
+    company_name: "",
+    emergency_contact: "",
     address: "",
     city: "",
     state: "",
@@ -22,15 +28,21 @@ export default function CustomerForm({
   useEffect(() => {
     if (selectedCustomer) {
       setCustomer({
-        customer_name: selectedCustomer.customer_name || "",
-        mobile: selectedCustomer.mobile || "",
-        email: selectedCustomer.email || "",
-        address: selectedCustomer.address || "",
-        city: selectedCustomer.city || "",
-        state: selectedCustomer.state || "",
-        country: selectedCustomer.country || "",
-        notes: selectedCustomer.notes || "",
-      });
+     customer_name: selectedCustomer.customer_name || "",
+     mobile: selectedCustomer.mobile || "",
+     email: selectedCustomer.email || "",
+     passport_no: selectedCustomer.passport_no || "",
+     aadhaar_no: selectedCustomer.aadhaar_no || "",
+     dob: selectedCustomer.dob || "",
+     anniversary: selectedCustomer.anniversary || "",
+     company_name: selectedCustomer.company_name || "",
+     emergency_contact: selectedCustomer.emergency_contact || "",
+     address: selectedCustomer.address || "",
+     city: selectedCustomer.city || "",
+     state: selectedCustomer.state || "",
+     country: selectedCustomer.country || "",
+     notes: selectedCustomer.notes || "",
+  });
     } else {
       setCustomer(emptyCustomer);
     }
@@ -123,6 +135,58 @@ export default function CustomerForm({
           name="email"
           placeholder="Email Address"
           value={customer.email}
+          onChange={handleChange}
+        />
+        
+        <input
+         style={inputStyle}
+         name="passport_no"
+         placeholder="Passport Number"
+         value={customer.passport_no}
+         onChange={handleChange}
+      />
+
+         <input
+          style={inputStyle}
+          name="aadhaar_no"
+          placeholder="Aadhaar Number"
+          value={customer.aadhaar_no}
+          onChange={handleChange}
+       />
+
+         <label>Date of Birth</label>
+
+        <input
+          style={inputStyle}
+          type="date"
+          name="dob"
+          value={customer.dob}
+          onChange={handleChange}
+       />
+
+          <label>Anniversary</label>
+
+         <input
+          style={inputStyle}
+          type="date"
+          name="anniversary"
+          value={customer.anniversary}
+          onChange={handleChange}
+        />
+
+         <input
+          style={inputStyle}
+          name="company_name"
+          placeholder="Company Name"
+          value={customer.company_name}
+          onChange={handleChange}
+        />
+
+         <input
+          style={inputStyle}
+          name="emergency_contact"
+          placeholder="Emergency Contact"
+          value={customer.emergency_contact}
           onChange={handleChange}
         />
 

@@ -147,6 +147,7 @@ export default function QuotationForm({
         />
 
         <input
+          type="tel"
           name="mobile"
           placeholder="Mobile"
           value={form.mobile}
@@ -154,6 +155,7 @@ export default function QuotationForm({
         />
 
         <input
+          type="email"
           name="email"
           placeholder="Email"
           value={form.email}
@@ -208,7 +210,7 @@ export default function QuotationForm({
           color: "#2563eb",
         }}
       >
-        Grand Total : ₹ {form.total_amount}
+        Grand Total :  ₹ {Number(form.total_amount).toLocaleString()}
       </h2>
 
       <button
@@ -230,6 +232,21 @@ export default function QuotationForm({
           ? "Update Quotation"
           : "Create Quotation"}
       </button>
-    </form>
-  );
+        
+        <button
+          type="button"
+          onClick={() => setForm(initialState)}
+          style={{
+          background: "#64748b",
+          color: "#fff",
+          border: "none",
+          padding: "12px 25px",
+          borderRadius: "8px",
+          cursor: "pointer",
+        }}
+       >
+    Reset
+  </button>
+</form>
+);
 }

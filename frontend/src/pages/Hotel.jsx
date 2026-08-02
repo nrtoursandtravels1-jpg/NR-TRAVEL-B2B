@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import Layout from "../components/layout/Layout";
+import HotelCards from "../components/hotel/HotelCards";
 import HotelForm from "../components/hotel/HotelForm";
 import HotelSearch from "../components/hotel/HotelSearch";
 import HotelTable from "../components/hotel/HotelTable";
@@ -51,46 +52,68 @@ function Hotel() {
           >
             Manage Hotel Partners, Room Inventory and Accommodation Details.
           </p>
+
+          <div style={{ marginTop: "25px" }}>
+         <HotelCards />
+       </div>          
         </div>
 
-        {/* Hotel Form */}
+       {/* Hotel Form */}
 
-        <div
-          style={{
-            background: "#fff",
-            padding: "25px",
-            borderRadius: "12px",
-            marginBottom: "30px",
-            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
-          }}
-        >
-          <HotelForm
-            selectedHotel={selectedHotel}
-            onHotelAdded={handleHotelSaved}
-          />
-        </div>
+       <div 
+        style={{
+        background: "#fff",
+        padding: "25px",
+        borderRadius: "12px",
+        marginBottom: "30px",
+        boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+      }}
+      >
+      <h2
+       style={{
+       marginBottom: "20px",
+       color: "#0f172a",
+      }}
+     >
+        Hotel Information
+      </h2>
 
-        {/* Hotel List */}
+       <HotelForm
+      selectedHotel={selectedHotel}
+      onHotelAdded={handleHotelSaved}
+      />
+      </div>
 
-        <div
-          style={{
-            background: "#fff",
-            padding: "25px",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
-          }}
-        >
-          <HotelSearch
-            search={search}
-            setSearch={setSearch}
-          />
+      {/* Hotel List */}
 
-          <HotelTable
-            refresh={refresh}
-            search={search}
-            setSelectedHotel={handleEditHotel}
-          />
-        </div>
+     <div
+      style={{
+      background: "#fff",
+      padding: "25px",
+      borderRadius: "12px",
+      boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+    }}
+  >
+     <h2
+      style={{
+      marginBottom: "20px",
+      color: "#0f172a",
+    }}
+  >
+    Hotel Directory
+  </h2>
+
+  <HotelSearch
+    search={search}
+    setSearch={setSearch}
+  />
+
+  <HotelTable
+    refresh={refresh}
+    search={search}
+    setSelectedHotel={handleEditHotel}
+     />
+      </div>
       </div>
     </Layout>
   );

@@ -3,55 +3,30 @@ import NavbarCRM from "./NavbarCRM";
 
 export default function Layout({ children }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#eef2f7",
-      }}
-    >
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-slate-100">
 
+      {/* Sidebar */}
       <Sidebar />
 
       {/* Right Side */}
+      <div className="flex flex-1 flex-col ml-[260px]">
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          marginLeft: "260px",
-        }}
-      >
-        {/* Top Navbar */}
-
+        {/* Navbar */}
         <NavbarCRM />
 
         {/* Main Content */}
+        <main className="flex-1 mt-[75px] p-8 overflow-y-auto bg-slate-100">
 
-        <main
-          style={{
-            flex: 1,
-            padding: "35px",
-            marginTop: "75px",
-            overflowY: "auto",
-            background: "#f8fafc",
-          }}
-        >
-          <div
-            style={{
-              background: "#ffffff",
-              borderRadius: "16px",
-              padding: "30px",
-              boxShadow: "0 4px 15px rgba(0,0,0,.08)",
-              minHeight: "calc(100vh - 150px)",
-            }}
-          >
+          <div className="bg-white rounded-2xl shadow-lg p-8 min-h-[calc(100vh-140px)]">
+
             {children}
+
           </div>
+
         </main>
+
       </div>
+
     </div>
   );
 }

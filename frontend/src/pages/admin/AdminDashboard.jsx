@@ -82,6 +82,8 @@ function AdminDashboard(){
         count:"exact",
         head:true
       });
+      
+      console.log("Leads Count:", leads);
 
 
 

@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import {
+  Pencil,
+  Trash2,
+  Phone,
+  Mail,
+  MessageCircle,
+} from "lucide-react";
 import { supabase } from "../../services/supabase";
 
 export default function HotelTable({
@@ -9,6 +16,28 @@ export default function HotelTable({
   const [filteredHotels, setFilteredHotels] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const iconButton = {
+  padding: "8px",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  background: "#f1f5f9",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const deleteButton = {
+  padding: "8px",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  background: "#ef4444",
+  color: "#fff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
 
   useEffect(() => {
     fetchHotels();
@@ -128,24 +157,57 @@ export default function HotelTable({
                 <td>₹ {hotel.price_per_night}</td>
                 <td>{hotel.status}</td>
 
-                <td>
-                  <button
-                    onClick={() => setSelectedHotel(hotel)}
-                  >
-                    Edit
+               <td>
+               <div
+                 style={{
+                  display: "flex",
+                  gap: "8px",
+                  justifyContent: "center",
+                }}
+              >
+                <button
+                  onClick={() => setSelectedHotel(hotel)}
+                  style={iconButton}
+                  title="Edit"
+                >
+                 <Pencil size={16} />
                   </button>
 
-                  <button
-                    style={{
-                      marginLeft: 10,
-                    }}
-                    onClick={() =>
-                      deleteHotel(hotel.id)
-                    }
+                 <a
+                  href={`tel:${hotel.mobile}`}
+                  style={iconButton}
+                  title="Call"
                   >
-                    Delete
-                  </button>
-                </td>
+                <Phone size={16} />
+              </a>
+
+              <a
+               href={`mailto:${hotel.email}`}
+               style={iconButton}
+               title="Email"
+              >
+               <Mail size={16} />
+             </a>
+
+             <a
+              href={`https://wa.me/91${hotel.mobile}`}
+              target="_blank"
+              rel="noreferrer"
+              style={iconButton}
+              title="WhatsApp"
+            >
+            <MessageCircle size={16} />
+            </a>
+
+             <button
+             onClick={() => deleteHotel(hotel.id)}
+             style={deleteButton}
+             title="Delete"
+            >
+             <Trash2 size={16} />
+               </button>
+              </div>
+               </td>                
               </tr>
             ))
           ) : (

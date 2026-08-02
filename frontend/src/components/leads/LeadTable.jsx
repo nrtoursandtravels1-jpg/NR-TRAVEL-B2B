@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import {
+  Pencil,
+  Trash2,
+  Phone,
+  Mail,
+  MessageCircle,
+} from "lucide-react";
 import { supabase } from "../../services/supabase";
 
 
@@ -154,10 +161,15 @@ export default function LeadTable({
     >
 
 
-      <h2>
-        Lead List
-      </h2>
-
+    <h2
+  style={{
+    marginBottom: "20px",
+    fontSize: "22px",
+    fontWeight: "700",
+  }}
+>
+  📋 Lead List
+</h2>
 
 
 
@@ -201,7 +213,7 @@ export default function LeadTable({
 
 
             <th style={thStyle}>
-              Action
+              Quick Actions
             </th>
 
 
@@ -252,6 +264,12 @@ export default function LeadTable({
                 <td style={tdStyle}>
 
 
+                 
+                 
+                  <div className="space-y-2">
+                    
+                  <StatusBadge status={lead.status || "New"} />
+
                   <select
 
                     value={lead.status || "New"}
@@ -291,6 +309,7 @@ export default function LeadTable({
 
 
                   </select>
+                  </div>
 
 
                 </td>
@@ -306,40 +325,49 @@ export default function LeadTable({
 
                   {/* EDIT BUTTON */}
 
-                  <button
+                <div style={{ display: "flex", gap: "8px" }}>
+               <button
+                onClick={() => setSelectedLead(lead)}
+                style={iconButton}
+                title="Edit"
+              >
+               <Pencil size={16} />
+             </button>
 
-                    onClick={() =>
-                      setSelectedLead(lead)
-                    }
+            <a
+              href={`tel:${lead.mobile}`}
+              style={iconButton}
+               title="Call"
+              >
+               <Phone size={16} />
+              </a>
 
-                    style={editButton}
+            <a
+             href={`mailto:${lead.email}`}
+             style={iconButton}
+            title="Email"
+           >
+            <Mail size={16} />
+           </a>
 
-                  >
+           <a 
+            href={`https://wa.me/91${lead.mobile}`}
+            target="_blank"
+            rel="noreferrer"
+            style={iconButton}
+            title="WhatsApp"
+         >
+          <MessageCircle size={16} />
+        </a>
 
-                    Edit
-
-                  </button>
-
-
-
-
-
-                  {/* DELETE BUTTON */}
-
-                  <button
-
-                    onClick={() =>
-                      deleteLead(lead.id)
-                    }
-
-                    style={deleteButton}
-
-                  >
-
-                    Delete
-
-                  </button>
-
+         <button
+          onClick={() => deleteLead(lead.id)}
+          style={deleteButton}
+          title="Delete"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
 
 
                 </td>
@@ -391,6 +419,26 @@ export default function LeadTable({
 
 
 
+function StatusBadge({ status }) {
+  const colors = {
+    New: "bg-blue-100 text-blue-700",
+    Contacted: "bg-yellow-100 text-yellow-700",
+    "Follow Up": "bg-orange-100 text-orange-700",
+    Booked: "bg-green-100 text-green-700",
+    Lost: "bg-red-100 text-red-700",
+  };
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+        colors[status] || "bg-gray-100 text-gray-700"
+      }`}
+    >
+      {status}
+    </span>
+  );
+}
+
 const thStyle = {
 
   padding: "12px",
@@ -411,32 +459,27 @@ const tdStyle = {
 };
 
 
-
-
-
-const editButton = {
-
-  padding: "6px 12px",
-  marginRight: "8px",
-  background: "green",
-  color: "white",
+const iconButton = {
+  padding: "8px",
   border: "none",
-  borderRadius: "5px",
-  cursor: "pointer"
-
+  borderRadius: "8px",
+  cursor: "pointer",
+  background: "#f1f5f9",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 };
-
-
-
-
 
 const deleteButton = {
 
-  padding: "6px 12px",
-  background: "red",
-  color: "white",
+  padding: "8px",
+  background: "#ef4444",
+  color: "#fff",
   border: "none",
-  borderRadius: "5px",
-  cursor: "pointer"
+  borderRadius: "8px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 
 };

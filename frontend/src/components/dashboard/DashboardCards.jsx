@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
+import StatCard from "../ui/StatCard";
 
 export default function DashboardCards() {
   const [stats, setStats] = useState({
@@ -32,7 +33,7 @@ export default function DashboardCards() {
       ] = await Promise.all([
         supabase.from("leads").select("*", { count: "exact", head: true }),
         supabase.from("hotels").select("*", { count: "exact", head: true }),
-        supabase.from("packages").select("*", { count: "exact", head: true }),
+        supabase.from("tour_packages").select("*", { count: "exact", head: true }),
         supabase.from("bus_bookings").select("*"),
         supabase.from("cab_bookings").select("*"),
         supabase.from("bookings").select("*", { count: "exact", head: true }),
@@ -70,37 +71,37 @@ export default function DashboardCards() {
     {
       title: "👥 Total Leads",
       value: stats.leads,
-      color: "#2563eb",
+      color: "bg-blue-600",
     },
     {
       title: "🏨 Hotels",
       value: stats.hotels,
-      color: "#16a34a",
+      color: "bg-green-600",
     },
     {
-      title: "📦 Packages",
+      title: "🧳 Tour Packages",
       value: stats.packages,
-      color: "#9333ea",
+      color: "bg-purple-600",
     },
     {
       title: "🚌 Bus Bookings",
       value: stats.buses,
-      color: "#ea580c",
+      color: "bg-orange-500",
     },
     {
       title: "🚗 Cab Bookings",
       value: stats.cabs,
-      color: "#0891b2",
+      color: "bg-cyan-600",
     },
     {
       title: "📅 Total Bookings",
       value: stats.bookings,
-      color: "#dc2626",
+      color: "bg-red-600",
     },
     {
       title: "💰 Revenue",
       value: `₹ ${stats.revenue}`,
-      color: "#15803d",
+      color: "bg-green-600",
     },
   ];
 
@@ -109,45 +110,16 @@ export default function DashboardCards() {
   }
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(auto-fit,minmax(230px,1fr))",
-        gap: "20px",
-      }}
-    >
-      {cards.map((card) => (
-        <div
-          key={card.title}
-          style={{
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "25px",
-            boxShadow: "0 8px 25px rgba(0,0,0,.08)",
-            borderTop: `5px solid ${card.color}`,
-          }}
-        >
-          <h3
-            style={{
-              color: "#64748b",
-              marginBottom: "12px",
-            }}
-          >
-            {card.title}
-          </h3>
-
-          <h1
-            style={{
-              margin: 0,
-              color: "#0f172a",
-              fontSize: "34px",
-            }}
-          >
-            {card.value}
-          </h1>
-        </div>
-      ))}
+ <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+ {cards.map((card) => (
+  <StatCard
+    key={card.title}
+    title={card.title}
+    value={card.value}
+    color={card.color}
+    icon={card.title.split(" ")[0]}
+  />
+))}
     </div>
   );
 }

@@ -89,6 +89,8 @@ export default function PackageTable({ search = "" }) {
             <tr>
 
               <th className="border p-3">Package</th>
+              
+              <th className="border p-3">Image</th>
 
               <th className="border p-3">Type</th>
 
@@ -137,6 +139,18 @@ export default function PackageTable({ search = "" }) {
                   </td>
 
                   <td className="border p-3">
+                   {pkg.image_url ? (
+                  <img
+                    src={pkg.image_url}
+                    alt={pkg.package_name}
+                    className="w-20 h-14 object-cover rounded"
+                  />
+                  ) : (
+                  <span>No Image</span>
+                )}
+              </td>
+
+                  <td className="border p-3">
                     {pkg.package_type}
                   </td>
 
@@ -153,13 +167,28 @@ export default function PackageTable({ search = "" }) {
                   </td>
 
                   <td className="border p-3">
-                    {pkg.featured ? "⭐ Yes" : "No"}
-                  </td>
-
+                 
+                 {pkg.featured ? (
+                  <span className="bg-yellow-500 text-white px-2 py-1 rounded">
+                   ⭐ Featured
+                  </span>
+                 ) : (
+                   <span className="bg-gray-300 px-2 py-1 rounded">
+                      Normal
+                   </span>
+                  )}
+               </td>
                   <td className="border p-3">
-                    {pkg.status}
-                  </td>
-
+                  <span
+                    className={`px-3 py-1 rounded-full text-white text-sm ${
+                     pkg.status === "Active"
+                     ? "bg-green-600"
+                     : "bg-red-600"
+                  }`}
+              >
+                  {pkg.status}
+                </span>
+              </td>
                   <td className="border p-3">
 
                     <button

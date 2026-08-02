@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import {
+  Pencil,
+  Trash2,
+  Phone,
+  Mail,
+  MessageCircle,
+} from "lucide-react";
 import { supabase } from "../../services/supabase";
 
 export default function CustomerTable({
@@ -20,13 +27,11 @@ export default function CustomerTable({
     setFilteredCustomers(
       customers.filter((customer) =>
         (
-          customer.customer_name +
-          " " +
-          customer.mobile +
-          " " +
-          customer.email +
-          " " +
-          customer.city
+          `${customer.customer_name || ""} ${
+            customer.mobile || ""
+          } ${customer.email || ""} ${
+            customer.city || ""
+          }`
         )
           .toLowerCase()
           .includes(keyword)
@@ -131,77 +136,122 @@ export default function CustomerTable({
         </thead>
 
         <tbody>
-          {filteredCustomers.map((customer) => (
-            <tr
-              key={customer.id}
-              style={{
-                borderBottom: "1px solid #eee",
-              }}
-            >
-              <td style={{ padding: "12px" }}>
-                {customer.customer_name}
-              </td>
+          {filteredCustomers.length > 0 ? (
+            filteredCustomers.map((customer) => (
+              <tr
+                key={customer.id}
+                style={{
+                  borderBottom: "1px solid #eee",
+                }}
+              >
+                <td style={{ padding: "12px" }}>
+                  {customer.customer_name}
+                </td>
 
-              <td>{customer.mobile}</td>
+                <td>{customer.mobile}</td>
 
-              <td>{customer.email}</td>
+                <td>{customer.email}</td>
 
-              <td>{customer.city}</td>
+                <td>{customer.city}</td>
 
-              <td>{customer.state}</td>
+                <td>{customer.state}</td>
 
-              <td>{customer.country}</td>
+                <td>{customer.country}</td>
 
-              <td>
-                <button
-                  onClick={() =>
-                    setSelectedCustomer(customer)
-                  }
-                  style={{
-                    background: "#2563eb",
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 14px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    marginRight: "10px",
-                  }}
-                >
-                  Edit
-                </button>
+                <td>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        setSelectedCustomer(customer)
+                      }
+                      style={iconButton}
+                      title="Edit"
+                    >
+                      <Pencil size={16} />
+                    </button>
 
-                <button
-                  onClick={() =>
-                    deleteCustomer(customer.id)
-                  }
-                  style={{
-                    background: "#dc2626",
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 14px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
+                    <a
+                      href={`tel:${customer.mobile}`}
+                      style={iconButton}
+                      title="Call"
+                    >
+                      <Phone size={16} />
+                    </a>
+
+                    <a
+                      href={`mailto:${customer.email}`}
+                      style={iconButton}
+                      title="Email"
+                    >
+                      <Mail size={16} />
+                    </a>
+
+                    <a
+                      href={`https://wa.me/91${customer.mobile}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={iconButton}
+                      title="WhatsApp"
+                    >
+                      <MessageCircle size={16} />
+                    </a>
+
+                    <button
+                      onClick={() =>
+                        deleteCustomer(customer.id)
+                      }
+                      style={deleteButton}
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan="7"
+                style={{
+                  textAlign: "center",
+                  padding: "20px",
+                }}
+              >
+                No Customers Found
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-
-      {filteredCustomers.length === 0 && (
-        <div
-          style={{
-            marginTop: "25px",
-            textAlign: "center",
-            color: "#666",
-          }}
-        >
-          No customers found.
-        </div>
-      )}
     </div>
   );
 }
+
+const iconButton = {
+  padding: "8px",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  background: "#f1f5f9",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const deleteButton = {
+  padding: "8px",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  background: "#ef4444",
+  color: "#fff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};

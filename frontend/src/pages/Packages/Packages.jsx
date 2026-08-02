@@ -21,24 +21,32 @@ function Packages() {
   }, []);
 
   async function loadStatistics() {
-    try {
-      const { count } = await supabase
-        .from("tour_packages")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+  try {
+    const { data, error } = await supabase
+      .from("tour_packages")
+      .select("*");
 
-      setStats({
-        total: count || 0,
-        upcoming: 0,
-        group: 0,
-        custom: 0,
-      });
-    } catch (error) {
+    if (error) {
       console.log(error);
+      return;
     }
+
+    setStats({
+      total: data.length,
+      upcoming: data.filter(
+        (p) => p.status === "Upcoming"
+      ).length,
+      group: data.filter(
+        (p) => p.package_type === "Group Tour"
+      ).length,
+      custom: data.filter(
+        (p) => p.package_type === "Custom Tour"
+      ).length,
+    });
+  } catch (error) {
+    console.log(error);
   }
+}
 
   const cardStyle = {
     background: "#ffffff",

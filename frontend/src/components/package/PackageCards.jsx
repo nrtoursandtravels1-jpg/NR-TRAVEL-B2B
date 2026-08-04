@@ -1,4 +1,10 @@
 import { useEffect, useState } from "react";
+import {
+  Package,
+  CheckCircle,
+  CalendarDays,
+  Ban,
+} from "lucide-react";
 import { supabase } from "../../services/supabase";
 
 export default function PackageCards() {
@@ -15,7 +21,7 @@ export default function PackageCards() {
 
   async function fetchStats() {
     const { data } = await supabase
-      .from("packages")
+      .from("tour_packages")
       .select("*");
 
     if (!data) return;
@@ -39,7 +45,9 @@ export default function PackageCards() {
     borderRadius: "12px",
     padding: "20px",
     boxShadow: "0 5px 15px rgba(0,0,0,.08)",
-    textAlign: "center",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
   };
 
   return (
@@ -52,30 +60,46 @@ export default function PackageCards() {
       }}
     >
       <div style={cardStyle}>
-        <h3>Total Packages</h3>
-        <h1>{stats.total}</h1>
-      </div>
+  <div>
+    <h3>Total Packages</h3>
+    <h1>{stats.total}</h1>
+  </div>
+     <Package size={34} color="#2563eb" />
+
+    </div>
 
       <div style={cardStyle}>
+          <div>
         <h3>Active</h3>
         <h1 style={{ color: "green" }}>
           {stats.active}
         </h1>
       </div>
 
+        <CheckCircle size={34} color="green" />
+      </div>
+
       <div style={cardStyle}>
+          <div>
         <h3>Upcoming</h3>
         <h1 style={{ color: "#2563eb" }}>
           {stats.upcoming}
         </h1>
       </div>
 
+        <CalendarDays size={34} color="#2563eb" />
+      </div>
+
       <div style={cardStyle}>
+          <div>
         <h3>Sold Out</h3>
         <h1 style={{ color: "red" }}>
           {stats.soldOut}
         </h1>
       </div>
+
+        <Ban size={34} color="red" />
+       </div>
     </div>
   );
 }

@@ -1,18 +1,29 @@
 import PricingPlans from "../components/PricingPlans";
+import FeaturedPackages from "../components/landing/FeaturedPackages";
+import PopularDestinations from "../components/landing/PopularDestinations";
+import WhyChooseUs from "../components/landing/WhyChooseUs";
+import Testimonials from "../components/landing/Testimonials";
+import BecomePartner from "../components/landing/BecomePartner";
+import ContactCTA from "../components/landing/ContactCTA";
+import PremiumFooter from "../components/landing/PremiumFooter";
+import Services from "../components/landing/Services";
+import StatsCounter from "../components/landing/StatsCounter";
+import FAQ from "../components/landing/FAQ";
+import Newsletter from "../components/landing/Newsletter";
+import WhatsAppButton from "../components/landing/WhatsAppButton";
+import ScrollTopButton from "../components/landing/ScrollTopButton";
 
 function Landingpage() {
   return (
     <div>
-
       {/* HERO */}
       <section
         style={{
           padding: "60px",
           background: "#0f172a",
-          color: "white"
+          color: "white",
         }}
       >
-
         <h1>
           Grow Your Travel Business
           <br />
@@ -24,31 +35,25 @@ function Landingpage() {
           B2B agents, customers and travel operators.
         </p>
 
-
-        <button
-          onClick={() => window.location.href="/register"}
-        >
+        <button onClick={() => (window.location.href = "/register")}>
           Join as B2B Agent
         </button>
 
-
         <button
-          onClick={() => window.location.href="/customer-login"}
-          style={{marginLeft:"15px"}}
+          onClick={() => (window.location.href = "/customer-login")}
+          style={{ marginLeft: "15px" }}
         >
           Customer Login
         </button>
 
-
         <div
           style={{
-            marginTop:"40px",
-            display:"grid",
-            gridTemplateColumns:"repeat(4,1fr)",
-            gap:"20px"
+            marginTop: "40px",
+            display: "grid",
+            gridTemplateColumns: "repeat(4,1fr)",
+            gap: "20px",
           }}
         >
-
           <div>
             <h2>125+</h2>
             <p>Travel Agents</p>
@@ -68,237 +73,45 @@ function Landingpage() {
             <h2>$25K+</h2>
             <p>Revenue Managed</p>
           </div>
-
         </div>
-
       </section>
 
+<FeaturedPackages />
 
+<Services />
 
-      {/* FEATURES */}
+<StatsCounter />
 
-      <section style={{padding:"50px"}}>
+<Testimonials />
 
-        <h2>
-          Complete Travel Business Management System
-        </h2>
+<FAQ />
 
+<PopularDestinations />
 
-        <div
-          style={{
-            display:"grid",
-            gridTemplateColumns:"repeat(3,1fr)",
-            gap:"20px"
-          }}
-        >
+<WhyChooseUs />
 
-          <div>
-            <h3>CRM Lead Management</h3>
-            <p>
-              Capture enquiries, manage follow-ups and convert
-              leads into bookings.
-            </p>
-          </div>
+{/* FEATURES */}
 
+{/* BUSINESS FLOW */}
 
-          <div>
-            <h3>Tour Package Management</h3>
-            <p>
-              Create packages, itineraries, pricing and travel schedules.
-            </p>
-          </div>
+{/* DASHBOARD PREVIEW */}
 
+<BecomePartner />
 
-          <div>
-            <h3>Hotel Management</h3>
-            <p>
-              Manage hotel partners and accommodation inventory.
-            </p>
-          </div>
+<ContactCTA />
 
+<PricingPlans />
 
-          <div>
-            <h3>B2B Agent Portal</h3>
-            <p>
-              Give agents tools to sell packages and manage customers.
-            </p>
-          </div>
+<Newsletter />
 
+<PremiumFooter />
 
-          <div>
-            <h3>Customer Portal</h3>
-            <p>
-              Customers can view trips, bookings and payments.
-            </p>
-          </div>
+<WhatsAppButton />
 
+<ScrollTopButton />
 
-          <div>
-            <h3>Operations Dashboard</h3>
-            <p>
-              Manage bookings, vendors, documents and travel operations.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      {/* PRICING PLANS */}
-
-      <PricingPlans />
-
-
-
-      {/* BUSINESS FLOW */}
-
-      <section
-        style={{
-          padding:"50px",
-          background:"#f1f5f9"
-        }}
-      >
-
-        <h2>
-          How NR Travel Works
-        </h2>
-
-
-        <ol>
-
-          <li>
-            Register your travel business
-          </li>
-
-          <li>
-            Connect with travel partners
-          </li>
-
-          <li>
-            Manage packages and customers
-          </li>
-
-          <li>
-            Grow your travel sales
-          </li>
-
-        </ol>
-
-      </section>
-
-
-
-
-      {/* DASHBOARD PREVIEW */}
-
-      <section style={{padding:"50px"}}>
-
-        <h2>
-          One Platform For Your Entire Travel Business
-        </h2>
-
-
-        <div>
-
-          <h3>
-            NR Travel Admin Dashboard
-          </h3>
-
-
-          <p>
-            ✔ Lead Management
-          </p>
-
-          <p>
-            ✔ Agent Management
-          </p>
-
-          <p>
-            ✔ Booking Operations
-          </p>
-
-          <p>
-            ✔ Revenue Reports
-          </p>
-
-
-        </div>
-
-      </section>
-
-
-
-
-      {/* CTA */}
-
-      <section
-        style={{
-          padding:"50px",
-          background:"#1e293b",
-          color:"white"
-        }}
-      >
-
-        <h2>
-          Ready To Grow Your Travel Business?
-        </h2>
-
-
-        <p>
-          Join NR Travel B2B platform and connect
-          with customers and travel partners.
-        </p>
-
-
-        <button
-          onClick={() => window.location.href="/register"}
-        >
-          Create Business Account
-        </button>
-
-
-      </section>
-
-
-
-
-      {/* FOOTER */}
-
-      <footer
-        style={{
-          padding:"30px",
-          textAlign:"center"
-        }}
-      >
-
-        <h2>
-          NR TRAVEL B2B
-        </h2>
-
-
-        <p>
-          Professional Travel SaaS Platform
-        </p>
-
-
-        <p>
-          India
-        </p>
-
-
-        <p>
-          © 2026 NR Travel. All Rights Reserved.
-        </p>
-
-
-      </footer>
-
-
-    </div>
-  );
+</div>
+);
 }
-
 
 export default Landingpage;

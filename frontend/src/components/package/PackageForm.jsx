@@ -3,16 +3,24 @@ import { supabase } from "../../services/supabase";
 
 function PackageForm({ onSuccess }) {
   const [form, setForm] = useState({
-    package_name: "",
-    package_type: "Domestic",
-    destination: "",
-    duration: "",
-    price: "",
-    description: "",
-    image_url: "",
-    featured: false,
-    status: "Active",
-  });
+  package_code: `PKG-${Date.now()}`,
+
+  package_name: "",
+  package_type: "Domestic",
+  destination: "",
+  duration: "",
+
+  hotel_category: "3 Star",
+  transport: "",
+  meal_plan: "",
+
+  price: "",
+  description: "",
+  image_url: "",
+
+  featured: false,
+  status: "Active",
+});
 
   const [loading, setLoading] = useState(false);
 
@@ -44,16 +52,22 @@ function PackageForm({ onSuccess }) {
     alert("Package Added Successfully");
 
     setForm({
-      package_name: "",
-      package_type: "Domestic",
-      destination: "",
-      duration: "",
-      price: "",
-      description: "",
-      image_url: "",
-      featured: false,
-      status: "Active",
-    });
+  package_name: "",
+  package_type: "Domestic",
+  destination: "",
+  duration: "",
+
+  hotel_category: "3 Star",
+  transport: "",
+  meal_plan: "",
+
+  price: "",
+  description: "",
+  image_url: "",
+
+  featured: false,
+  status: "Active",
+});
 
     if (onSuccess) onSuccess();
   }
@@ -69,17 +83,35 @@ function PackageForm({ onSuccess }) {
       <h2>Add Tour Package</h2>
 
       <form onSubmit={handleSubmit}>
+      <div
+        style={{
+          display: "grid",  
+          gridTemplateColumns: "repeat(2,1fr)",
+          gap: "15px",
+    }}
+  >
 
-        <input
-          name="package_name"
-          placeholder="Package Name"
-          value={form.package_name}
-          onChange={handleChange}
-          required
-        />
+      <input
+          name="package_code"
+          placeholder="Package Code"
+          value={form.package_code}
+          readOnly
+          style={{
+          background: "#f1f5f9",
+          color: "#64748b",
+          fontWeight: "bold",
+    }}
+  />
 
-        <br /><br />
+          <input
+            name="package_name"
+            placeholder="Package Name"
+            value={form.package_name}
+            onChange={handleChange}
+            required
+          />
 
+    
         <select
           name="package_type"
           value={form.package_type}
@@ -108,6 +140,30 @@ function PackageForm({ onSuccess }) {
           onChange={handleChange}
         />
 
+        <select
+  name="hotel_category"
+  value={form.hotel_category}
+  onChange={handleChange}
+>
+  <option>3 Star</option>
+  <option>4 Star</option>
+  <option>5 Star</option>
+</select>
+
+<input
+  name="transport"
+  placeholder="Transport (Flight / Train / Bus)"
+  value={form.transport}
+  onChange={handleChange}
+/>
+
+<input
+  name="meal_plan"
+  placeholder="Meal Plan (Breakfast / MAP / AP)"
+  value={form.meal_plan}
+  onChange={handleChange}
+/>
+
         <br /><br />
 
         <input
@@ -128,6 +184,8 @@ function PackageForm({ onSuccess }) {
         />
 
         <br /><br />
+
+      </div>
 
         <textarea
           name="description"
@@ -161,14 +219,57 @@ function PackageForm({ onSuccess }) {
         </select>
 
         <br /><br />
+       <div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "10px",
+    marginTop: "20px",
+  }}
+>
+  <button
+    type="button"
+    onClick={() =>
+      setForm({
+        package_name: "",
+        package_type: "Domestic",
+        destination: "",
+        duration: "",
+        price: "",
+        description: "",
+        image_url: "",
+        featured: false,
+        status: "Active",
+      })
+    }
+    style={{
+      background: "#64748b",
+      color: "#fff",
+      border: "none",
+      padding: "12px 20px",
+      borderRadius: "8px",
+      cursor: "pointer",
+    }}
+  >
+    Reset
+  </button>
 
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Saving..." : "Save Package"}
-        </button>
-
+  <button
+    type="submit"
+    disabled={loading}
+    style={{
+      background: "#2563eb",
+      color: "#fff",
+      border: "none",
+      padding: "12px 25px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontWeight: "600",
+    }}
+  >
+    {loading ? "Saving..." : "Save Package"}
+  </button>
+   </div>        
       </form>
     </div>
   );

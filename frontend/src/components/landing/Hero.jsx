@@ -1,11 +1,23 @@
+import { useEffect, useState } from "react";
+
 function Hero() {
+  const [mobile, setMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const resize = () => setMobile(window.innerWidth < 768);
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+
   return (
     <section
       style={{
         background:
-          "linear-gradient(135deg,#0f172a,#1e3a8a)",
+          "linear-gradient(rgba(15,23,42,.8),rgba(30,58,138,.8)), url('/travel.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         color: "white",
-        padding: "80px 60px",
+        padding: mobile ? "50px 20px" : "80px 60px",
       }}
     >
       <div
@@ -13,7 +25,7 @@ function Hero() {
           maxWidth: "1200px",
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: mobile ? "1fr" : "1fr 1fr",
           gap: "50px",
           alignItems: "center",
         }}
@@ -23,78 +35,100 @@ function Hero() {
         <div>
           <h1
             style={{
-              fontSize: "48px",
+              fontSize: mobile ? "34px" : "48px",
               marginBottom: "20px",
-              lineHeight: "60px",
+              lineHeight: mobile ? "45px" : "60px",
             }}
           >
-            Explore India &
+            🌍 Explore India & The World
             <br />
-            The World With
+            With
             <br />
-            NR Tours & Travels
+            WorldTrip Connect
           </h1>
 
           <p
             style={{
-              fontSize: "20px",
-              marginBottom: "30px",
-              color: "#dbeafe",
+              fontSize: "18px",
+              marginBottom: "15px",
+              color: "#facc15",
+              fontWeight: "600",
             }}
           >
-            Domestic Tours • International Tours • Hotels •
-            Cab • Bus • Flight • Visa Services
+            Powered by NR Tours & Travels
           </p>
 
-          <button
+          <p
             style={{
-              padding: "15px 30px",
-              background: "#f59e0b",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              marginRight: "15px",
+              fontSize: mobile ? "16px" : "18px",
+              color: "#dbeafe",
+              lineHeight: "30px",
+              marginBottom: "30px",
             }}
           >
-            Get Free Quote
-          </button>
-
-          <button
-            style={{
-              padding: "15px 30px",
-              background: "transparent",
-              color: "white",
-              border: "2px solid white",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
-          >
-            Become B2B Partner
-          </button>
+            Connecting Travelers, Agents & Businesses Worldwide.
+            <br />
+            Domestic Tours • International Tours • Hotels • Flights • Visa •
+            Transport • Holiday Packages
+          </p>
 
           <div
             style={{
               display: "flex",
-              gap: "30px",
+              flexDirection: mobile ? "column" : "row",
+              gap: "15px",
+            }}
+          >
+            <button
+              style={{
+                padding: "15px 30px",
+                background: "#f59e0b",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              Explore Packages
+            </button>
+
+            <button
+              style={{
+                padding: "15px 30px",
+                background: "transparent",
+                color: "white",
+                border: "2px solid white",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              Become B2B Partner
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: mobile ? "repeat(2,1fr)" : "repeat(4,1fr)",
+              gap: "20px",
               marginTop: "40px",
-              flexWrap: "wrap",
+              textAlign: "center",
             }}
           >
             <div>
-              <h2>1000+</h2>
+              <h2>10,000+</h2>
               <p>Happy Travellers</p>
             </div>
 
             <div>
-              <h2>150+</h2>
+              <h2>350+</h2>
               <p>B2B Partners</p>
             </div>
 
             <div>
-              <h2>500+</h2>
+              <h2>750+</h2>
               <p>Tour Packages</p>
             </div>
 
@@ -116,7 +150,7 @@ function Hero() {
             boxShadow: "0 10px 30px rgba(0,0,0,.25)",
           }}
         >
-          <h2>Our Services</h2>
+          <h2 style={{ textAlign: "center" }}>Our Services</h2>
 
           <div
             style={{
@@ -133,7 +167,7 @@ function Hero() {
             <div>🌍 Visa</div>
             <div>📦 Tour Packages</div>
             <div>🛂 Passport</div>
-            <div>🛡 Insurance</div>
+            <div>🛡 Travel Insurance</div>
           </div>
         </div>
       </div>

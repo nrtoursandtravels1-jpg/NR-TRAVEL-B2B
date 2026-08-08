@@ -100,7 +100,7 @@ export default function DashboardCards() {
     },
     {
       title: "💰 Revenue",
-      value: `₹ ${stats.revenue}`,
+      value: `₹ ${stats.revenue.toLocaleString("en-IN")}`,
       color: "bg-green-600",
     },
   ];
@@ -110,7 +110,7 @@ export default function DashboardCards() {
   }
 
   return (
- <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+ <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
  {cards.map((card) => (
   <StatCard
     key={card.title}

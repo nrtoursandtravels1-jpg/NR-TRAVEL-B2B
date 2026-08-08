@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 
 // Layout
@@ -58,6 +58,7 @@ import GroupTours from "./pages/Packages/GroupTours";
 import GirlsOnlyTours from "./pages/Packages/GirlsOnlyTours";
 import FamilyTours from "./pages/Packages/FamilyTours";
 import CustomTours from "./pages/Packages/CustomTours";
+import ViewPackage from "./pages/Packages/ViewPackage";
 
 // Reports
 import Reports from "./pages/reports/Reports";
@@ -70,7 +71,7 @@ import UpgradePlan from "./pages/subscription/UpgradePlan";
 
 function App() {
   return (
-    <BrowserRouter>
+      
       <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
 
         <Navbar />
@@ -260,6 +261,12 @@ function App() {
             />
 
             <Route
+              path="/packages/view/:id"
+              element={<ViewPackage />}
+            />
+
+
+            <Route
               path="/packages/edit/:id"
               element={
                 <ProtectedRoute>
@@ -408,8 +415,8 @@ function App() {
         <Footer />
 
       </div>
-    </BrowserRouter>
-  );
+
+      );
 }
 
 export default App;

@@ -149,40 +149,19 @@ export default function LeadTable({
 
 
 
-  return (
+return (
 
-    <div
-      style={{
-        background: "#fff",
-        padding: "20px",
-        borderRadius: "10px",
-        marginTop: "20px"
-      }}
-    >
+  <div className="bg-white rounded-2xl shadow-lg p-6 mt-5">
 
+    <h2 className="text-2xl font-bold mb-5">
+      📋 Lead List
+    </h2>
 
-    <h2
-  style={{
-    marginBottom: "20px",
-    fontSize: "22px",
-    fontWeight: "700",
-  }}
->
-  📋 Lead List
-</h2>
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
 
+     <table className="min-w-full w-full">
 
-
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginTop: "15px"
-        }}
-      >
-
-
-
+        
         <thead>
 
           <tr>
@@ -232,8 +211,10 @@ export default function LeadTable({
             leads.map((lead) => (
 
 
-              <tr key={lead.id}>
-
+              <tr
+              key={lead.id}
+              className="hover:bg-slate-50 transition border-b border-slate-200"
+              >
 
                 <td style={tdStyle}>
                   {lead.customer_name}
@@ -266,23 +247,17 @@ export default function LeadTable({
 
                  
                  
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     
                   <StatusBadge status={lead.status || "New"} />
 
                   <select
-
-                    value={lead.status || "New"}
-
-                    onChange={(e) =>
-                      updateStatus(
-                        lead.id,
-                        e.target.value
-                      )
-                    }
-
-                  >
-
+                  className="border rounded-lg px-2 py-1 text-sm w-full"
+                  value={lead.status || "New"}
+                  onChange={(e) =>
+                 updateStatus(lead.id, e.target.value)
+               }
+             >
                     <option value="New">
                       New
                     </option>
@@ -325,7 +300,7 @@ export default function LeadTable({
 
                   {/* EDIT BUTTON */}
 
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex items-center gap-2">
                <button
                 onClick={() => setSelectedLead(lead)}
                 style={iconButton}
@@ -385,30 +360,20 @@ export default function LeadTable({
 
         </tbody>
 
+</table>
 
-      </table>
+</div>
 
+{
+  leads.length === 0 && (
+    <p className="mt-5 text-center text-slate-500">
+      No leads found
+    </p>
+  )
+}
 
-
-
-
-
-      {
-        leads.length === 0 &&
-
-        <p style={{ marginTop: "20px" }}>
-
-          No leads found
-
-        </p>
-
-      }
-
-
-
-
-    </div>
-
+</div>
+    
   );
 
 }
@@ -468,6 +433,7 @@ const iconButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+    transition: "0.3s",
 };
 
 const deleteButton = {
@@ -481,5 +447,5 @@ const deleteButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-
+  transition: "0.3s",
 };

@@ -42,102 +42,113 @@ export default function HotelCards() {
     });
   }
 
-  const cardStyle = {
-    background: "#fff",
-    borderRadius: "12px",
-    padding: "22px",
-    boxShadow: "0 5px 15px rgba(0,0,0,.08)",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  };
+ return (
+  <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
 
-  const valueStyle = {
-    fontSize: "32px",
-    fontWeight: "bold",
-    marginTop: "8px",
-  };
+      <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-slate-200">
 
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(auto-fit,minmax(240px,1fr))",
-        gap: "20px",
-        marginBottom: "30px",
-      }}
-    >
-      <div style={cardStyle}>
-        <div>
-          <h4>Total Hotels</h4>
-          <div style={valueStyle}>
-            {stats.total}
-          </div>
-        </div>
+  <div className="flex justify-between items-center">
 
-        <Building2
-          size={42}
-          color="#2563eb"
-        />
-      </div>
+    <div>
 
-      <div style={cardStyle}>
-        <div>
-          <h4>Active Hotels</h4>
-          <div
-            style={{
-              ...valueStyle,
-              color: "#16a34a",
-            }}
-          >
-            {stats.active}
-          </div>
-        </div>
+      <p className="text-slate-500 text-sm font-medium">
+        Total Hotels
+      </p>
 
-        <CheckCircle
-          size={42}
-          color="#16a34a"
-        />
-      </div>
+      <h2 className="text-4xl font-bold text-slate-800 mt-2">
+        {stats.total}
+      </h2>
 
-      <div style={cardStyle}>
-        <div>
-          <h4>Inactive Hotels</h4>
-          <div
-            style={{
-              ...valueStyle,
-              color: "#dc2626",
-            }}
-          >
-            {stats.inactive}
-          </div>
-        </div>
-
-        <XCircle
-          size={42}
-          color="#dc2626"
-        />
-      </div>
-
-      <div style={cardStyle}>
-        <div>
-          <h4>Cities Covered</h4>
-          <div
-            style={{
-              ...valueStyle,
-              color: "#7c3aed",
-            }}
-          >
-            {stats.cities}
-          </div>
-        </div>
-
-        <MapPin
-          size={42}
-          color="#7c3aed"
-        />
-      </div>
     </div>
-  );
+
+    <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center shadow-md">
+
+      <Building2 className="text-white" size={32} />
+
+    </div>
+
+  </div>
+
+</div>
+
+      <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-slate-200">
+
+  <div className="flex justify-between items-center">
+
+    <div>
+
+      <p className="text-slate-500 text-sm font-medium">
+        Active Hotels
+      </p>
+
+      <h2 className="text-4xl font-bold text-green-600 mt-2">
+        {stats.active}
+      </h2>
+
+    </div>
+
+    <div className="w-16 h-16 rounded-2xl bg-green-600 flex items-center justify-center shadow-md">
+
+      <CheckCircle className="text-white" size={32} />
+
+    </div>
+
+  </div>
+
+</div>
+
+      <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-slate-200">
+
+  <div className="flex justify-between items-center">
+
+    <div>
+
+      <p className="text-slate-500 text-sm font-medium">
+        Inactive Hotels
+      </p>
+
+      <h2 className="text-4xl font-bold text-red-600 mt-2">
+        {stats.inactive}
+      </h2>
+
+    </div>
+
+    <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center shadow-md">
+
+      <XCircle className="text-white" size={32} />
+
+    </div>
+
+  </div>
+
+</div>
+
+  <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-slate-200">
+
+  <div className="flex justify-between items-center">
+
+    <div>
+
+      <p className="text-slate-500 text-sm font-medium">
+        Cities Covered
+      </p>
+
+      <h2 className="text-4xl font-bold text-purple-600 mt-2">
+        {stats.cities}
+      </h2>
+
+    </div>
+
+    <div className="w-16 h-16 rounded-2xl bg-purple-600 flex items-center justify-center shadow-md">
+
+      <MapPin className="text-white" size={32} />
+
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+);
 }

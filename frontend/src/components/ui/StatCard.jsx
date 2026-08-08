@@ -7,7 +7,9 @@ export default function StatCard({
   return (
     <div
       className="
-      bg-white
+      bg-gradient-to-br 
+      from-white
+       to-slate-50
       rounded-2xl
       p-6
       shadow-lg
@@ -55,7 +57,7 @@ export default function StatCard({
       <div className="mt-5 border-t border-slate-200 pt-3 flex justify-between">
 
         <span className="text-green-600 font-semibold text-sm">
-          ▲ +12%
+              ↗ Growth
         </span>
 
         <span className="text-slate-400 text-sm">

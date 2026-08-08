@@ -6,7 +6,6 @@ export default function LeadForm({
   clearSelectedLead,
   refreshLeads,
 }) {
-
   const initialState = {
     customerName: "",
     mobile: "",
@@ -20,15 +19,10 @@ export default function LeadForm({
     notes: "",
   };
 
-
   const [lead, setLead] = useState(initialState);
 
-
-
   useEffect(() => {
-
-    if(selectedLead){
-
+    if (selectedLead) {
       setLead({
         customerName: selectedLead.customer_name || "",
         mobile: selectedLead.mobile || "",
@@ -41,45 +35,27 @@ export default function LeadForm({
         status: selectedLead.status || "New",
         notes: selectedLead.notes || "",
       });
-
+    } else {
+      setLead(initialState);
     }
+  }, [selectedLead]);
 
-  },[selectedLead]);
-
-
-
-
-
-  const handleChange = (e)=>{
-
+  function handleChange(e) {
     setLead({
       ...lead,
       [e.target.name]: e.target.value,
     });
+  }
 
-  };
-
-
-
-
-
-  const handleSubmit = async(e)=>{
-
+  async function handleSubmit(e) {
     e.preventDefault();
 
-
-
-    if(!lead.customerName || !lead.mobile || !lead.destination){
-
-      alert("Please fill required fields");
+    if (!lead.customerName || !lead.mobile || !lead.destination) {
+      alert("Please fill required fields.");
       return;
-
     }
 
-
-
     const leadData = {
-
       customer_name: lead.customerName,
       mobile: lead.mobile,
       email: lead.email,
@@ -90,246 +66,107 @@ export default function LeadForm({
       lead_source: lead.leadSource,
       status: lead.status,
       notes: lead.notes,
-
     };
-
-
-
-
 
     let error;
 
-
-
-    if(selectedLead){
-
-
-      const response = await supabase
-
+    if (selectedLead) {
+      const res = await supabase
         .from("leads")
-
         .update(leadData)
+        .eq("id", selectedLead.id);
 
-        .eq(
-          "id",
-          selectedLead.id
-        );
-
-
-      error = response.error;
-
-
-    }
-    else{
-
-
-      const response = await supabase
-
+      error = res.error;
+    } else {
+      const res = await supabase
         .from("leads")
+        .insert([leadData]);
 
-        .insert([
-          leadData
-        ]);
-
-
-      error = response.error;
-
+      error = res.error;
     }
 
-
-
-
-
-    if(error){
-
-      console.log(
-        "Lead Save Error:",
-        error
-      );
-
-      alert("Lead Save Failed");
-
+    if (error) {
+      console.log(error);
+      alert("Lead save failed.");
       return;
-
     }
 
-
-
-
-
-    alert(
-      selectedLead
-      ? "Lead Updated Successfully"
-      : "Lead Saved Successfully"
-    );
-
-
+    alert(selectedLead ? "Lead Updated Successfully" : "Lead Saved Successfully");
 
     setLead(initialState);
 
-
-
-    if(clearSelectedLead){
-
-      clearSelectedLead();
-
-    }
-
-
-
-    if(refreshLeads){
-
-      refreshLeads();
-
-    }
-
-
-  };
-
-
-
-
-
+    if (clearSelectedLead) clearSelectedLead();
+    if (refreshLeads) refreshLeads();
+  }
 
   return (
+    <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
 
-    <div
-      style={{
-        background:"#fff",
-        padding:"20px",
-        borderRadius:"10px",
-        marginBottom:"20px"
-      }}
-    >
-
-      <h2>
-        {
-          selectedLead
-          ? "Edit Lead"
-          : "Add New Lead"
-        }
+      <h2 className="text-2xl font-bold mb-6">
+        {selectedLead ? "✏️ Edit Lead" : "➕ Add New Lead"}
       </h2>
 
-
-
-      <form onSubmit={handleSubmit}>
-
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-5"
+      >
 
         {[
-          ["customerName","Customer Name"],
-          ["mobile","Mobile Number"],
-          ["email","Email"],
-          ["destination","Destination"],
-          ["travelDate","Travel Date"],
-          ["travelers","Travelers"],
-          ["budget","Budget"],
-          ["leadSource","Lead Source"]
-        ].map(([name,placeholder])=>(
-
+          ["customerName", "Customer Name"],
+          ["mobile", "Mobile Number"],
+          ["email", "Email"],
+          ["destination", "Destination"],
+          ["travelDate", "Travel Date"],
+          ["travelers", "Travelers"],
+          ["budget", "Budget"],
+          ["leadSource", "Lead Source"],
+        ].map(([name, placeholder]) => (
           <input
-
             key={name}
-
-            type={
-              name==="travelDate"
-              ? "date"
-              : "text"
-            }
-
+            type={name === "travelDate" ? "date" : "text"}
             name={name}
-
             placeholder={placeholder}
-
             value={lead[name]}
-
             onChange={handleChange}
-
-            style={inputStyle}
-
+            className="border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
           />
-
         ))}
-
-
 
         <select
           name="status"
           value={lead.status}
           onChange={handleChange}
-          style={inputStyle}
+          className="border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
         >
-
-          <option value="New">New</option>
-          <option value="Contacted">Contacted</option>
-          <option value="Follow Up">Follow Up</option>
-          <option value="Booked">Booked</option>
-          <option value="Lost">Lost</option>
-
+          <option>New</option>
+          <option>Contacted</option>
+          <option>Follow Up</option>
+          <option>Booked</option>
+          <option>Lost</option>
         </select>
 
-
-
-
         <textarea
-
           name="notes"
-
+          rows="5"
           placeholder="Notes"
-
           value={lead.notes}
-
           onChange={handleChange}
-
-          style={inputStyle}
-
+          className="border border-slate-300 rounded-xl px-4 py-3 md:col-span-2 focus:ring-2 focus:ring-blue-500 outline-none"
         />
 
+        <div className="md:col-span-2 flex justify-end">
 
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition"
+          >
+            {selectedLead ? "Update Lead" : "Save Lead"}
+          </button>
 
-        <button
-          type="submit"
-          style={buttonStyle}
-        >
-
-          {
-            selectedLead
-            ? "Update Lead"
-            : "Save Lead"
-          }
-
-        </button>
-
+        </div>
 
       </form>
 
-
     </div>
-
   );
-
 }
-
-
-
-const inputStyle = {
-
-  width:"100%",
-  padding:"10px",
-  marginBottom:"15px",
-  borderRadius:"5px",
-  border:"1px solid #ccc"
-
-};
-
-
-
-const buttonStyle = {
-
-  padding:"10px 20px",
-  background:"#2563eb",
-  color:"white",
-  border:"none",
-  borderRadius:"5px",
-  cursor:"pointer"
-
-};

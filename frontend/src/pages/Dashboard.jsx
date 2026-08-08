@@ -5,6 +5,7 @@ import Button from "../components/ui/Button";
 import RevenueChart from "../components/dashboard/RevenueChart";
 import RecentActivities from "../components/dashboard/RecentActivities";
 import QuickActions from "../components/dashboard/QuickActions";
+import WelcomeBanner from "../components/dashboard/WelcomeBanner";
 
 export default function Dashboard() {
   return (
@@ -14,6 +15,8 @@ export default function Dashboard() {
         subtitle="Good Morning, Nisha 👋 | Let's grow your travel business today."
         action={<Button>+ Add Lead</Button>}
       />
+       
+         <WelcomeBanner />
 
       {/* Dashboard Cards */}
       <DashboardCards />

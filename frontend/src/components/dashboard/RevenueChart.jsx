@@ -19,81 +19,67 @@ const data = [
 
 export default function RevenueChart() {
   return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "20px",
-        padding: "25px",
-        marginTop: "30px",
-        boxShadow: "0 10px 25px rgba(15,23,42,.08)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "25px",
-        }}
-      >
+    <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
+
+      <div className="flex justify-between items-center mb-6">
+
         <div>
-          <h2
-            style={{
-              margin: 0,
-              color: "#0f172a",
-            }}
-          >
+          <h2 className="text-2xl font-bold text-slate-800">
             📈 Revenue Analytics
           </h2>
 
-          <p
-            style={{
-              marginTop: "8px",
-              color: "#64748b",
-            }}
-          >
-            Monthly business growth
+          <p className="text-slate-500 mt-1">
+            Monthly Business Growth
           </p>
         </div>
 
-        <div
-          style={{
-            background: "#DCFCE7",
-            color: "#166534",
-            padding: "8px 16px",
-            borderRadius: "999px",
-            fontWeight: "700",
-          }}
-        >
-            +18.4%
+        <div className="bg-green-100 text-green-700 font-semibold px-4 py-2 rounded-full">
+          +18.4%
         </div>
+
       </div>
 
-      <ResponsiveContainer width="100%" height={320}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="4 4" />
+      <div className="h-[260px]">
 
-          <XAxis dataKey="month" />
+        <ResponsiveContainer width="40%" height="50%">
 
-          <YAxis />
+          <LineChart data={data}>
 
-          <Tooltip />
+            <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" />
 
-          <Line
-            type="monotone"
-            dataKey="revenue"
-            stroke="#2563EB"
-            strokeWidth={4}
-            dot={{
-              r: 5,
-              fill: "#2563EB",
-            }}
-            activeDot={{
-              r: 8,
-            }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+            />
+
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(value) => `₹${value / 1000}K`}
+            />
+
+            <Tooltip
+              formatter={(value) =>
+                `₹${Number(value).toLocaleString()}`
+              }
+            />
+
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              stroke="#2563EB"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+
+          </LineChart>
+
+        </ResponsiveContainer>
+
+      </div>
+
     </div>
   );
 }

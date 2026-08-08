@@ -5,46 +5,29 @@ import {
   Phone,
   Mail,
   MessageCircle,
+  MapPin,
+  Star,
+  Globe,
 } from "lucide-react";
 import { supabase } from "../../services/supabase";
+import HotelViewModal from "./HotelViewModal";
 
 export default function HotelTable({
   refresh,
+  search,
   setSelectedHotel,
 }) {
   const [hotels, setHotels] = useState([]);
   const [filteredHotels, setFilteredHotels] = useState([]);
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const iconButton = {
-  padding: "8px",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-  background: "#f1f5f9",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const deleteButton = {
-  padding: "8px",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-  background: "#ef4444",
-  color: "#fff",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
+  const [viewHotel, setViewHotel] = useState(null);
 
   useEffect(() => {
     fetchHotels();
   }, [refresh]);
 
   useEffect(() => {
-    const keyword = search.toLowerCase();
+    const keyword = (search || "").toLowerCase();
 
     setFilteredHotels(
       hotels.filter(
@@ -76,11 +59,9 @@ const deleteButton = {
   }
 
   async function deleteHotel(id) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this hotel?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this hotel?")) {
+      return;
+    }
 
     const { error } = await supabase
       .from("hotels")
@@ -93,132 +74,251 @@ const deleteButton = {
     }
 
     alert("Hotel deleted successfully.");
-
     fetchHotels();
   }
 
   if (loading) {
-    return <h3>Loading Hotels...</h3>;
+    return (
+      <div className="bg-white rounded-2xl shadow-lg p-10 text-center">
+        <p className="text-slate-500 font-medium">
+          Loading Hotels...
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        padding: 20,
-        borderRadius: 10,
-        marginTop: 20,
-      }}
-    >
-      <h2>Hotel List</h2>
+    <div className="overflow-x-auto">
 
-      <input
-        type="text"
-        placeholder="Search hotel..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          width: "300px",
-          padding: "8px",
-          marginBottom: "20px",
-        }}
-      />
+      <table className="min-w-full">
 
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-        }}
-      >
-        <thead>
+        <thead className="bg-slate-100">
+
           <tr>
-            <th>Hotel</th>
-            <th>City</th>
-            <th>Contact</th>
-            <th>Mobile</th>
-            <th>Room</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th width="170">Actions</th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+            Image
+           </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              Hotel
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              City
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              Contact Person
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              Mobile
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              Room
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              Price
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+              Status
+            </th>
+
+            <th className="px-5 py-4 text-left font-semibold text-slate-700">
+            Links
+            </th>
+
+
+            <th className="px-5 py-4 text-center font-semibold text-slate-700">
+              Actions
+            </th>
+
           </tr>
+
         </thead>
 
         <tbody>
+
           {filteredHotels.length > 0 ? (
+
             filteredHotels.map((hotel) => (
-              <tr key={hotel.id}>
-                <td>{hotel.hotel_name}</td>
-                <td>{hotel.city}</td>
-                <td>{hotel.contact_person}</td>
-                <td>{hotel.mobile}</td>
-                <td>{hotel.room_type}</td>
-                <td>₹ {hotel.price_per_night}</td>
-                <td>{hotel.status}</td>
 
-               <td>
-               <div
-                 style={{
-                  display: "flex",
-                  gap: "8px",
-                  justifyContent: "center",
-                }}
+              <tr
+                key={hotel.id}
+                className="border-b border-slate-200 hover:bg-blue-50 transition-all duration-200"
               >
-                <button
-                  onClick={() => setSelectedHotel(hotel)}
-                  style={iconButton}
-                  title="Edit"
-                >
-                 <Pencil size={16} />
-                  </button>
 
-                 <a
-                  href={`tel:${hotel.mobile}`}
-                  style={iconButton}
-                  title="Call"
-                  >
-                <Phone size={16} />
-              </a>
+                <td className="px-5 py-4">
+  {hotel.hotel_image ? (
+    <img
+      src={hotel.hotel_image}
+      alt={hotel.hotel_name}
+      className="w-16 h-16 rounded-xl object-cover border"
+    />
+  ) : (
+    <div className="w-16 h-16 rounded-xl bg-slate-200 flex items-center justify-center">
+      📷
+    </div>
+  )}
+</td>
 
-              <a
-               href={`mailto:${hotel.email}`}
-               style={iconButton}
-               title="Email"
-              >
-               <Mail size={16} />
-             </a>
+<td className="px-5 py-4 font-medium">
+  {hotel.hotel_name}
+</td>
 
-             <a
-              href={`https://wa.me/91${hotel.mobile}`}
-              target="_blank"
-              rel="noreferrer"
-              style={iconButton}
-              title="WhatsApp"
-            >
-            <MessageCircle size={16} />
-            </a>
+                <td className="px-5 py-4">
+                <div className="flex items-center gap-2 text-slate-700">
+                <MapPin size={16} className="text-red-500" />
+               {hotel.city}
+             </div>
+                </td>
 
-             <button
-             onClick={() => deleteHotel(hotel.id)}
-             style={deleteButton}
-             title="Delete"
-            >
-             <Trash2 size={16} />
-               </button>
-              </div>
-               </td>                
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="8" align="center">
-                No hotels found.
+                <td className="px-5 py-4">
+                <div className="font-medium text-slate-800">
+                {hotel.contact_person}
+                </div>
+
+                <div className="text-xs text-slate-500">
+                Hotel Manager
+                </div>
               </td>
+                <td className="px-5 py-4 font-medium">
+                {hotel.mobile}
+                 </td>
+                <td className="px-5 py-4">
+                  {hotel.room_type}
+                </td>
+
+                <td className="px-5 py-4">
+  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+    ₹ {Number(hotel.price_per_night).toLocaleString()}
+  </span>
+</td>
+
+<td className="px-5 py-4">
+  <span
+    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+      hotel.status === "Active"
+        ? "bg-green-100 text-green-700"
+        : "bg-red-100 text-red-700"
+    }`}
+  >
+    {hotel.status}
+  </span>
+</td>
+
+{/* NEW COLUMN */}
+<td className="px-5 py-4">
+  <div className="flex gap-2">
+
+    {hotel.website && (
+      <a
+        href={hotel.website}
+        target="_blank"
+        rel="noreferrer"
+        className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200"
+      >
+        🌐
+      </a>
+    )}
+
+    {hotel.google_map_link && (
+      <a
+        href={hotel.google_map_link}
+        target="_blank"
+        rel="noreferrer"
+        className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200"
+      >
+        📍
+      </a>
+    )}
+
+  </div>
+</td>
+
+
+                <td className="px-5 py-4">
+
+                  <div className="flex justify-center gap-2">
+
+                    <button
+                      onClick={() => setSelectedHotel(hotel)}
+                      className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200"
+                      title="Edit"
+                    >
+                      <Pencil size={16} />
+                    </button>
+
+                    <a
+                      href={`tel:${hotel.mobile}`}
+                      className="p-2 rounded-lg bg-green-100 hover:bg-green-200"
+                      title="Call"
+                    >
+                      <Phone size={16} />
+                    </a>
+
+                    <a
+                      href={`mailto:${hotel.email}`}
+                      className="p-2 rounded-lg bg-yellow-100 hover:bg-yellow-200"
+                      title="Email"
+                    >
+                      <Mail size={16} />
+                    </a>
+
+                    <a
+                      href={`https://wa.me/91${hotel.mobile}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 rounded-lg bg-emerald-100 hover:bg-emerald-200"
+                      title="WhatsApp"
+                    >
+                      <MessageCircle size={16} />
+                    </a>
+
+                    <button
+                      onClick={() => deleteHotel(hotel.id)}
+                      className="p-2 rounded-lg bg-red-500 hover:bg-red-600 text-white"
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            ))
+
+          ) : (
+
+            <tr>
+
+              <td
+                colSpan="8"
+                className="text-center py-10 text-slate-500"
+              >
+                No Hotels Found
+              </td>
+
             </tr>
+
           )}
+
         </tbody>
+
       </table>
+      {viewHotel && (
+  <HotelViewModal
+    hotel={viewHotel}
+    onClose={() => setViewHotel(null)}
+  />
+)}
     </div>
   );
 }

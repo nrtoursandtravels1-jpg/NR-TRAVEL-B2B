@@ -3,21 +3,21 @@ import NavbarCRM from "./NavbarCRM";
 
 export default function Layout({ children }) {
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100 flex">
 
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Right Side */}
-      <div className="flex flex-1 flex-col ml-[260px]">
+      {/* Main Area */}
+      <div className="flex flex-col flex-1 ml-[260px]">
 
-        {/* Navbar */}
+        {/* Header */}
         <NavbarCRM />
 
-        {/* Main Content */}
-        <main className="flex-1 mt-[75px] p-8 overflow-y-auto bg-slate-100">
+        <main className="flex-1 pt-[85px] px-8 pb-8">
+        {/* Page Content */}
 
-          <div className="bg-white rounded-2xl shadow-lg p-8 min-h-[calc(100vh-140px)]">
+          <div className="bg-white rounded-2xl shadow-md p-8 min-h-[calc(100vh-120px)]">
 
             {children}
 

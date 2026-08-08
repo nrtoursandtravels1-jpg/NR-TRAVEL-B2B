@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
+import { Upload } from "lucide-react";
 
 const initialHotel = {
   hotel_name: "",
@@ -24,6 +25,8 @@ const initialHotel = {
   price_per_night: "",
 
   status: "Active",
+
+  hotel_image: "",
   
   notes: "",
 };
@@ -34,6 +37,7 @@ export default function HotelForm({
 }) {
   const [hotel, setHotel] = useState(initialHotel);
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
     if (selectedHotel) {
@@ -91,19 +95,42 @@ export default function HotelForm({
 
     setLoading(true);
 
-    const hotelData = {
-      ...hotel,
-      hotel_name: hotel.hotel_name.trim(),
-      city: hotel.city.trim(),
-      state: hotel.state.trim(),
-      country: hotel.country.trim(),
-      address: hotel.address.trim(),
-      contact_person: hotel.contact_person.trim(),
-      mobile: hotel.mobile.trim(),
-      email: hotel.email.trim(),
-      room_type: hotel.room_type.trim(),
-      notes: hotel.notes.trim(),
-    };
+let imageUrl = hotel.hotel_image;
+
+if (image) {
+  const fileName = `${Date.now()}-${image.name}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("hotel-images")
+    .upload(fileName, image);
+
+  if (uploadError) {
+    alert(uploadError.message);
+    setLoading(false);
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("hotel-images")
+    .getPublicUrl(fileName);
+
+  imageUrl = data.publicUrl;
+}
+
+const hotelData = {
+  ...hotel,
+  hotel_name: hotel.hotel_name.trim(),
+  city: hotel.city.trim(),
+  state: hotel.state.trim(),
+  country: hotel.country.trim(),
+  address: hotel.address.trim(),
+  contact_person: hotel.contact_person.trim(),
+  mobile: hotel.mobile.trim(),
+  email: hotel.email.trim(),
+  room_type: hotel.room_type.trim(),
+  hotel_image: imageUrl,
+  notes: hotel.notes.trim(),
+};
 
     let error;
 
@@ -132,6 +159,7 @@ export default function HotelForm({
     );
 
     setHotel(initialHotel);
+    setImage(null);
 
     if (onHotelAdded) {
       onHotelAdded();
@@ -151,7 +179,10 @@ export default function HotelForm({
         {selectedHotel ? "Edit Hotel" : "Add Hotel"}
       </h2>
 
-      <form onSubmit={handleSubmit}>
+      <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-5"
+>
 
         <input
           type="text"
@@ -159,20 +190,20 @@ export default function HotelForm({
           placeholder="Hotel Name"
           value={hotel.hotel_name}
           onChange={handleChange}
-          required
+          className="border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <br /><br />
-
+        
         <input
           type="text"
           name="city"
           placeholder="City"
           value={hotel.city}
           onChange={handleChange}
+          className="border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <br /><br />
+        
 
         <input
           type="text"
@@ -182,7 +213,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <input
           type="text"
@@ -192,7 +223,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+       
 
         <input
           type="text"
@@ -202,7 +233,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <input
           type="text"
@@ -212,7 +243,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <input
           type="text"
@@ -222,7 +253,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <input
           type="email"
@@ -232,7 +263,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <input
           type="text"
@@ -242,7 +273,7 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <input
           type="number"
@@ -252,18 +283,38 @@ export default function HotelForm({
           onChange={handleChange}
         />
 
-        <br /><br />
+        
 
         <select
           name="status"
           value={hotel.status}
           onChange={handleChange}
+          className="border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
         </select>
 
-        <br /><br />
+       <div className="md:col-span-2">
+  <label className="block mb-2 font-semibold text-slate-700">
+    Hotel Image
+  </label>
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setImage(e.target.files[0])}
+  />
+</div> 
+{image && (
+  <div className="md:col-span-2">
+    <img
+      src={URL.createObjectURL(image)}
+      alt="Hotel Preview"
+      className="w-48 h-32 object-cover rounded-xl border shadow-md mt-3"
+    />
+  </div>
+)}
 
         <textarea
           name="notes"
@@ -271,20 +322,26 @@ export default function HotelForm({
           rows="4"
           value={hotel.notes}
           onChange={handleChange}
+          className="border border-slate-300 rounded-xl px-4 py-3 md:col-span-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <br /><br />
+        <div className="md:col-span-2 flex justify-end">
 
         <button
           type="submit"
           disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-md transition disabled:bg-gray-400"
         >
           {loading
             ? "Saving..."
             : selectedHotel
             ? "Update Hotel"
             : "Save Hotel"}
-        </button>
+
+          </button>
+
+    </div>
+      
 
       </form>
     </div>

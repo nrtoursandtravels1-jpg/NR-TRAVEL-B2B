@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
-
+import RevenueChart from "../../components/dashboard/RevenueChart";
+import Layout from "../../components/layout/Layout";
 
 function AdminDashboard(){
 
@@ -159,9 +160,11 @@ function AdminDashboard(){
 
   return(
 
+      <Layout>
+
     <div
     style={{
-      padding:"30px"
+      padding:"10px"
     }}
     >
 
@@ -262,9 +265,8 @@ function AdminDashboard(){
 
       </div>
 
-
-
-
+<RevenueChart />
+  
 
       <div
       style={{
@@ -316,9 +318,11 @@ function AdminDashboard(){
 
 
 
-    </div>
+      </div>
 
-  );
+  </Layout>
+
+);
 
 }
 

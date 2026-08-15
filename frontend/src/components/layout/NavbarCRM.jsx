@@ -19,118 +19,162 @@ export default function NavbarCRM() {
   return (
     <header
       className="
-      fixed
-      top-0
-      left-[240px]
-      right-0
-      h-[80px]
-      bg-white
-      border-b
-      border-slate-200
-      shadow-sm
-      flex
-      items-center
-      justify-between
-      px-8
-      z-50
-    "
+        fixed
+        top-0
+        left-[260px]
+        right-0
+        h-[80px]
+        bg-white
+        border-b
+        border-slate-200
+        flex
+        items-center
+        justify-between
+        px-6 lg:px-8
+        z-50
+      "
     >
-      {/* LEFT */}
 
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">
-          🌍 WorldTrip Connect
-        </h1>
+      {/* LEFT — BRAND */}
+      <div className="min-w-0 flex items-center gap-4">
 
-        <p className="text-sm text-slate-500">
-          Smart Travel ERP & CRM Platform
-        </p>
-      </div>
-
-      {/* CENTER */}
-
-      <div className="hidden lg:flex">
-
-        <input
-          type="text"
-          placeholder="Search..."
+        <img
+          src="/worldtrip-connect-logo.png"
+          alt="WorldTrip Connect"
           className="
-            w-80
-            rounded-xl
-            border
-            border-slate-300
-            px-4
-            py-2
-            outline-none
-            focus:border-blue-500
+            h-12
+            w-auto
+            max-w-[210px]
+            object-contain
           "
         />
 
+        <div className="hidden lg:block h-8 w-px bg-slate-200" />
+
+        <div className="hidden lg:block">
+
+          <p className="text-sm font-semibold text-slate-700">
+            Travel Business Management
+          </p>
+
+          <p className="text-xs text-slate-400 mt-0.5">
+            B2B Travel Management Platform
+          </p>
+
+        </div>
+
       </div>
 
+
+      {/* CENTER — SEARCH */}
+      <div className="hidden xl:flex items-center">
+
+        <div className="relative">
+
+          <input
+            type="text"
+            placeholder="Search leads, customers, bookings..."
+            className="
+              w-[360px]
+              rounded-xl
+              border border-slate-200
+              bg-slate-50
+              px-4
+              py-2.5
+              text-sm
+              text-slate-700
+              placeholder:text-slate-400
+              outline-none
+              transition
+              focus:bg-white
+              focus:border-blue-500
+              focus:ring-2
+              focus:ring-blue-100
+            "
+          />
+
+        </div>
+
+      </div>
+
+
       {/* RIGHT */}
+      <div className="flex items-center gap-4">
 
-      <div className="flex items-center gap-5">
+        {/* DATE */}
+        <div className="hidden lg:block text-right">
 
-        <div className="hidden md:block text-right">
-          <p className="text-sm text-slate-500">
+          <p className="text-xs uppercase tracking-wide text-slate-400 font-semibold">
+            Today
+          </p>
+
+          <p className="text-sm font-medium text-slate-600">
             {today}
           </p>
+
         </div>
 
-        <button
-          className="
-            text-2xl
-            hover:scale-110
-            transition
-          "
-        >
-          🔔
-        </button>
 
-        <div
-          className="
-            w-11
-            h-11
-            rounded-full
-            bg-blue-600
-            text-white
-            flex
-            items-center
-            justify-center
-            font-bold
-            shadow
-          "
-        >
-          A
+        {/* DIVIDER */}
+        <div className="hidden lg:block h-8 w-px bg-slate-200" />
+
+
+        {/* ADMIN PROFILE */}
+        <div className="flex items-center gap-3">
+
+          <div
+            className="
+              w-10
+              h-10
+              rounded-xl
+              bg-blue-600
+              text-white
+              flex
+              items-center
+              justify-center
+              font-bold
+              shadow-sm
+            "
+          >
+            A
+          </div>
+
+          <div className="hidden md:block">
+
+            <h3 className="text-sm font-semibold text-slate-800">
+              Administrator
+            </h3>
+
+            <p className="text-xs text-slate-500">
+              Super Admin
+            </p>
+
+          </div>
+
         </div>
 
-        <div className="hidden sm:block">
-          <h3 className="font-semibold">
-            Administrator
-          </h3>
 
-          <p className="text-sm text-slate-500">
-            Super Admin
-          </p>
-        </div>
-
+        {/* LOGOUT */}
         <button
           onClick={handleLogout}
           className="
-            bg-red-600
-            hover:bg-red-700
+            bg-slate-900
+            hover:bg-blue-700
             text-white
-            px-5
-            py-2
+            px-4
+            py-2.5
             rounded-xl
-            transition
+            text-sm
+            font-semibold
+            transition-all
+            duration-200
           "
         >
           Logout
         </button>
 
       </div>
+
     </header>
   );
 }

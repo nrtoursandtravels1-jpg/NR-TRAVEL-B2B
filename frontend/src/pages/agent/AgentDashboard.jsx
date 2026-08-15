@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase";
+import TodayFollowUps from "../../components/followups/TodayFollowUps";
 
 
 function AgentDashboard() {
@@ -146,33 +147,21 @@ function AgentDashboard() {
 
 
 
-      const newLeads = leads?.filter(
-
-        lead =>
-        lead.status === "new"
-
-      ).length || 0;
+const newLeads = leads?.filter(
+  lead => lead.status === "New"
+).length || 0;
 
 
+const followup = leads?.filter(
+  lead => lead.status === "Follow Up"
+).length || 0;
 
 
-      const followup = leads?.filter(
+const converted = leads?.filter(
+  lead => lead.status === "Booked"
+).length || 0;
 
-        lead =>
-        lead.status === "follow-up"
-
-      ).length || 0;
-
-
-
-
-      const converted = leads?.filter(
-
-        lead =>
-        lead.status === "converted"
-
-      ).length || 0;
-
+      
 
 
 
@@ -320,10 +309,9 @@ function AgentDashboard() {
 
 
         <Card
-          title="Converted"
-          value={stats.converted}
-        />
-
+        title="Booked"
+        value={stats.converted}
+    />
 
 
         <Card
@@ -361,14 +349,18 @@ function AgentDashboard() {
         </p>
 
 
-        <p>
-          Converted Leads: {stats.converted}
-        </p>
-
-
+       <p>
+        Booked Leads: {stats.converted}
+       </p>
       </div>
 
-
+    <div
+  style={{
+    marginTop: "40px"
+  }}
+>
+  <TodayFollowUps />
+</div>       
 
 
 

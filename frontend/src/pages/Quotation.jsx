@@ -8,11 +8,23 @@ import QuotationTable from "../components/quotation/QuotationTable";
 
 export default function Quotation() {
   const [refresh, setRefresh] = useState(false);
-  const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [selectedQuotation, setSelectedQuotation] =
+    useState(null);
 
-  function handleSaved() {
+  const [previewData, setPreviewData] = useState(null);
+
+  function handleSaved(data) {
     setRefresh((prev) => !prev);
     setSelectedQuotation(null);
+
+    if (data) {
+      setPreviewData(data);
+    }
+  }
+
+  function handleEdit(quotation) {
+    setSelectedQuotation(quotation);
+    setPreviewData(quotation);
   }
 
   return (
@@ -21,15 +33,18 @@ export default function Quotation() {
         style={{
           padding: "30px",
           background: "#f8fafc",
-          minHeight: "100%",
+          minHeight: "100vh",
         }}
       >
-        {/* Heading */}
+        {/* Header */}
+
         <div style={{ marginBottom: "30px" }}>
           <h1
             style={{
               margin: 0,
               color: "#0f172a",
+              fontSize: "32px",
+              fontWeight: "700",
             }}
           >
             Quotation Generator
@@ -41,21 +56,25 @@ export default function Quotation() {
               marginTop: "8px",
             }}
           >
-            Create professional quotations for your customers.
+            Create professional quotations for your
+            customers.
           </p>
         </div>
 
-        {/* Dashboard Cards */}
+        {/* Dashboard */}
+
         <QuotationCards />
 
-        {/* Quotation Form */}
+        {/* Form */}
+
         <div
           style={{
             background: "#fff",
             padding: "25px",
             borderRadius: "12px",
             marginBottom: "25px",
-            boxShadow: "0 5px 15px rgba(0,0,0,.08)",
+            boxShadow:
+              "0 5px 15px rgba(0,0,0,.08)",
           }}
         >
           <h2
@@ -70,38 +89,25 @@ export default function Quotation() {
           <QuotationForm
             selectedQuotation={selectedQuotation}
             onSaved={handleSaved}
+            onPreview={setPreviewData}
           />
         </div>
 
         {/* Preview */}
-        <div
-          style={{
-            background: "#fff",
-            padding: "25px",
-            borderRadius: "12px",
-            marginBottom: "25px",
-            boxShadow: "0 5px 15px rgba(0,0,0,.08)",
-          }}
-        >
-          <h2
-            style={{
-              marginBottom: "20px",
-              color: "#0f172a",
-            }}
-          >
-            Quotation Preview
-          </h2>
 
-          <QuotationPreview />
-        </div>
+        <QuotationPreview
+          quotation={previewData}
+        />
 
         {/* Table */}
+
         <div
           style={{
             background: "#fff",
             padding: "25px",
             borderRadius: "12px",
-            boxShadow: "0 5px 15px rgba(0,0,0,.08)",
+            boxShadow:
+              "0 5px 15px rgba(0,0,0,.08)",
           }}
         >
           <h2
@@ -115,7 +121,7 @@ export default function Quotation() {
 
           <QuotationTable
             refresh={refresh}
-            setSelectedQuotation={setSelectedQuotation}
+            setSelectedQuotation={handleEdit}
           />
         </div>
       </div>

@@ -19,20 +19,23 @@ const initialState = {
   total_amount: 0,
 
   status: "Draft",
-
   notes: "",
 };
 
 export default function QuotationForm({
   selectedQuotation,
   onSaved,
+  onPreview,
 }) {
   const [form, setForm] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (selectedQuotation) {
-      setForm(selectedQuotation);
+      setForm({
+        ...initialState,
+        ...selectedQuotation,
+      });
     } else {
       setForm(initialState);
     }
@@ -64,11 +67,27 @@ export default function QuotationForm({
     form.other_amount,
   ]);
 
-  function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+
+function handleChange(e) {
+  const { name, value } = e.target;
+
+  setForm((prev) => {
+    const updatedForm = {
+      ...prev,
+      [name]: value,
+    };
+
+    if (onPreview) {
+      onPreview(updatedForm);
+    }
+
+    return updatedForm;
+  });
+}
+
+
+  function handleReset() {
+    setForm(initialState);
   }
 
   async function handleSubmit(e) {
@@ -76,22 +95,44 @@ export default function QuotationForm({
 
     setLoading(true);
 
+    const quotationData = {
+      customer_name: form.customer_name,
+      mobile: form.mobile,
+      email: form.email,
+      destination: form.destination,
+
+      hotel_amount: Number(form.hotel_amount || 0),
+      flight_amount: Number(form.flight_amount || 0),
+      train_amount: Number(form.train_amount || 0),
+      bus_amount: Number(form.bus_amount || 0),
+      cab_amount: Number(form.cab_amount || 0),
+      visa_amount: Number(form.visa_amount || 0),
+      package_amount: Number(form.package_amount || 0),
+      other_amount: Number(form.other_amount || 0),
+
+      total_amount: Number(form.total_amount || 0),
+
+      status: form.status,
+      notes: form.notes,
+    };
+
     let error;
 
     if (selectedQuotation) {
       ({ error } = await supabase
         .from("quotations")
-        .update(form)
+        .update(quotationData)
         .eq("id", selectedQuotation.id));
     } else {
       ({ error } = await supabase
         .from("quotations")
-        .insert([form]));
+        .insert([quotationData]));
     }
 
     setLoading(false);
 
     if (error) {
+      console.error("Quotation Error:", error);
       alert(error.message);
       return;
     }
@@ -104,7 +145,9 @@ export default function QuotationForm({
 
     setForm(initialState);
 
-    if (onSaved) onSaved();
+    if (onSaved) {
+      onSaved();
+    }
   }
 
   const amountFields = [
@@ -129,12 +172,21 @@ export default function QuotationForm({
         marginBottom: "30px",
       }}
     >
-      <h2>Create Quotation</h2>
+      <h2
+        style={{
+          marginBottom: "20px",
+          color: "#0f172a",
+        }}
+      >
+        {selectedQuotation
+          ? "Edit Quotation"
+          : "Create Quotation"}
+      </h2>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
+          gridTemplateColumns: "repeat(2, 1fr)",
           gap: "15px",
         }}
       >
@@ -144,6 +196,7 @@ export default function QuotationForm({
           value={form.customer_name}
           onChange={handleChange}
           required
+          style={inputStyle}
         />
 
         <input
@@ -152,6 +205,7 @@ export default function QuotationForm({
           placeholder="Mobile"
           value={form.mobile}
           onChange={handleChange}
+          style={inputStyle}
         />
 
         <input
@@ -160,6 +214,7 @@ export default function QuotationForm({
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
+          style={inputStyle}
         />
 
         <input
@@ -167,16 +222,19 @@ export default function QuotationForm({
           placeholder="Destination"
           value={form.destination}
           onChange={handleChange}
+          style={inputStyle}
         />
 
         {amountFields.map(([field, label]) => (
           <input
             key={field}
             type="number"
+            min="0"
             name={field}
             placeholder={`${label} Amount`}
             value={form[field]}
             onChange={handleChange}
+            style={inputStyle}
           />
         ))}
 
@@ -184,11 +242,12 @@ export default function QuotationForm({
           name="status"
           value={form.status}
           onChange={handleChange}
+          style={inputStyle}
         >
-          <option>Draft</option>
-          <option>Sent</option>
-          <option>Accepted</option>
-          <option>Rejected</option>
+          <option value="Draft">Draft</option>
+          <option value="Sent">Sent</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Rejected">Rejected</option>
         </select>
       </div>
 
@@ -201,6 +260,10 @@ export default function QuotationForm({
         style={{
           width: "100%",
           marginTop: "15px",
+          padding: "12px",
+          border: "1px solid #cbd5e1",
+          borderRadius: "8px",
+          resize: "vertical",
         }}
       />
 
@@ -210,43 +273,60 @@ export default function QuotationForm({
           color: "#2563eb",
         }}
       >
-        Grand Total :  ₹ {Number(form.total_amount).toLocaleString()}
+        Grand Total : ₹{" "}
+        {Number(form.total_amount || 0).toLocaleString("en-IN")}
       </h2>
 
-      <button
-        type="submit"
-        disabled={loading}
+      <div
         style={{
+          display: "flex",
+          gap: "12px",
           marginTop: "20px",
-          background: "#2563eb",
-          color: "#fff",
-          border: "none",
-          padding: "12px 25px",
-          borderRadius: "8px",
-          cursor: "pointer",
         }}
       >
-        {loading
-          ? "Saving..."
-          : selectedQuotation
-          ? "Update Quotation"
-          : "Create Quotation"}
-      </button>
-        
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            background: "#2563eb",
+            color: "#fff",
+            border: "none",
+            padding: "12px 25px",
+            borderRadius: "8px",
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
+        >
+          {loading
+            ? "Saving..."
+            : selectedQuotation
+            ? "Update Quotation"
+            : "Create Quotation"}
+        </button>
+
         <button
           type="button"
-          onClick={() => setForm(initialState)}
+          onClick={handleReset}
           style={{
-          background: "#64748b",
-          color: "#fff",
-          border: "none",
-          padding: "12px 25px",
-          borderRadius: "8px",
-          cursor: "pointer",
-        }}
-       >
-    Reset
-  </button>
-</form>
-);
+            background: "#64748b",
+            color: "#fff",
+            border: "none",
+            padding: "12px 25px",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }}
+        >
+          Reset
+        </button>
+      </div>
+    </form>
+  );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px",
+  border: "1px solid #cbd5e1",
+  borderRadius: "8px",
+  outline: "none",
+  boxSizing: "border-box",
+};

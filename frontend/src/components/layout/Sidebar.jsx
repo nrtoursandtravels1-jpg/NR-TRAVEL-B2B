@@ -3,87 +3,200 @@ import { Link, useLocation } from "react-router-dom";
 export default function Sidebar() {
   const location = useLocation();
 
-  const menus = [
-    { icon: "📊", name: "Dashboard", path: "/admin-dashboard" },
-    { icon: "👥", name: "Leads CRM", path: "/crm" },
-    { icon: "🏨", name: "Hotels", path: "/hotel" },
-    { icon: "🧳", name: "Tour Packages", path: "/packages" },
-    { icon: "🚗", name: "Cab", path: "/cab" },
-    { icon: "🚌", name: "Bus", path: "/bus" },
-    { icon: "✈️", name: "Flight", path: "/flight" },
-    { icon: "🚆", name: "Train", path: "/train" },
-    { icon: "🛂", name: "Visa", path: "/visa" },
-    { icon: "📄", name: "Quotations", path: "/quotation" },
-    { icon: "🧾", name: "Invoices", path: "/invoice" },
-    { icon: "📅", name: "Bookings", path: "/bookings" },
-    { icon: "⚙️", name: "Operations", path: "/operations" },
-    { icon: "🗺️", name: "Itinerary", path: "/operations/itinerary" },
-    { icon: "🤝", name: "Vendors", path: "/operations/vendors" },
-    { icon: "📂", name: "Documents", path: "/operations/documents" },
-    { icon: "👤", name: "Agent Profile", path: "/agent-profile" },
-    { icon: "👨‍💼", name: "Users", path: "/admin/users" },
-    { icon: "👥", name: "Customers", path: "/admin/customers" },
-    { icon: "💳", name: "Subscriptions", path: "/admin/subscriptions" },
-    { icon: "📈", name: "Reports", path: "/reports" },
-    { icon: "⚙️", name: "Settings", path: "/settings" },
-    { icon: "🌐", name: "Website", path: "/" },
+  const sections = [
+    {
+      title: "MAIN",
+      menus: [
+        { name: "Dashboard", path: "/admin-dashboard" },
+      ],
+    },
+
+    {
+      title: "LEAD BUSINESS",
+      menus: [
+        { name: "Leads CRM", path: "/crm" },
+        { name: "Lead Marketplace", path: "/lead-marketplace" },
+        { name: "My Leads", path: "/my-leads" },
+        { name: "Follow-ups", path: "/lead-followups" },
+        { name: "Customers", path: "/admin/customers" },
+      ],
+    },
+
+    {
+      title: "TRAVEL SERVICES",
+      menus: [
+        { name: "Tour Packages", path: "/packages" },
+        { name: "Hotels", path: "/hotel" },
+        { name: "Flights", path: "/flight" },
+        { name: "Bus", path: "/bus" },
+        { name: "Train", path: "/train" },
+        { name: "Visa", path: "/visa" },
+        { name: "Cab", path: "/cab" },
+      ],
+    },
+
+    {
+      title: "SALES",
+      menus: [
+        { name: "Quotations", path: "/quotation" },
+        { name: "Invoices", path: "/invoice" },
+        { name: "Bookings", path: "/bookings" },
+      ],
+    },
+
+    {
+      title: "OPERATIONS",
+      menus: [
+        { name: "Operations", path: "/operations" },
+        { name: "Itinerary", path: "/operations/itinerary" },
+        { name: "Vendors", path: "/operations/vendors" },
+        { name: "Documents", path: "/operations/documents" },
+      ],
+    },
+
+    {
+      title: "MANAGEMENT",
+      menus: [
+        { name: "Agent Profile", path: "/agent-profile" },
+        { name: "Users", path: "/admin/users" },
+        { name: "Subscriptions", path: "/admin/subscriptions" },
+        { name: "Reports", path: "/reports" },
+        { name: "Settings", path: "/settings" },
+      ],
+    },
+
+    {
+      title: "WEBSITE",
+      menus: [
+        { name: "Website", path: "/" },
+      ],
+    },
   ];
 
   return (
-    <aside className="fixed left-0 top-0 w-[240px] h-screen bg-slate-900 text-white shadow-2xl flex flex-col">
+    <aside className="fixed left-0 top-0 w-[260px] h-screen bg-white border-r border-slate-200 flex flex-col z-50">
 
-      {/* Logo */}
+      {/* ==========================================
+          BRAND
+      ========================================== */}
 
-      <div className="h-[80px] flex flex-col justify-center items-center border-b border-slate-700">
+      <div className="h-[85px] px-5 flex items-center border-b border-slate-200 bg-white">
 
-        <h1 className="text-2xl font-bold text-blue-400">
-              NR Travel
-        </h1>
-
-        <p className="text-sm text-slate-400">
-          🌍 WorldTrip Connect
-        </p>
+        <Link
+          to="/admin-dashboard"
+          className="w-full flex items-center justify-center"
+        >
+          <img
+            src="/worldtrip-connect-logo.png"
+            alt="WorldTrip Connect"
+            className="w-full max-w-[215px] h-[65px] object-contain"
+          />
+        </Link>
 
       </div>
 
-      {/* Menu */}
+
+      {/* ==========================================
+          NAVIGATION
+      ========================================== */}
 
       <div className="flex-1 overflow-y-auto px-4 py-5">
 
-        {menus.map((menu) => (
-
-          <Link
-            key={menu.path}
-            to={menu.path}
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 mb-2 transition-all duration-300 ${
-              location.pathname === menu.path
-                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-xl"
-                    : "text-slate-300 hover:bg-slate-800 hover:translate-x-1"
-            }`}
+        {sections.map((section) => (
+          <div
+            key={section.title}
+            className="mb-6"
           >
-            <span className="text-xl">{menu.icon}</span>
 
-            <span className="font-medium">
-             {menu.name}
-            </span>
+            {/* Section Title */}
+            <p className="px-3 mb-2 text-[10px] font-bold tracking-[0.18em] text-slate-400">
+              {section.title}
+            </p>
 
-          </Link>
 
+            {/* Menu Items */}
+            {section.menus.map((menu) => {
+
+              const isActive =
+                location.pathname === menu.path ||
+                (
+                  menu.path !== "/admin-dashboard" &&
+                  location.pathname.startsWith(
+                    menu.path + "/"
+                  )
+                );
+
+              return (
+                <Link
+                  key={menu.path}
+                  to={menu.path}
+                  className={`
+                    relative
+                    flex
+                    items-center
+                    px-3
+                    py-2.5
+                    mb-1
+                    rounded-lg
+                    text-sm
+                    font-medium
+                    transition-all
+                    duration-200
+                    ${
+                      isActive
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }
+                  `}
+                >
+
+                  {/* Active Indicator */}
+                  {isActive && (
+                    <span
+                      className="
+                        absolute
+                        left-0
+                        top-1/2
+                        -translate-y-1/2
+                        w-[3px]
+                        h-6
+                        rounded-r-full
+                        bg-blue-600
+                      "
+                    />
+                  )}
+
+                  <span className="pl-2">
+                    {menu.name}
+                  </span>
+
+                </Link>
+              );
+            })}
+
+          </div>
         ))}
 
       </div>
 
-      {/* Footer */}
 
-      <div className="border-t border-slate-700 p-5">
+      {/* ==========================================
+          ADMIN FOOTER
+      ========================================== */}
 
-        <p className="text-xs text-slate-400">
+      <div className="border-t border-slate-200 px-5 py-4 bg-slate-50">
+
+        <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
           Logged in as
         </p>
 
-        <h3 className="font-semibold mt-1">
+        <p className="text-sm font-semibold text-slate-800 mt-1">
           Administrator
-        </h3>
+        </p>
+
+        <p className="text-xs text-slate-500 mt-1">
+          WorldTrip Connect
+        </p>
 
       </div>
 

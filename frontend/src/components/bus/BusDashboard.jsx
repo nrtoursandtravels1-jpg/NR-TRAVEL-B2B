@@ -9,30 +9,44 @@ export default function BusDashboard() {
     confirmed: 0,
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     loadDashboard();
   }, []);
 
   async function loadDashboard() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("bus_bookings")
       .select("*");
 
-    if (error) return;
+    if (error) {
+      console.error("BUS DASHBOARD ERROR:", error);
+      setLoading(false);
+      return;
+    }
 
-    const total = data.length;
+    const bookings = data || [];
 
-    const revenue = data.reduce(
+    const total = bookings.length;
+
+    const revenue = bookings.reduce(
       (sum, item) => sum + Number(item.fare || 0),
       0
     );
 
-    const pending = data.filter(
-      (item) => item.payment_status === "Pending"
+    const pending = bookings.filter(
+      (item) =>
+        String(item.payment_status || "").toLowerCase() ===
+        "pending"
     ).length;
 
-    const confirmed = data.filter(
-      (item) => item.booking_status === "Confirmed"
+    const confirmed = bookings.filter(
+      (item) =>
+        String(item.booking_status || "").toLowerCase() ===
+        "confirmed"
     ).length;
 
     setStats({
@@ -41,31 +55,149 @@ export default function BusDashboard() {
       pending,
       confirmed,
     });
+
+    setLoading(false);
   }
 
   return (
-    <div className="grid grid-cols-4 gap-5 mb-6">
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns:
+          "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: "20px",
+        marginBottom: "25px",
+      }}
+    >
+      {/* TOTAL BOOKINGS */}
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "14px",
+          padding: "22px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+          border: "1px solid #e2e8f0",
+        }}
+      >
+        <p
+          style={{
+            color: "#64748b",
+            marginBottom: "8px",
+            fontSize: "14px",
+          }}
+        >
+          Total Bookings
+        </p>
 
-      <div className="bg-white rounded-xl shadow p-5">
-        <h3>Total Bookings</h3>
-        <h1>{stats.total}</h1>
+        <h2
+          style={{
+            fontSize: "30px",
+            fontWeight: "700",
+            color: "#0f172a",
+            margin: 0,
+          }}
+        >
+          {loading ? "..." : stats.total}
+        </h2>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-5">
-        <h3>Total Revenue</h3>
-        <h1>₹ {stats.revenue}</h1>
+      {/* REVENUE */}
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "14px",
+          padding: "22px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+          border: "1px solid #e2e8f0",
+        }}
+      >
+        <p
+          style={{
+            color: "#64748b",
+            marginBottom: "8px",
+            fontSize: "14px",
+          }}
+        >
+          Total Revenue
+        </p>
+
+        <h2
+          style={{
+            fontSize: "30px",
+            fontWeight: "700",
+            color: "#16a34a",
+            margin: 0,
+          }}
+        >
+          {loading
+            ? "..."
+            : `₹ ${stats.revenue.toLocaleString("en-IN")}`}
+        </h2>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-5">
-        <h3>Pending Payments</h3>
-        <h1>{stats.pending}</h1>
+      {/* PENDING */}
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "14px",
+          padding: "22px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+          border: "1px solid #e2e8f0",
+        }}
+      >
+        <p
+          style={{
+            color: "#64748b",
+            marginBottom: "8px",
+            fontSize: "14px",
+          }}
+        >
+          Pending Payments
+        </p>
+
+        <h2
+          style={{
+            fontSize: "30px",
+            fontWeight: "700",
+            color: "#f59e0b",
+            margin: 0,
+          }}
+        >
+          {loading ? "..." : stats.pending}
+        </h2>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-5">
-        <h3>Confirmed Trips</h3>
-        <h1>{stats.confirmed}</h1>
-      </div>
+      {/* CONFIRMED */}
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "14px",
+          padding: "22px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+          border: "1px solid #e2e8f0",
+        }}
+      >
+        <p
+          style={{
+            color: "#64748b",
+            marginBottom: "8px",
+            fontSize: "14px",
+          }}
+        >
+          Confirmed Trips
+        </p>
 
+        <h2
+          style={{
+            fontSize: "30px",
+            fontWeight: "700",
+            color: "#2563eb",
+            margin: 0,
+          }}
+        >
+          {loading ? "..." : stats.confirmed}
+        </h2>
+      </div>
     </div>
   );
 }

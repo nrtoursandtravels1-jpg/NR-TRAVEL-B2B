@@ -11,10 +11,15 @@ import Landingpage from "./pages/Landingpage";
 import Dashboard from "./pages/Dashboard";
 import Train from "./pages/Train";
 import Visa from "./pages/Visa";
-import CRM from "./pages/CRM";
 import AddLead from "./pages/AddLead";
+import CRM from "./pages/CRM";
 import Leads from "./pages/Lead";
+import FollowUps from "./pages/FollowUps";
+import LeadMarketplace from "./pages/LeadMarketplace";
 import Hotel from "./pages/Hotel";
+import Cab from "./pages/Cab";
+import Flight from "./pages/Flight";
+import Bus from "./pages/Bus";
 import Destinations from "./pages/Destinations";
 import Partners from "./pages/Partners";
 import Register from "./pages/Register";
@@ -23,7 +28,6 @@ import Register from "./pages/Register";
 import Login from "./pages/auth/Login";
 import AdminLogin from "./pages/auth/AdminLogin";
 import AgentLogin from "./pages/auth/AgentLogin";
-import CustomerLogin from "./pages/auth/CustomerLogin";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -34,12 +38,15 @@ import Subscriptions from "./pages/admin/Subscriptions";
 // Agent
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentProfile from "./pages/agent/AgentProfile";
+import MyLeads from "./pages/agent/MyLeads";
+import LeadFollowUps from "./pages/agent/LeadFollowUps";
 
 // Customer
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 
 // Booking
 import Bookings from "./pages/booking/Bookings";
+import Quotation from "./pages/Quotation";
 import Invoice from "./pages/Invoice";
 
 // Operations
@@ -71,352 +78,433 @@ import UpgradePlan from "./pages/subscription/UpgradePlan";
 
 function App() {
   return (
-      
-      <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
 
-        <Navbar />
+      <Navbar />
 
-        <Suspense
-          fallback={
-            <div className="p-8 text-center">
-              Loading...
-            </div>
+      <Suspense
+        fallback={
+          <div className="p-8 text-center">
+            Loading...
+          </div>
+        }
+      >
+        <Routes>
+
+          {/* ================= HOME ================= */}
+
+          <Route path="/" element={<Landingpage />} />
+
+          <Route path="/train" element={<Train />} />
+
+          <Route path="/visa" element={<Visa />} />
+
+          {/* ================= AUTH ================= */}
+
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/register" element={<Register />} />
+
+          <Route path="/admin-login" element={<AdminLogin />} />
+
+          <Route path="/agent-login" element={<AgentLogin />} />
+
+          
+          {/* ================= DASHBOARD ================= */}
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ================= ADMIN ================= */}
+
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <Users />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/customers"
+            element={
+              <ProtectedRoute>
+                <Customers />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/subscriptions"
+            element={
+              <ProtectedRoute>
+                <Subscriptions />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ================= AGENT ================= */}
+
+          <Route
+            path="/agent-dashboard"
+            element={
+              <ProtectedRoute>
+                <AgentDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/agent-profile"
+            element={
+              <ProtectedRoute>
+                <AgentProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+           path="/my-leads"
+           element={
+          <ProtectedRoute>
+          <MyLeads />
+          </ProtectedRoute>
+        }
+       />
+          <Route
+            path="/lead-followups"
+            element={
+          <ProtectedRoute>
+          <LeadFollowUps />
+          </ProtectedRoute>
+         }
+        />
+          {/* ================= CUSTOMER ================= */}
+
+          <Route
+            path="/customer-dashboard"
+            element={
+              <ProtectedRoute>
+                <CustomerDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ================= LEADS CRM ================= */}
+
+          <Route
+            path="/crm"
+            element={
+              <ProtectedRoute>
+                <CRM />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/add-lead"
+            element={
+              <ProtectedRoute>
+                <AddLead />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/leads"
+            element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+          path="/follow-ups"
+          element={<FollowUps />}
+        />
+
+          <Route
+          path="/lead-marketplace"
+          element={
+        <ProtectedRoute>
+        <LeadMarketplace />
+        </ProtectedRoute>
+      }
+     />
+
+          {/* ================= HOTEL ================= */}
+
+          <Route
+            path="/hotel"
+            element={
+              <ProtectedRoute>
+                <Hotel />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ================= CAB ================= */}
+
+          <Route
+            path="/cab"
+            element={
+              <ProtectedRoute>
+                <Cab />
+              </ProtectedRoute>
+            }
+          />
+          {/* ================= FLIGHT ================= */}
+         <Route
+          path="/flight"
+          element={
+         <ProtectedRoute>
+         <Flight />
+         </ProtectedRoute>
+        }
+       />
+
+            <Route
+           path="/bus"
+           element={
+           <ProtectedRoute>
+           <Bus />
+           </ProtectedRoute>
           }
-        >
-          <Routes>
+        />
+          {/* ================= BOOKINGS ================= */}
 
-            {/* ================= HOME ================= */}
+          <Route
+            path="/bookings"
+            element={
+              <ProtectedRoute>
+                <Bookings />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route path="/" element={<Landingpage />} />
-            <Route path="/train" element={<Train />} />
-            <Route path="/visa" element={<Visa />} />
-            {/* ================= AUTH ================= */}
+          <Route
+          path="/quotation"
+          element={
+         <ProtectedRoute>
+         <Quotation />
+         </ProtectedRoute>
+        }
+        />
 
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
-            <Route path="/agent-login" element={<AgentLogin />} />
-            <Route path="/customer-login" element={<CustomerLogin />} />
+          <Route
+            path="/invoice"
+            element={<Invoice />}
+          />
 
-            {/* ================= DASHBOARD ================= */}
+          {/* ================= OPERATIONS BOOKINGS ================= */}
 
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/operations/bookings"
+            element={
+              <ProtectedRoute>
+                <OperationsBookings />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ================= ADMIN ================= */}
+          {/* ================= PACKAGES ================= */}
 
-            <Route
-              path="/admin-dashboard"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages"
+            element={
+              <ProtectedRoute>
+                <Packages />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages/create"
+            element={
+              <ProtectedRoute>
+                <CreatePackage />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/admin/customers"
-              element={
-                <ProtectedRoute>
-                  <Customers />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages/view/:id"
+            element={
+              <ProtectedRoute>
+                <ViewPackage />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/admin/subscriptions"
-              element={
-                <ProtectedRoute>
-                  <Subscriptions />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages/edit/:id"
+            element={
+              <ProtectedRoute>
+                <EditPackage />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ================= AGENT ================= */}
+          <Route
+            path="/packages/upcoming"
+            element={
+              <ProtectedRoute>
+                <UpcomingTours />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/agent-dashboard"
-              element={
-                <ProtectedRoute>
-                  <AgentDashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages/group"
+            element={
+              <ProtectedRoute>
+                <GroupTours />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/agent-profile"
-              element={
-                <ProtectedRoute>
-                  <AgentProfile />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages/girls-only"
+            element={
+              <ProtectedRoute>
+                <GirlsOnlyTours />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ================= CUSTOMER ================= */}
+          <Route
+            path="/packages/family"
+            element={
+              <ProtectedRoute>
+                <FamilyTours />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/customer-dashboard"
-              element={
-                <ProtectedRoute>
-                  <CustomerDashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/packages/custom"
+            element={
+              <ProtectedRoute>
+                <CustomTours />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ================= LEADS CRM ================= */}
+          {/* ================= OPERATIONS ================= */}
 
-            <Route
-              path="/crm"
-              element={
-                <ProtectedRoute>
-                  <CRM />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/operations"
+            element={
+              <ProtectedRoute>
+                <OperationsDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/add-lead"
-              element={
-                <ProtectedRoute>
-                  <AddLead />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/operations/itinerary"
+            element={
+              <ProtectedRoute>
+                <Itinerary />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/leads"
-              element={
-                <ProtectedRoute>
-                  <Leads />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/operations/vendors"
+            element={
+              <ProtectedRoute>
+                <Vendors />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ================= HOTEL ================= */}
+          <Route
+            path="/operations/documents"
+            element={
+              <ProtectedRoute>
+                <Documents />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/hotel"
-              element={
-                <ProtectedRoute>
-                  <Hotel />
-                </ProtectedRoute>
-              }
-            />
+          {/* ================= REPORTS ================= */}
 
-            {/* ================= BOOKINGS ================= */}
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/bookings"
-              element={
-                <ProtectedRoute>
-                  <Bookings />
-                </ProtectedRoute>
-              }
-            />
+          {/* ================= SETTINGS ================= */}
 
-            <Route path="/invoice" element={<Invoice />} />
-            
-            <Route
-              path="/operations/bookings"
-              element={
-                <ProtectedRoute>
-                  <OperationsBookings />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ================= PACKAGES ================= */}
+          {/* ================= OTHER ================= */}
 
-            <Route
-              path="/packages"
-              element={
-                <ProtectedRoute>
-                  <Packages />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/partners"
+            element={
+              <ProtectedRoute>
+                <Partners />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/packages/create"
-              element={
-                <ProtectedRoute>
-                  <CreatePackage />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/destinations"
+            element={
+              <ProtectedRoute>
+                <Destinations />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/packages/view/:id"
-              element={<ViewPackage />}
-            />
+          {/* ================= SUBSCRIPTION ================= */}
 
+          <Route
+            path="/upgrade-plan"
+            element={
+              <ProtectedRoute>
+                <UpgradePlan />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/packages/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <EditPackage />
-                </ProtectedRoute>
-              }
-            />
+        </Routes>
+      </Suspense>
 
-            <Route
-              path="/packages/upcoming"
-              element={
-                <ProtectedRoute>
-                  <UpcomingTours />
-                </ProtectedRoute>
-              }
-            />
+      <Footer />
 
-            <Route
-              path="/packages/group"
-              element={
-                <ProtectedRoute>
-                  <GroupTours />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/packages/girls-only"
-              element={
-                <ProtectedRoute>
-                  <GirlsOnlyTours />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/packages/family"
-              element={
-                <ProtectedRoute>
-                  <FamilyTours />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/packages/custom"
-              element={
-                <ProtectedRoute>
-                  <CustomTours />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ================= OPERATIONS ================= */}
-
-            <Route
-              path="/operations"
-              element={
-                <ProtectedRoute>
-                  <OperationsDashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/operations/itinerary"
-              element={
-                <ProtectedRoute>
-                  <Itinerary />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/operations/vendors"
-              element={
-                <ProtectedRoute>
-                  <Vendors />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/operations/documents"
-              element={
-                <ProtectedRoute>
-                  <Documents />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ================= REPORTS ================= */}
-
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ================= SETTINGS ================= */}
-
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ================= OTHER ================= */}
-
-            <Route
-              path="/partners"
-              element={
-                <ProtectedRoute>
-                  <Partners />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/destinations"
-              element={
-                <ProtectedRoute>
-                  <Destinations />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/upgrade-plan"
-              element={
-                <ProtectedRoute>
-                  <UpgradePlan />
-                </ProtectedRoute>
-              }
-            />
-
-          </Routes>
-        </Suspense>
-
-        <Footer />
-
-      </div>
-
-      );
+    </div>
+  );
 }
 
 export default App;

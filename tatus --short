@@ -1,0 +1,80 @@
+warning: in the working copy of 'frontend/src/components/landing/ContactCTA.jsx', LF will be replaced by CRLF the next time Git touches it
+ frontend/index.html                                |   44 [32m+[m[31m-[m
+ frontend/public/packages/bali.jpg                  |    0
+ frontend/public/packages/dubai.jpg                 |    0
+ frontend/public/packages/europe.jpg                |    0
+ frontend/public/packages/goa.jpg                   |    0
+ frontend/public/packages/kashmir.jpg               |    0
+ frontend/public/packages/thailand.jpg              |    0
+ frontend/src/App.jsx                               |   15 [32m+[m[31m-[m
+ frontend/src/components/cab/CabForm.jsx            |  543 [32m++++[m[31m---[m
+ frontend/src/components/cab/CabSearch.jsx          |   24 [32m+[m[31m-[m
+ frontend/src/components/cab/CabTable.jsx           |  238 [32m++[m[31m-[m
+ .../src/components/dashboard/DashboardCards.jsx    |    4 [32m+[m[31m-[m
+ frontend/src/components/dashboard/QuickActions.jsx |   57 [32m+[m[31m-[m
+ frontend/src/components/dashboard/RevenueChart.jsx |  116 [32m+[m[31m-[m
+ .../src/components/dashboard/UpcomingTours.jsx     |   55 [32m+[m[31m-[m
+ frontend/src/components/hotel/HotelCards.jsx       |  205 [32m+[m[31m--[m
+ frontend/src/components/hotel/HotelForm.jsx        |  115 [32m+[m[31m-[m
+ frontend/src/components/hotel/HotelSearch.jsx      |   16 [32m+[m[31m-[m
+ frontend/src/components/hotel/HotelTable.jsx       |  362 [32m+++[m[31m--[m
+ frontend/src/components/landing/ContactCTA.jsx     |  101 [32m++[m
+ frontend/src/components/layout/Layout.jsx          |   14 [32m+[m[31m-[m
+ frontend/src/components/layout/NavbarCRM.jsx       |   90 [32m+[m[31m-[m
+ frontend/src/components/layout/Sidebar.jsx         |   85 [32m+[m[31m-[m
+ frontend/src/components/leads/LeadForm.jsx         |  281 [32m+[m[31m---[m
+ frontend/src/components/leads/LeadSearch.jsx       |  109 [32m+[m[31m-[m
+ frontend/src/components/leads/LeadTable.jsx        |  100 [32m+[m[31m-[m
+ frontend/src/components/package/PackageForm.jsx    | 1221 [32m++++++++++++[m[31m---[m
+ frontend/src/components/package/PackageTable.jsx   |  559 [32m++++++[m[31m-[m
+ frontend/src/components/ui/StatCard.jsx            |    6 [32m+[m[31m-[m
+ frontend/src/index.css                             |   14 [32m+[m[31m-[m
+ frontend/src/main.jsx                              |    9 [32m+[m[31m-[m
+ frontend/src/pages/Cab.jsx                         |  145 [32m+[m[31m-[m
+ frontend/src/pages/Dashboard.jsx                   |    3 [32m+[m
+ frontend/src/pages/Hotel.jsx                       |  131 [32m+[m[31m-[m
+ frontend/src/pages/Packages/EditPackage.jsx        | 1612 [32m++++++++++++++++++[m[31m--[m
+ frontend/src/pages/Packages/Packages.jsx           |  287 [32m+++[m[31m-[m
+ frontend/src/pages/admin/AdminDashboard.jsx        |   18 [32m+[m[31m-[m
+ frontend/src/services/supabase.js                  |   16 [32m+[m[31m-[m
+ 38 files changed, 4880 insertions(+), 1715 deletions(-)
+warning: in the working copy of 'frontend/src/components/landing/ContactCTA.jsx', LF will be replaced by CRLF the next time Git touches it
+ frontend/index.html                                |   44 [32m+[m[31m-[m
+ frontend/public/packages/bali.jpg                  |    0
+ frontend/public/packages/dubai.jpg                 |    0
+ frontend/public/packages/europe.jpg                |    0
+ frontend/public/packages/goa.jpg                   |    0
+ frontend/public/packages/kashmir.jpg               |    0
+ frontend/public/packages/thailand.jpg              |    0
+ frontend/src/App.jsx                               |   15 [32m+[m[31m-[m
+ frontend/src/components/cab/CabForm.jsx            |  543 [32m++++[m[31m---[m
+ frontend/src/components/cab/CabSearch.jsx          |   24 [32m+[m[31m-[m
+ frontend/src/components/cab/CabTable.jsx           |  238 [32m++[m[31m-[m
+ .../src/components/dashboard/DashboardCards.jsx    |    4 [32m+[m[31m-[m
+ frontend/src/components/dashboard/QuickActions.jsx |   57 [32m+[m[31m-[m
+ frontend/src/components/dashboard/RevenueChart.jsx |  116 [32m+[m[31m-[m
+ .../src/components/dashboard/UpcomingTours.jsx     |   55 [32m+[m[31m-[m
+ frontend/src/components/hotel/HotelCards.jsx       |  205 [32m+[m[31m--[m
+ frontend/src/components/hotel/HotelForm.jsx        |  115 [32m+[m[31m-[m
+ frontend/src/components/hotel/HotelSearch.jsx      |   16 [32m+[m[31m-[m
+ frontend/src/components/hotel/HotelTable.jsx       |  362 [32m+++[m[31m--[m
+ frontend/src/components/landing/ContactCTA.jsx     |  101 [32m++[m
+ frontend/src/components/layout/Layout.jsx          |   14 [32m+[m[31m-[m
+ frontend/src/components/layout/NavbarCRM.jsx       |   90 [32m+[m[31m-[m
+ frontend/src/components/layout/Sidebar.jsx         |   85 [32m+[m[31m-[m
+ frontend/src/components/leads/LeadForm.jsx         |  281 [32m+[m[31m---[m
+ frontend/src/components/leads/LeadSearch.jsx       |  109 [32m+[m[31m-[m
+ frontend/src/components/leads/LeadTable.jsx        |  100 [32m+[m[31m-[m
+ frontend/src/components/package/PackageForm.jsx    | 1221 [32m++++++++++++[m[31m---[m
+ frontend/src/components/package/PackageTable.jsx   |  559 [32m++++++[m[31m-[m
+ frontend/src/components/ui/StatCard.jsx            |    6 [32m+[m[31m-[m
+ frontend/src/index.css                             |   14 [32m+[m[31m-[m
+ frontend/src/main.jsx                              |    9 [32m+[m[31m-[m
+ frontend/src/pages/Cab.jsx                         |  145 [32m+[m[31m-[m
+ frontend/src/pages/Dashboard.jsx                   |    3 [32m+[m
+ frontend/src/pages/Hotel.jsx                       |  131 [32m+[m[31m-[m
+ frontend/src/pages/Packages/EditPackage.jsx        | 1612 [32m++++++++++++++++++[m[31m--[m
+ frontend/src/pages/Packages/Packages.jsx           |  287 [32m+++[m[31m-[m
+ frontend/src/pages/admin/AdminDashboard.jsx        |   18 [32m+[m[31m-[m
+ frontend/src/services/supabase.js                  |   16 [32m+[m[31m-[m
+ 38 files changed, 4880 insertions(+), 1715 deletions(-)

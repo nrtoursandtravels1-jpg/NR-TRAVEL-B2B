@@ -1,22 +1,47 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  Search,
+  MapPin,
+  CalendarDays,
+  Users,
+  WalletCards,
+  CheckCircle2,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+
 import { supabase } from "../services/supabase";
 import Layout from "../components/layout/Layout";
 
 export default function LeadMarketplace() {
   const [leads, setLeads] = useState([]);
+  const [credits, setCredits] = useState(0);
+
   const [loading, setLoading] = useState(true);
+  const [creditsLoading, setCreditsLoading] = useState(true);
   const [claimingLeadId, setClaimingLeadId] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [destinationFilter, setDestinationFilter] = useState("");
 
   useEffect(() => {
-    fetchQualifiedLeads();
+    loadMarketplace();
   }, []);
 
-  // ==========================================
+  // =========================================================
+  // LOAD MARKETPLACE
+  // =========================================================
+
+  const loadMarketplace = async () => {
+    await Promise.all([
+      fetchQualifiedLeads(),
+      fetchCredits(),
+    ]);
+  };
+
+  // =========================================================
   // FETCH QUALIFIED LEADS
-  // ==========================================
+  // =========================================================
 
   const fetchQualifiedLeads = async () => {
     try {
@@ -36,15 +61,70 @@ export default function LeadMarketplace() {
 
       setLeads(data || []);
     } catch (error) {
-      console.error("Marketplace Lead Error:", error);
+      console.error(
+        "Marketplace Lead Error:",
+        error
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================================
+  // =========================================================
+  // FETCH AGENT CREDITS
+  // =========================================================
+
+  const fetchCredits = async () => {
+    try {
+      setCreditsLoading(true);
+
+      const {
+        data: userData,
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        throw userError;
+      }
+
+      const user = userData?.user;
+
+      if (!user) {
+        setCredits(0);
+        return;
+      }
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("lead_credits")
+        .select("credits")
+        .eq("agent_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
+      setCredits(
+        Number(data?.credits || 0)
+      );
+    } catch (error) {
+      console.error(
+        "Credit Loading Error:",
+        error
+      );
+
+      setCredits(0);
+    } finally {
+      setCreditsLoading(false);
+    }
+  };
+
+  // =========================================================
   // DESTINATIONS
-  // ==========================================
+  // =========================================================
 
   const destinations = useMemo(() => {
     return [
@@ -53,15 +133,17 @@ export default function LeadMarketplace() {
           .map((lead) => lead.destination)
           .filter(Boolean)
       ),
-    ];
+    ].sort();
   }, [leads]);
 
-  // ==========================================
+  // =========================================================
   // FILTER
-  // ==========================================
+  // =========================================================
 
   const filteredLeads = useMemo(() => {
-    const keyword = searchTerm.toLowerCase().trim();
+    const keyword = searchTerm
+      .toLowerCase()
+      .trim();
 
     return leads.filter((lead) => {
       const matchesSearch =
@@ -74,13 +156,19 @@ export default function LeadMarketplace() {
           .includes(keyword) ||
         lead.lead_source
           ?.toLowerCase()
+          .includes(keyword) ||
+        lead.service
+          ?.toLowerCase()
           .includes(keyword);
 
       const matchesDestination =
         !destinationFilter ||
         lead.destination === destinationFilter;
 
-      return matchesSearch && matchesDestination;
+      return (
+        matchesSearch &&
+        matchesDestination
+      );
     });
   }, [
     leads,
@@ -88,17 +176,26 @@ export default function LeadMarketplace() {
     destinationFilter,
   ]);
 
-  // ==========================================
+  // =========================================================
   // CLAIM LEAD
-  // ==========================================
+  // =========================================================
 
   const claimLead = async (lead) => {
+    if (claimingLeadId) {
+      return;
+    }
+
     try {
       setClaimingLeadId(lead.id);
 
+      // -----------------------------------------------------
       // Check logged-in user
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+      // -----------------------------------------------------
+
+      const {
+        data: userData,
+        error: userError,
+      } = await supabase.auth.getUser();
 
       if (userError) {
         throw userError;
@@ -107,12 +204,35 @@ export default function LeadMarketplace() {
       const user = userData?.user;
 
       if (!user) {
-        alert("Please login as an agent.");
+        alert(
+          "Please login as a travel agent."
+        );
         return;
       }
 
-      // Call secure Supabase transaction
-      const { data, error } = await supabase.rpc(
+      // -----------------------------------------------------
+      // Basic UI credit check
+      //
+      // IMPORTANT:
+      // The database RPC remains the real authority.
+      // -----------------------------------------------------
+
+      if (credits < 1) {
+        alert(
+          "You do not have enough lead credits. Please upgrade your plan."
+        );
+
+        return;
+      }
+
+      // -----------------------------------------------------
+      // SECURE SUPABASE RPC
+      // -----------------------------------------------------
+
+      const {
+        data,
+        error,
+      } = await supabase.rpc(
         "claim_lead",
         {
           p_lead_id: lead.id,
@@ -120,7 +240,10 @@ export default function LeadMarketplace() {
       );
 
       if (error) {
-        console.error("Claim Lead Error:", error);
+        console.error(
+          "Claim Lead RPC Error:",
+          error
+        );
 
         alert(
           error.message ||
@@ -130,15 +253,30 @@ export default function LeadMarketplace() {
         return;
       }
 
-      console.log("Claim Result:", data);
+      console.log(
+        "Lead Claim Result:",
+        data
+      );
 
-      alert("Lead claimed successfully.");
-
+      // -----------------------------------------------------
       // Remove claimed lead from marketplace
+      // -----------------------------------------------------
+
       setLeads((currentLeads) =>
         currentLeads.filter(
-          (item) => item.id !== lead.id
+          (item) =>
+            item.id !== lead.id
         )
+      );
+
+      // -----------------------------------------------------
+      // Refresh credits from database
+      // -----------------------------------------------------
+
+      await fetchCredits();
+
+      alert(
+        "Lead claimed successfully!"
       );
     } catch (error) {
       console.error(
@@ -147,7 +285,7 @@ export default function LeadMarketplace() {
       );
 
       alert(
-        error.message ||
+        error?.message ||
           "Something went wrong while claiming the lead."
       );
     } finally {
@@ -155,14 +293,18 @@ export default function LeadMarketplace() {
     }
   };
 
-  // ==========================================
+  // =========================================================
   // FORMAT DATE
-  // ==========================================
+  // =========================================================
 
   const formatDate = (date) => {
-    if (!date) return "-";
+    if (!date) {
+      return "-";
+    }
 
-    return new Date(date).toLocaleDateString(
+    return new Date(
+      date
+    ).toLocaleDateString(
       "en-IN",
       {
         day: "2-digit",
@@ -172,108 +314,249 @@ export default function LeadMarketplace() {
     );
   };
 
-  // ==========================================
+  // =========================================================
   // FORMAT BUDGET
-  // ==========================================
+  // =========================================================
 
   const formatBudget = (budget) => {
-    if (!budget) {
+    if (
+      budget === null ||
+      budget === undefined ||
+      budget === ""
+    ) {
       return "Budget not specified";
     }
 
-    return `₹ ${Number(
-      budget
-    ).toLocaleString("en-IN")}`;
+    const numericBudget =
+      Number(budget);
+
+    if (Number.isNaN(numericBudget)) {
+      return budget;
+    }
+
+    return `₹ ${numericBudget.toLocaleString(
+      "en-IN"
+    )}`;
   };
 
-  // ==========================================
+  // =========================================================
   // LOADING
-  // ==========================================
+  // =========================================================
 
   if (loading) {
     return (
       <Layout>
-        <div className="py-16 text-center">
-          <p className="text-sm font-semibold text-blue-600">
-            LEAD MARKETPLACE
+        <div className="py-20 text-center">
+
+          <Loader2
+            size={32}
+            className="mx-auto text-blue-600 animate-spin"
+          />
+
+          <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-600 mt-5">
+            Lead Marketplace
           </p>
 
           <h1 className="text-2xl font-bold text-slate-900 mt-2">
             Loading available leads...
           </h1>
+
         </div>
       </Layout>
     );
   }
 
-  // ==========================================
+  // =========================================================
   // PAGE
-  // ==========================================
+  // =========================================================
 
   return (
     <Layout>
-      {/* HEADER */}
-      <div className="mb-8">
-        <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-600">
-          Lead Marketplace
-        </p>
 
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mt-2">
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
+      <div className="mb-8">
+
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+
           <div>
-            <h1 className="text-3xl font-extrabold text-slate-900">
+
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-600">
+              Lead Marketplace
+            </p>
+
+            <h1 className="text-3xl font-extrabold text-slate-900 mt-2">
               Qualified Travel Leads
             </h1>
 
-            <p className="text-slate-500 mt-2">
+            <p className="text-slate-500 mt-2 max-w-2xl">
               Discover qualified customer enquiries
-              and connect with new business opportunities.
-            </p>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-3">
-            <p className="text-xs text-blue-500 font-semibold">
-              AVAILABLE LEADS
+              and grow your travel business with
+              new opportunities.
             </p>
 
-            <p className="text-2xl font-extrabold text-blue-700">
-              {filteredLeads.length}
-            </p>
           </div>
+
+
+          {/* =================================================
+              CREDIT CARD
+          ================================================= */}
+
+          <div className="
+            bg-white
+            border
+            border-slate-200
+            rounded-2xl
+            px-5
+            py-4
+            shadow-sm
+            min-w-[220px]
+          ">
+
+            <div className="flex items-center justify-between gap-5">
+
+              <div>
+
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                  Lead Credits
+                </p>
+
+                {creditsLoading ? (
+                  <Loader2
+                    size={22}
+                    className="text-blue-600 animate-spin mt-2"
+                  />
+                ) : (
+                  <p className="text-3xl font-extrabold text-blue-700 mt-1">
+                    {credits}
+                  </p>
+                )}
+
+                <p className="text-xs text-slate-400 mt-1">
+                  1 credit = 1 lead
+                </p>
+
+              </div>
+
+              <div className="
+                w-11
+                h-11
+                rounded-xl
+                bg-blue-50
+                text-blue-600
+                flex
+                items-center
+                justify-center
+              ">
+                <WalletCards size={21} />
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
-      {/* FILTER BAR */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 mb-8">
+
+      {/* =====================================================
+          MARKETPLACE SUMMARY
+      ===================================================== */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+
+        <MarketplaceStat
+          label="Available Leads"
+          value={filteredLeads.length}
+          icon={<CheckCircle2 size={19} />}
+        />
+
+        <MarketplaceStat
+          label="Lead Credit Balance"
+          value={credits}
+          icon={<WalletCards size={19} />}
+        />
+
+        <MarketplaceStat
+          label="Cost Per Lead"
+          value="1 Credit"
+          icon={<ArrowRight size={19} />}
+        />
+
+      </div>
+
+
+      {/* =====================================================
+          FILTER BAR
+      ===================================================== */}
+
+      <div className="
+        bg-white
+        border
+        border-slate-200
+        rounded-2xl
+        p-5
+        mb-8
+        shadow-sm
+      ">
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
           {/* SEARCH */}
-          <input
-            type="text"
-            placeholder="Search customer, destination or source..."
-            value={searchTerm}
-            onChange={(e) =>
-              setSearchTerm(e.target.value)
-            }
-            className="
-              w-full
-              border border-slate-200
-              bg-slate-50
-              rounded-xl
-              px-4
-              py-3
-              text-sm
-              outline-none
-              focus:bg-white
-              focus:border-blue-500
-              focus:ring-2
-              focus:ring-blue-100
-            "
-          />
+
+          <div className="relative">
+
+            <Search
+              size={18}
+              className="
+                absolute
+                left-4
+                top-1/2
+                -translate-y-1/2
+                text-slate-400
+              "
+            />
+
+            <input
+              type="text"
+              placeholder="Search destination, customer, service..."
+              value={searchTerm}
+              onChange={(e) =>
+                setSearchTerm(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                border border-slate-200
+                bg-slate-50
+                rounded-xl
+                pl-11
+                pr-4
+                py-3
+                text-sm
+                outline-none
+                focus:bg-white
+                focus:border-blue-500
+                focus:ring-2
+                focus:ring-blue-100
+              "
+            />
+
+          </div>
+
 
           {/* DESTINATION */}
+
           <select
             value={destinationFilter}
             onChange={(e) =>
-              setDestinationFilter(e.target.value)
+              setDestinationFilter(
+                e.target.value
+              )
             }
             className="
               w-full
@@ -290,56 +573,97 @@ export default function LeadMarketplace() {
               focus:ring-blue-100
             "
           >
+
             <option value="">
               All Destinations
             </option>
 
-            {destinations.map((destination) => (
-              <option
-                key={destination}
-                value={destination}
-              >
-                {destination}
-              </option>
-            ))}
+            {destinations.map(
+              (destination) => (
+                <option
+                  key={destination}
+                  value={destination}
+                >
+                  {destination}
+                </option>
+              )
+            )}
+
           </select>
+
         </div>
+
       </div>
 
-      {/* LEADS */}
+
+      {/* =====================================================
+          NO LEADS
+      ===================================================== */}
+
       {filteredLeads.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl py-16 text-center">
-          <p className="text-lg font-semibold text-slate-700">
+
+        <div className="
+          bg-white
+          border
+          border-slate-200
+          rounded-2xl
+          py-20
+          text-center
+          shadow-sm
+        ">
+
+          <CheckCircle2
+            size={40}
+            className="mx-auto text-slate-300"
+          />
+
+          <p className="text-lg font-semibold text-slate-700 mt-4">
             No qualified leads available
           </p>
 
           <p className="text-sm text-slate-400 mt-2">
-            Qualified leads will appear here
-            when they become marketplace-ready.
+            New qualified leads will appear
+            here when they become marketplace-ready.
           </p>
+
         </div>
+
       ) : (
+
+        /* ===================================================
+           LEADS
+        =================================================== */
+
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
           {filteredLeads.map((lead) => {
+
             const isClaiming =
               claimingLeadId === lead.id;
 
             return (
+
               <div
                 key={lead.id}
                 className="
                   bg-white
-                  border border-slate-200
+                  border
+                  border-slate-200
                   rounded-2xl
                   p-6
                   shadow-sm
                   hover:shadow-md
+                  hover:border-blue-200
                   transition
                 "
               >
+
                 {/* TOP */}
+
                 <div className="flex items-start justify-between gap-4">
+
                   <div>
+
                     <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
                       Qualified Lead
                     </p>
@@ -348,132 +672,181 @@ export default function LeadMarketplace() {
                       {lead.destination ||
                         "Travel Enquiry"}
                     </h2>
+
                   </div>
 
-                  <span
-                    className="
-                      px-3
-                      py-1
-                      rounded-full
-                      bg-emerald-50
-                      text-emerald-700
-                      border border-emerald-100
-                      text-xs
-                      font-semibold
-                    "
-                  >
+
+                  <span className="
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-emerald-50
+                    text-emerald-700
+                    border
+                    border-emerald-100
+                    text-xs
+                    font-semibold
+                  ">
                     Available
                   </span>
+
                 </div>
+
 
                 {/* DETAILS */}
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Customer
-                    </p>
 
-                    <p className="text-sm font-semibold text-slate-800 mt-1">
-                      {lead.customer_name || "-"}
-                    </p>
-                  </div>
+                <div className="grid grid-cols-2 gap-5 mt-6">
 
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Travel Date
-                    </p>
+                  <LeadDetail
+                    icon={<Users size={15} />}
+                    label="Customer"
+                    value={
+                      lead.customer_name ||
+                      "-"
+                    }
+                  />
 
-                    <p className="text-sm font-semibold text-slate-800 mt-1">
-                      {formatDate(
-                        lead.travel_date
-                      )}
-                    </p>
-                  </div>
+                  <LeadDetail
+                    icon={<CalendarDays size={15} />}
+                    label="Travel Date"
+                    value={formatDate(
+                      lead.travel_date
+                    )}
+                  />
 
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Travelers
-                    </p>
+                  <LeadDetail
+                    icon={<Users size={15} />}
+                    label="Travelers"
+                    value={
+                      lead.travelers ||
+                      lead.passengers ||
+                      "-"
+                    }
+                  />
 
-                    <p className="text-sm font-semibold text-slate-800 mt-1">
-                      {lead.travelers || "-"}
-                    </p>
-                  </div>
+                  <LeadDetail
+                    icon={<WalletCards size={15} />}
+                    label="Budget"
+                    value={formatBudget(
+                      lead.budget
+                    )}
+                  />
 
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Budget
-                    </p>
+                  <LeadDetail
+                    icon={<MapPin size={15} />}
+                    label="Destination"
+                    value={
+                      lead.destination ||
+                      "-"
+                    }
+                  />
 
-                    <p className="text-sm font-semibold text-slate-800 mt-1">
-                      {formatBudget(lead.budget)}
-                    </p>
-                  </div>
+                  <LeadDetail
+                    icon={<CheckCircle2 size={15} />}
+                    label="Created"
+                    value={formatDate(
+                      lead.created_at
+                    )}
+                  />
 
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Lead Source
-                    </p>
-
-                    <p className="text-sm font-semibold text-slate-800 mt-1 capitalize">
-                      {(
-                        lead.lead_source ||
-                        "Unknown"
-                      ).replaceAll("_", " ")}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Created
-                    </p>
-
-                    <p className="text-sm font-semibold text-slate-800 mt-1">
-                      {formatDate(
-                        lead.created_at
-                      )}
-                    </p>
-                  </div>
                 </div>
 
+
+                {/* SERVICE */}
+
+                {lead.service && (
+
+                  <div className="
+                    mt-5
+                    rounded-xl
+                    bg-blue-50
+                    border
+                    border-blue-100
+                    px-4
+                    py-3
+                  ">
+
+                    <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide">
+                      Service
+                    </p>
+
+                    <p className="text-sm font-bold text-blue-900 mt-1">
+                      {lead.service}
+                    </p>
+
+                  </div>
+
+                )}
+
+
                 {/* NOTES */}
+
                 {lead.notes && (
-                  <div
-                    className="
-                      mt-5
-                      bg-slate-50
-                      rounded-xl
-                      p-4
-                    "
-                  >
+
+                  <div className="
+                    mt-4
+                    bg-slate-50
+                    rounded-xl
+                    p-4
+                  ">
+
                     <p className="text-xs font-semibold text-slate-500 mb-1">
                       Requirement
                     </p>
 
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-slate-600 leading-6">
                       {lead.notes}
                     </p>
+
                   </div>
+
                 )}
 
+
                 {/* ACTION */}
-                <div
-                  className="
-                    mt-6
-                    pt-5
-                    border-t
-                    border-slate-100
-                    flex
-                    justify-end
-                  "
-                >
+
+                <div className="
+                  mt-6
+                  pt-5
+                  border-t
+                  border-slate-100
+                  flex
+                  flex-col
+                  sm:flex-row
+                  sm:items-center
+                  sm:justify-between
+                  gap-4
+                ">
+
+                  <div>
+
+                    <p className="text-xs text-slate-400">
+                      Claim cost
+                    </p>
+
+                    <p className="text-sm font-bold text-slate-800 mt-1">
+                      1 Lead Credit
+                    </p>
+
+                  </div>
+
+
                   <button
-                    onClick={() => claimLead(lead)}
-                    disabled={isClaiming}
+                    onClick={() =>
+                      claimLead(lead)
+                    }
+                    disabled={
+                      isClaiming ||
+                      credits < 1
+                    }
                     className="
+                      inline-flex
+                      items-center
+                      justify-center
+                      gap-2
                       bg-blue-600
                       hover:bg-blue-700
-                      disabled:bg-blue-300
+                      disabled:bg-slate-300
                       disabled:cursor-not-allowed
                       text-white
                       px-6
@@ -484,16 +857,123 @@ export default function LeadMarketplace() {
                       transition
                     "
                   >
-                    {isClaiming
-                      ? "Claiming..."
-                      : "Claim Lead"}
+
+                    {isClaiming ? (
+                      <>
+                        <Loader2
+                          size={17}
+                          className="animate-spin"
+                        />
+                        Claiming...
+                      </>
+                    ) : credits < 1 ? (
+                      "No Credits"
+                    ) : (
+                      <>
+                        Claim Lead
+                        <ArrowRight
+                          size={16}
+                        />
+                      </>
+                    )}
+
                   </button>
+
                 </div>
+
               </div>
+
             );
           })}
+
         </div>
+
       )}
+
     </Layout>
+  );
+}
+
+
+// ============================================================
+// MARKETPLACE STAT
+// ============================================================
+
+function MarketplaceStat({
+  label,
+  value,
+  icon,
+}) {
+  return (
+    <div className="
+      bg-white
+      border
+      border-slate-200
+      rounded-2xl
+      p-5
+      shadow-sm
+    ">
+
+      <div className="flex items-center justify-between">
+
+        <div>
+
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {label}
+          </p>
+
+          <p className="text-2xl font-extrabold text-slate-900 mt-2">
+            {value}
+          </p>
+
+        </div>
+
+        <div className="
+          w-10
+          h-10
+          rounded-xl
+          bg-blue-50
+          text-blue-600
+          flex
+          items-center
+          justify-center
+        ">
+          {icon}
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+
+// ============================================================
+// LEAD DETAIL
+// ============================================================
+
+function LeadDetail({
+  icon,
+  label,
+  value,
+}) {
+  return (
+    <div>
+
+      <div className="flex items-center gap-1.5 text-slate-400">
+
+        {icon}
+
+        <p className="text-xs">
+          {label}
+        </p>
+
+      </div>
+
+      <p className="text-sm font-semibold text-slate-800 mt-1">
+        {value}
+      </p>
+
+    </div>
   );
 }

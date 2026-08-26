@@ -20,10 +20,8 @@ export default function TodayFollowUps() {
     try {
       setLoading(true);
 
-      const {
-        data: userData,
-        error: userError,
-      } = await supabase.auth.getUser();
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
 
       if (userError) throw userError;
 
@@ -40,74 +38,77 @@ export default function TodayFollowUps() {
       const end = new Date();
       end.setHours(23, 59, 59, 999);
 
-      // Get today's follow-ups
-      const {
-        data: followupData,
-        error: followupError,
-      } = await supabase
-        .from("lead_followups")
-        .select("*")
-        .eq("agent_id", user.id)
-        .gte(
-          "scheduled_at",
-          start.toISOString()
-        )
-        .lte(
-          "scheduled_at",
-          end.toISOString()
-        )
-        .order("scheduled_at", {
-          ascending: true,
-        });
+      // ==========================================
+      // GET TODAY'S ACTIVITIES
+      // ==========================================
 
-      if (followupError) throw followupError;
+      const { data: activityData, error: activityError } =
+        await supabase
+          .from("lead_activities")
+          .select("*")
+          .eq("agent_id", user.id)
+          .gte("next_follow_up_at", start.toISOString())
+          .lte("next_follow_up_at", end.toISOString())
+          .order("next_follow_up_at", {
+            ascending: true,
+          });
 
-      if (!followupData?.length) {
+      if (activityError) throw activityError;
+
+      if (!activityData?.length) {
         setFollowups([]);
         return;
       }
 
-      // Get lead IDs
-      const leadIds = followupData
-        .map((item) => item.lead_id)
+      // ==========================================
+      // GET LEAD IDS
+      // ==========================================
+
+      const leadIds = activityData
+        .map((activity) => activity.lead_id)
         .filter(Boolean);
 
-      // Get corresponding leads
-      const {
-        data: leadData,
-        error: leadError,
-      } = await supabase
-        .from("leads")
-        .select(
-          "id, customer_name, mobile, email, destination"
-        )
-        .in("id", leadIds);
+      if (!leadIds.length) {
+        setFollowups([]);
+        return;
+      }
+
+      // ==========================================
+      // GET LEADS
+      // ==========================================
+
+      const { data: leadData, error: leadError } =
+        await supabase
+          .from("leads")
+          .select(
+            "id, customer_name, mobile, email, destination"
+          )
+          .in("id", leadIds);
 
       if (leadError) throw leadError;
 
-      // Attach lead information
-      const mergedData = followupData.map(
-        (followup) => {
-          const lead = leadData?.find(
-            (item) =>
-              item.id === followup.lead_id
-          );
+      // ==========================================
+      // MERGE ACTIVITY + LEAD
+      // ==========================================
 
-          return {
-            ...followup,
+      const mergedData = activityData.map((activity) => {
+        const lead = leadData?.find(
+          (item) => item.id === activity.lead_id
+        );
 
-            customer_name:
-              lead?.customer_name || "Customer",
+        return {
+          ...activity,
 
-            mobile: lead?.mobile || "",
+          customer_name:
+            lead?.customer_name || "Customer",
 
-            email: lead?.email || "",
+          mobile: lead?.mobile || "",
 
-            destination:
-              lead?.destination || "",
-          };
-        }
-      );
+          email: lead?.email || "",
+
+          destination: lead?.destination || "",
+        };
+      });
 
       setFollowups(mergedData);
     } catch (error) {
@@ -115,17 +116,23 @@ export default function TodayFollowUps() {
         "Today's Follow-ups Error:",
         error
       );
+
+      setFollowups([]);
     } finally {
       setLoading(false);
     }
   }
 
+  // ==========================================
+  // COMPLETE ACTIVITY
+  // ==========================================
+
   async function markCompleted(id) {
     try {
       const { error } = await supabase
-        .from("lead_followups")
+        .from("lead_activities")
         .update({
-          status: "Completed",
+          activity_type: "Completed",
         })
         .eq("id", id);
 
@@ -136,7 +143,7 @@ export default function TodayFollowUps() {
           item.id === id
             ? {
                 ...item,
-                status: "Completed",
+                activity_type: "Completed",
               }
             : item
         )
@@ -163,6 +170,10 @@ export default function TodayFollowUps() {
     );
   }
 
+  // ==========================================
+  // LOADING
+  // ==========================================
+
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
@@ -173,11 +184,17 @@ export default function TodayFollowUps() {
     );
   }
 
+  // ==========================================
+  // PAGE
+  // ==========================================
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+
       {/* HEADER */}
 
       <div className="flex items-center justify-between p-6 border-b border-slate-100">
+
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
             Sales Activity
@@ -191,12 +208,14 @@ export default function TodayFollowUps() {
         <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
           <Clock size={20} />
         </div>
+
       </div>
 
       {/* EMPTY */}
 
       {followups.length === 0 && (
         <div className="p-10 text-center">
+
           <CheckCircle2
             size={38}
             className="mx-auto text-emerald-500"
@@ -209,12 +228,14 @@ export default function TodayFollowUps() {
           <p className="text-sm text-slate-400 mt-1">
             Your sales activity is clear for today.
           </p>
+
         </div>
       )}
 
       {/* LIST */}
 
       <div className="divide-y divide-slate-100">
+
         {followups.map((item) => (
           <FollowUpItem
             key={item.id}
@@ -223,10 +244,16 @@ export default function TodayFollowUps() {
             markCompleted={markCompleted}
           />
         ))}
+
       </div>
+
     </div>
   );
 }
+
+// ==========================================
+// FOLLOW-UP ITEM
+// ==========================================
 
 function FollowUpItem({
   item,
@@ -234,7 +261,7 @@ function FollowUpItem({
   markCompleted,
 }) {
   const isCompleted =
-    item.status === "Completed";
+    item.activity_type === "Completed";
 
   return (
     <div
@@ -248,23 +275,27 @@ function FollowUpItem({
         }
       `}
     >
+
       <div className="flex flex-col lg:flex-row lg:items-center gap-5">
 
         {/* TIME */}
 
         <div className="lg:w-24">
+
           <p className="text-lg font-bold text-slate-900">
-            {formatTime(item.scheduled_at)}
+            {formatTime(item.next_follow_up_at)}
           </p>
 
           <p className="text-xs text-slate-400">
-            {item.followup_type}
+            {item.activity_type}
           </p>
+
         </div>
 
         {/* CUSTOMER */}
 
         <div className="flex-1">
+
           <h3 className="font-bold text-slate-900">
             {item.customer_name}
           </h3>
@@ -279,11 +310,14 @@ function FollowUpItem({
               {item.notes}
             </p>
           )}
+
         </div>
 
         {/* ACTIONS */}
 
         <div className="flex flex-wrap items-center gap-2">
+
+          {/* CALL */}
 
           {item.mobile && (
             <a
@@ -294,6 +328,8 @@ function FollowUpItem({
               <Phone size={16} />
             </a>
           )}
+
+          {/* WHATSAPP */}
 
           {item.mobile && (
             <a
@@ -309,6 +345,8 @@ function FollowUpItem({
             </a>
           )}
 
+          {/* EMAIL */}
+
           {item.email && (
             <a
               href={`mailto:${item.email}`}
@@ -318,6 +356,8 @@ function FollowUpItem({
               <Mail size={16} />
             </a>
           )}
+
+          {/* COMPLETE */}
 
           {!isCompleted && (
             <button
@@ -344,23 +384,32 @@ function FollowUpItem({
           )}
 
           {isCompleted && (
-            <span className="
-              px-3
-              py-2
-              rounded-lg
-              bg-emerald-50
-              text-emerald-700
-              text-sm
-              font-semibold
-            ">
+            <span
+              className="
+                px-3
+                py-2
+                rounded-lg
+                bg-emerald-50
+                text-emerald-700
+                text-sm
+                font-semibold
+              "
+            >
               Completed
             </span>
           )}
+
         </div>
+
       </div>
+
     </div>
   );
 }
+
+// ==========================================
+// ACTION BUTTON
+// ==========================================
 
 const actionButton = `
   w-9

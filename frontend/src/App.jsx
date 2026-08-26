@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Suspense } from "react";
 
 // Layout
@@ -34,15 +34,32 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Users from "./pages/admin/Users";
 import Customers from "./pages/admin/Customers";
 import Subscriptions from "./pages/admin/Subscriptions";
+import AdminPackageApproval from "./pages/admin/AdminPackageApproval";
 
 // Agent
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentProfile from "./pages/agent/AgentProfile";
 import MyLeads from "./pages/agent/MyLeads";
 import LeadFollowUps from "./pages/agent/LeadFollowUps";
+import AgentRequirements from "./pages/agent/AgentRequirements";
+import AgentInquiries from "./pages/agent/AgentInquiries";
+import AgentInquiryDetails from "./pages/agent/AgentInquiryDetails";
 
 // Customer
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import PackageMarketplace from "./pages/customer/PackageMarketplace";
+import MyBookings from "./pages/customer/MyBookings";
+import TripDetails from "./pages/customer/TripDetails";
+import CustomerPackages from "./pages/customer/CustomerPackages";
+import PackageDetails from "./pages/customer/PackageDetails";
+import MyEnquiries from "./pages/customer/MyEnquiries";
+import AcceptInquiry from "./pages/customer/AcceptInquiry";
+import CustomerRequirement from "./pages/customer/CustomerRequirement";
+import Notifications from "./pages/customer/Notifications";
+import BookingCheckout from "./pages/customer/BookingCheckout";
+import BookingConfirmation from "./pages/customer/BookingConfirmation";
+import CustomerBooking from "./pages/customer/CustomerBooking";
+import BookingDetails from "./pages/customer/BookingDetails";
 
 // Booking
 import Bookings from "./pages/booking/Bookings";
@@ -77,40 +94,81 @@ import Settings from "./pages/settings/Settings";
 import UpgradePlan from "./pages/subscription/UpgradePlan";
 
 function App() {
+  const location = useLocation();
+
+  // Landingpage already contains its own
+  // premium Navbar + Footer.
+  const isLandingPage = location.pathname === "/";
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
 
-      <Navbar />
+      {/* =====================================================
+          GLOBAL NAVBAR
+          Hidden on Landingpage because Landingpage
+          has its own Navbar.
+      ===================================================== */}
+
+      {!isLandingPage && <Navbar />}
 
       <Suspense
         fallback={
-          <div className="p-8 text-center">
+          <div className="flex-1 flex items-center justify-center p-8 text-center">
             Loading...
           </div>
         }
       >
+
         <Routes>
 
-          {/* ================= HOME ================= */}
+          {/* =================================================
+              HOME
+          ================================================= */}
 
-          <Route path="/" element={<Landingpage />} />
+          <Route
+            path="/"
+            element={<Landingpage />}
+          />
 
-          <Route path="/train" element={<Train />} />
+          <Route
+            path="/train"
+            element={<Train />}
+          />
 
-          <Route path="/visa" element={<Visa />} />
+          <Route
+            path="/visa"
+            element={<Visa />}
+          />
 
-          {/* ================= AUTH ================= */}
 
-          <Route path="/login" element={<Login />} />
+          {/* =================================================
+              AUTHENTICATION
+          ================================================= */}
 
-          <Route path="/register" element={<Register />} />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
 
-          <Route path="/agent-login" element={<AgentLogin />} />
+          <Route
+            path="/admin-login"
+            element={<AdminLogin />}
+          />
 
-          
-          {/* ================= DASHBOARD ================= */}
+          <Route
+            path="/agent-login"
+            element={<AgentLogin />}
+          />
+
+
+          {/* =================================================
+              DASHBOARD
+          ================================================= */}
 
           <Route
             path="/dashboard"
@@ -121,7 +179,10 @@ function App() {
             }
           />
 
-          {/* ================= ADMIN ================= */}
+
+          {/* =================================================
+              ADMIN
+          ================================================= */}
 
           <Route
             path="/admin-dashboard"
@@ -159,7 +220,19 @@ function App() {
             }
           />
 
-          {/* ================= AGENT ================= */}
+          <Route
+           path="/admin/packages/approval"
+           element={
+       <ProtectedRoute>
+      <AdminPackageApproval />
+    </ProtectedRoute>
+  }
+/>
+
+
+          {/* =================================================
+              AGENT
+          ================================================= */}
 
           <Route
             path="/agent-dashboard"
@@ -180,22 +253,42 @@ function App() {
           />
 
           <Route
-           path="/my-leads"
-           element={
-          <ProtectedRoute>
-          <MyLeads />
-          </ProtectedRoute>
-        }
-       />
+            path="/my-leads"
+            element={
+              <ProtectedRoute>
+                <MyLeads />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/lead-followups"
             element={
-          <ProtectedRoute>
-          <LeadFollowUps />
-          </ProtectedRoute>
-         }
-        />
-          {/* ================= CUSTOMER ================= */}
+              <ProtectedRoute>
+                <LeadFollowUps />
+              </ProtectedRoute>
+            }
+          />
+
+               <Route
+                path="/agent/requirements"
+                element={<AgentRequirements />}
+             />
+
+             <Route
+               path="/agent/inquiries"
+               element={<AgentInquiries />}
+             />
+
+             <Route
+               path="/agent/inquiries/:id"
+               element={<AgentInquiryDetails />}
+             />
+
+
+          {/* =================================================
+              CUSTOMER
+          ================================================= */}
 
           <Route
             path="/customer-dashboard"
@@ -206,7 +299,77 @@ function App() {
             }
           />
 
-          {/* ================= LEADS CRM ================= */}
+          <Route
+          path="/customer/packages"
+          element={<PackageMarketplace />}
+      />
+
+        <Route
+          path="/customer/bookings"
+          element={<MyBookings />}
+      />
+        
+        <Route
+        path="/customer/trips/:bookingId"
+        element={<TripDetails />}
+      />
+        <Route
+        path="/customer/packages"
+        element={<CustomerPackages />}
+      />
+
+        <Route
+        path="/customer/packages/:id"
+        element={<PackageDetails />}
+      />
+
+         <Route
+          path="/my-enquiries"
+          element={<MyEnquiries />}
+      />
+
+         <Route
+          path="/customer/enquiries/:id/accept"
+          element={<AcceptInquiry />}
+      />
+      
+         <Route
+          path="/customer/requirement"
+          element={
+         <ProtectedRoute>
+         <CustomerRequirement />
+         </ProtectedRoute>
+       }
+     />
+     
+       <Route
+        path="/customer/notifications"
+        element={<Notifications />}
+     />
+
+     <Route
+      path="/customer/booking-checkout/:id"
+      element={<BookingCheckout />}
+   />
+     
+     <Route
+      path="/customer/booking-confirmation/:id"
+      element={<BookingConfirmation />}
+   />
+
+   <Route
+    path="/customer/bookings/create/:id"
+    element={<CustomerBooking />}
+/>
+
+<Route
+  path="/customer/bookings/:id"
+  element={<BookingDetails />}
+/>
+
+          {/* =================================================
+              CRM / LEADS
+          ================================================= */}
 
           <Route
             path="/crm"
@@ -236,20 +399,24 @@ function App() {
           />
 
           <Route
-          path="/follow-ups"
-          element={<FollowUps />}
-        />
+            path="/follow-ups"
+            element={<FollowUps />}
+          />
 
+          {/* Lead Marketplace */}
           <Route
-          path="/lead-marketplace"
-          element={
-        <ProtectedRoute>
-        <LeadMarketplace />
-        </ProtectedRoute>
-      }
-     />
+            path="/lead-marketplace"
+            element={
+              <ProtectedRoute>
+                <LeadMarketplace />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* ================= HOTEL ================= */}
+
+          {/* =================================================
+              HOTEL
+          ================================================= */}
 
           <Route
             path="/hotel"
@@ -260,7 +427,10 @@ function App() {
             }
           />
 
-          {/* ================= CAB ================= */}
+
+          {/* =================================================
+              CAB
+          ================================================= */}
 
           <Route
             path="/cab"
@@ -270,25 +440,39 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* ================= FLIGHT ================= */}
-         <Route
-          path="/flight"
-          element={
-         <ProtectedRoute>
-         <Flight />
-         </ProtectedRoute>
-        }
-       />
 
-            <Route
-           path="/bus"
-           element={
-           <ProtectedRoute>
-           <Bus />
-           </ProtectedRoute>
-          }
-        />
-          {/* ================= BOOKINGS ================= */}
+
+          {/* =================================================
+              FLIGHT
+          ================================================= */}
+
+          <Route
+            path="/flight"
+            element={
+              <ProtectedRoute>
+                <Flight />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* =================================================
+              BUS
+          ================================================= */}
+
+          <Route
+            path="/bus"
+            element={
+              <ProtectedRoute>
+                <Bus />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* =================================================
+              BOOKINGS
+          ================================================= */}
 
           <Route
             path="/bookings"
@@ -300,20 +484,23 @@ function App() {
           />
 
           <Route
-          path="/quotation"
-          element={
-         <ProtectedRoute>
-         <Quotation />
-         </ProtectedRoute>
-        }
-        />
+            path="/quotation"
+            element={
+              <ProtectedRoute>
+                <Quotation />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/invoice"
             element={<Invoice />}
           />
 
-          {/* ================= OPERATIONS BOOKINGS ================= */}
+
+          {/* =================================================
+              OPERATIONS BOOKINGS
+          ================================================= */}
 
           <Route
             path="/operations/bookings"
@@ -324,7 +511,10 @@ function App() {
             }
           />
 
-          {/* ================= PACKAGES ================= */}
+
+          {/* =================================================
+              PACKAGES
+          ================================================= */}
 
           <Route
             path="/packages"
@@ -407,7 +597,10 @@ function App() {
             }
           />
 
-          {/* ================= OPERATIONS ================= */}
+
+          {/* =================================================
+              OPERATIONS
+          ================================================= */}
 
           <Route
             path="/operations"
@@ -445,7 +638,10 @@ function App() {
             }
           />
 
-          {/* ================= REPORTS ================= */}
+
+          {/* =================================================
+              REPORTS
+          ================================================= */}
 
           <Route
             path="/reports"
@@ -456,7 +652,10 @@ function App() {
             }
           />
 
-          {/* ================= SETTINGS ================= */}
+
+          {/* =================================================
+              SETTINGS
+          ================================================= */}
 
           <Route
             path="/settings"
@@ -467,7 +666,10 @@ function App() {
             }
           />
 
-          {/* ================= OTHER ================= */}
+
+          {/* =================================================
+              OTHER
+          ================================================= */}
 
           <Route
             path="/partners"
@@ -487,7 +689,10 @@ function App() {
             }
           />
 
-          {/* ================= SUBSCRIPTION ================= */}
+
+          {/* =================================================
+              SUBSCRIPTION
+          ================================================= */}
 
           <Route
             path="/upgrade-plan"
@@ -499,9 +704,17 @@ function App() {
           />
 
         </Routes>
+
       </Suspense>
 
-      <Footer />
+
+      {/* =====================================================
+          GLOBAL FOOTER
+          Hidden on Landingpage because Landingpage
+          has PremiumFooter.
+      ===================================================== */}
+
+      {!isLandingPage && <Footer />}
 
     </div>
   );

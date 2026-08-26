@@ -8,6 +8,7 @@ import {
   ArrowRight,
   ShoppingBag,
   UserPlus,
+  TrendingUp,
 } from "lucide-react";
 
 import { supabase } from "../../services/supabase";
@@ -43,15 +44,11 @@ function AgentDashboard() {
       const { data: userData, error: userError } =
         await supabase.auth.getUser();
 
-      if (userError) {
-        throw userError;
-      }
+      if (userError) throw userError;
 
       const user = userData?.user;
 
-      if (!user) {
-        return;
-      }
+      if (!user) return;
 
       // ==========================================
       // PROFILE
@@ -65,10 +62,7 @@ function AgentDashboard() {
           .single();
 
       if (profileError) {
-        console.error(
-          "Profile Error:",
-          profileError
-        );
+        console.error("Profile Error:", profileError);
       }
 
       setAgent(profile || null);
@@ -117,9 +111,7 @@ function AgentDashboard() {
         .select("id, status")
         .eq("agent_id", user.id);
 
-      if (leadsError) {
-        throw leadsError;
-      }
+      if (leadsError) throw leadsError;
 
       const total = leads?.length || 0;
 
@@ -183,318 +175,374 @@ function AgentDashboard() {
   if (loading) {
     return (
       <Layout>
-        <div className="py-20 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">
-            Agent Dashboard
-          </p>
+        <div className="flex min-h-[500px] items-center justify-center">
+          <div className="text-center">
 
-          <h1 className="text-2xl font-bold text-slate-900 mt-2">
-            Loading dashboard...
-          </h1>
+            <div
+              className="
+                mx-auto
+                h-10
+                w-10
+                animate-spin
+                rounded-full
+                border-4
+                border-slate-200
+                border-t-blue-600
+              "
+            />
+
+            <p className="mt-4 text-sm font-medium text-slate-500">
+              Loading WorldTrip Connect...
+            </p>
+
+          </div>
         </div>
       </Layout>
     );
   }
 
-  // ==========================================
-  // DASHBOARD
-  // ==========================================
-
   return (
     <Layout>
 
-      {/* ==========================================
-          HEADER
-      ========================================== */}
+      <div className="p-6 lg:p-8">
 
-      <div className="mb-8">
+        {/* ==========================================
+            HEADER
+        ========================================== */}
 
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">
-          Agent Workspace
-        </p>
-
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mt-2">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
 
           <div>
 
-            <h1 className="text-3xl font-extrabold text-slate-900">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">
+              Agent Workspace
+            </p>
+
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">
               Welcome
               {agent?.full_name
                 ? `, ${agent.full_name}`
                 : ""}
             </h1>
 
-            <p className="text-slate-500 mt-2">
-              Manage your leads, follow-ups and
-              travel business opportunities.
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">
+              Manage your leads, customers, follow-ups
+              and travel business opportunities.
             </p>
 
           </div>
 
+
           <button
-            onClick={() =>
-              (window.location.href =
-                "/lead-marketplace")
-            }
+            onClick={() => {
+              window.location.href =
+                "/lead-marketplace";
+            }}
             className="
               inline-flex
               items-center
               justify-center
               gap-2
+              rounded-xl
               bg-blue-600
-              hover:bg-blue-700
-              text-white
               px-5
               py-3
-              rounded-xl
               text-sm
               font-semibold
+              text-white
+              shadow-sm
               transition
+              hover:bg-blue-700
+              hover:shadow-md
             "
           >
             <ShoppingBag size={17} />
+
             Browse Lead Marketplace
+
             <ArrowRight size={16} />
-          </button>
 
-        </div>
-
-      </div>
-
-
-      {/* ==========================================
-          KPI CARDS
-      ========================================== */}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-
-        <DashboardCard
-          title="Available Credits"
-          value={stats.remaining}
-          subtitle="Lead credits remaining"
-          icon={<Wallet size={21} />}
-          highlight
-        />
-
-        <DashboardCard
-          title="My Leads"
-          value={stats.total}
-          subtitle="Claimed opportunities"
-          icon={<Users size={21} />}
-        />
-
-        <DashboardCard
-          title="Follow-ups"
-          value={stats.followup}
-          subtitle="Leads requiring follow-up"
-          icon={<Clock size={21} />}
-        />
-
-        <DashboardCard
-          title="Booked Leads"
-          value={stats.converted}
-          subtitle="Converted opportunities"
-          icon={<CheckCircle2 size={21} />}
-        />
-
-      </div>
-
-
-      {/* ==========================================
-          SUBSCRIPTION + PIPELINE
-      ========================================== */}
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-8">
-
-        {/* SUBSCRIPTION */}
-
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Current Plan
-              </p>
-
-              <h2 className="text-xl font-bold text-slate-900 mt-1">
-                {subscription
-                  ?.subscription_plans
-                  ?.plan_name ||
-                  "No Active Plan"}
-              </h2>
-
-            </div>
-
-            <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <CreditCard size={21} />
-            </div>
-
-          </div>
-
-          <div className="mt-6">
-
-            <p className="text-xs text-slate-400">
-              Lead Limit
-            </p>
-
-            <p className="text-2xl font-extrabold text-slate-900 mt-1">
-              {subscription
-                ?.subscription_plans
-                ?.lead_limit || 0}
-            </p>
-
-          </div>
-
-          <button
-            onClick={() =>
-              (window.location.href =
-                "/upgrade-plan")
-            }
-            className="
-              mt-5
-              w-full
-              border
-              border-slate-200
-              hover:border-blue-300
-              hover:bg-blue-50
-              text-slate-700
-              hover:text-blue-700
-              px-4
-              py-2.5
-              rounded-xl
-              text-sm
-              font-semibold
-              transition
-            "
-          >
-            Upgrade Plan
           </button>
 
         </div>
 
 
-        {/* PIPELINE */}
+        {/* ==========================================
+            KPI CARDS
+        ========================================== */}
 
-        <div className="xl:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="mt-10">
 
-          <div className="flex items-center justify-between">
+          <div className="mb-4">
 
-            <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              Business Overview
+            </h2>
 
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Lead Pipeline
-              </p>
-
-              <h2 className="text-xl font-bold text-slate-900 mt-1">
-                Current Performance
-              </h2>
-
-            </div>
-
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 size={21} />
-            </div>
+            <p className="mt-1 text-sm text-slate-500">
+              Your current lead and sales performance.
+            </p>
 
           </div>
 
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-            <PipelineItem
-              label="New"
-              value={stats.new}
+            <DashboardCard
+              title="Available Credits"
+              value={stats.remaining}
+              description="Lead credits remaining"
+              icon={Wallet}
+              highlight
             />
 
-            <PipelineItem
-              label="Follow Up"
+            <DashboardCard
+              title="My Leads"
+              value={stats.total}
+              description="Claimed opportunities"
+              icon={Users}
+            />
+
+            <DashboardCard
+              title="Follow-ups"
               value={stats.followup}
+              description="Leads requiring action"
+              icon={Clock}
             />
 
-            <PipelineItem
-              label="Booked"
+            <DashboardCard
+              title="Booked Leads"
               value={stats.converted}
+              description="Converted opportunities"
+              icon={CheckCircle2}
+              success
             />
 
           </div>
 
         </div>
 
-      </div>
+
+        {/* ==========================================
+            PLAN + PIPELINE
+        ========================================== */}
+
+        <div className="mt-10 grid grid-cols-1 gap-5 xl:grid-cols-3">
+
+          {/* PLAN */}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <div className="flex items-start justify-between">
+
+              <div>
+
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Subscription
+                </p>
+
+                <h2 className="mt-2 text-xl font-bold text-slate-900">
+                  {subscription
+                    ?.subscription_plans
+                    ?.plan_name ||
+                    "No Active Plan"}
+                </h2>
+
+              </div>
 
 
-      {/* ==========================================
-          TODAY FOLLOW UPS
-      ========================================== */}
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <CreditCard size={21} />
+              </div>
 
-      <div className="mb-8">
-
-        <TodayFollowUps />
-
-      </div>
+            </div>
 
 
-      {/* ==========================================
-          QUICK ACTIONS
-      ========================================== */}
+            <div className="mt-7 rounded-xl bg-slate-50 p-4">
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <p className="text-xs font-medium text-slate-400">
+                Lead Limit
+              </p>
 
-        <div className="mb-5">
+              <div className="mt-1 flex items-end gap-2">
 
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Quick Actions
-          </p>
+                <p className="text-2xl font-extrabold text-slate-900">
+                  {subscription
+                    ?.subscription_plans
+                    ?.lead_limit || 0}
+                </p>
 
-          <h2 className="text-xl font-bold text-slate-900 mt-1">
-            Manage Your Business
-          </h2>
+                <p className="mb-1 text-xs text-slate-400">
+                  leads
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <button
+              onClick={() => {
+                window.location.href =
+                  "/upgrade-plan";
+              }}
+              className="
+                mt-5
+                flex
+                w-full
+                items-center
+                justify-center
+                gap-2
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                px-4
+                py-2.5
+                text-sm
+                font-semibold
+                text-slate-700
+                transition
+                hover:border-blue-200
+                hover:bg-blue-50
+                hover:text-blue-700
+              "
+            >
+              Upgrade Plan
+              <ArrowRight size={16} />
+            </button>
+
+          </div>
+
+
+          {/* PIPELINE */}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
+
+            <div className="flex items-start justify-between">
+
+              <div>
+
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Lead Pipeline
+                </p>
+
+                <h2 className="mt-2 text-xl font-bold text-slate-900">
+                  Current Performance
+                </h2>
+
+              </div>
+
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <TrendingUp size={21} />
+              </div>
+
+            </div>
+
+
+            <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+              <PipelineItem
+                label="New"
+                value={stats.new}
+              />
+
+              <PipelineItem
+                label="Follow Up"
+                value={stats.followup}
+              />
+
+              <PipelineItem
+                label="Booked"
+                value={stats.converted}
+                success
+              />
+
+            </div>
+
+          </div>
 
         </div>
 
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* ==========================================
+            TODAY FOLLOW UPS
+        ========================================== */}
 
-          <QuickAction
-            icon={<ShoppingBag size={19} />}
-            title="Lead Marketplace"
-            description="Find qualified leads"
-            onClick={() =>
-              (window.location.href =
-                "/lead-marketplace")
-            }
-          />
+        <div className="mt-10">
 
-          <QuickAction
-            icon={<Users size={19} />}
-            title="My Leads"
-            description="Manage claimed leads"
-            onClick={() =>
-              (window.location.href =
-                "/my-leads")
-            }
-          />
+          <TodayFollowUps />
 
-          <QuickAction
-            icon={<Clock size={19} />}
-            title="Follow-ups"
-            description="Manage follow-ups"
-            onClick={() =>
-              (window.location.href =
-                "/lead-followups")
-            }
-          />
+        </div>
 
-          <QuickAction
-            icon={<UserPlus size={19} />}
-            title="Add Lead"
-            description="Create a new enquiry"
-            onClick={() =>
-              (window.location.href =
-                "/add-lead")
-            }
-          />
+
+        {/* ==========================================
+            QUICK ACTIONS
+        ========================================== */}
+
+        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+          <div className="mb-5">
+
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+              Quick Actions
+            </p>
+
+            <h2 className="mt-2 text-xl font-bold text-slate-900">
+              Manage Your Business
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Quickly access the tools you use most.
+            </p>
+
+          </div>
+
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            <QuickAction
+              icon={ShoppingBag}
+              title="Lead Marketplace"
+              description="Find qualified leads"
+              onClick={() => {
+                window.location.href =
+                  "/lead-marketplace";
+              }}
+            />
+
+            <QuickAction
+              icon={Users}
+              title="My Leads"
+              description="Manage claimed leads"
+              onClick={() => {
+                window.location.href =
+                  "/my-leads";
+              }}
+            />
+
+            <QuickAction
+              icon={Clock}
+              title="Follow-ups"
+              description="Manage customer follow-ups"
+              onClick={() => {
+                window.location.href =
+                  "/lead-followups";
+              }}
+            />
+
+            <QuickAction
+              icon={UserPlus}
+              title="Add Lead"
+              description="Create a new enquiry"
+              onClick={() => {
+                window.location.href =
+                  "/add-lead";
+              }}
+            />
+
+          </div>
 
         </div>
 
@@ -505,28 +553,34 @@ function AgentDashboard() {
 }
 
 
-// ==========================================
-// DASHBOARD CARD
-// ==========================================
+/* ==========================================
+   DASHBOARD CARD
+========================================== */
 
 function DashboardCard({
   title,
   value,
-  subtitle,
-  icon,
+  description,
+  icon: Icon,
   highlight = false,
+  success = false,
 }) {
   return (
     <div
       className={`
-        bg-white
-        border
         rounded-2xl
+        border
+        bg-white
         p-5
         shadow-sm
+        transition
+        hover:-translate-y-0.5
+        hover:shadow-md
         ${
           highlight
             ? "border-blue-200"
+            : success
+            ? "border-emerald-200"
             : "border-slate-200"
         }
       `}
@@ -536,18 +590,20 @@ function DashboardCard({
 
         <div>
 
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
             {title}
           </p>
 
           <p
             className={`
+              mt-2
               text-3xl
               font-extrabold
-              mt-2
               ${
                 highlight
                   ? "text-blue-700"
+                  : success
+                  ? "text-emerald-600"
                   : "text-slate-900"
               }
             `}
@@ -555,28 +611,31 @@ function DashboardCard({
             {value}
           </p>
 
-          <p className="text-xs text-slate-400 mt-1">
-            {subtitle}
+          <p className="mt-1 text-xs text-slate-400">
+            {description}
           </p>
 
         </div>
 
+
         <div
           className={`
-            w-11
-            h-11
-            rounded-xl
             flex
+            h-11
+            w-11
             items-center
             justify-center
+            rounded-xl
             ${
               highlight
                 ? "bg-blue-50 text-blue-600"
+                : success
+                ? "bg-emerald-50 text-emerald-600"
                 : "bg-slate-50 text-slate-600"
             }
           `}
         >
-          {icon}
+          <Icon size={21} />
         </div>
 
       </div>
@@ -586,22 +645,44 @@ function DashboardCard({
 }
 
 
-// ==========================================
-// PIPELINE ITEM
-// ==========================================
+/* ==========================================
+   PIPELINE ITEM
+========================================== */
 
 function PipelineItem({
   label,
   value,
+  success = false,
 }) {
   return (
-    <div className="bg-slate-50 rounded-xl p-4">
+    <div
+      className={`
+        rounded-xl
+        p-5
+        ${
+          success
+            ? "bg-emerald-50"
+            : "bg-slate-50"
+        }
+      `}
+    >
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs font-semibold text-slate-400">
         {label}
       </p>
 
-      <p className="text-2xl font-extrabold text-slate-900 mt-1">
+      <p
+        className={`
+          mt-1
+          text-2xl
+          font-extrabold
+          ${
+            success
+              ? "text-emerald-700"
+              : "text-slate-900"
+          }
+        `}
+      >
         {value}
       </p>
 
@@ -610,12 +691,12 @@ function PipelineItem({
 }
 
 
-// ==========================================
-// QUICK ACTION
-// ==========================================
+/* ==========================================
+   QUICK ACTION
+========================================== */
 
 function QuickAction({
-  icon,
+  icon: Icon,
   title,
   description,
   onClick,
@@ -624,23 +705,42 @@ function QuickAction({
     <button
       onClick={onClick}
       className="
-        text-left
-        bg-slate-50
-        hover:bg-blue-50
+        group
+        flex
+        w-full
+        items-center
+        justify-between
+        rounded-xl
         border
         border-slate-200
-        hover:border-blue-200
-        rounded-xl
+        bg-slate-50
         p-4
+        text-left
         transition
+        hover:border-blue-200
+        hover:bg-blue-50
       "
     >
 
       <div className="flex items-center gap-3">
 
-        <div className="w-9 h-9 rounded-lg bg-white text-blue-600 flex items-center justify-center shadow-sm">
-          {icon}
+        <div
+          className="
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            bg-white
+            text-blue-600
+            shadow-sm
+          "
+        >
+          <Icon size={19} />
         </div>
+
 
         <div>
 
@@ -648,7 +748,7 @@ function QuickAction({
             {title}
           </p>
 
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="mt-0.5 text-xs text-slate-400">
             {description}
           </p>
 
@@ -656,8 +756,20 @@ function QuickAction({
 
       </div>
 
+
+      <ArrowRight
+        size={17}
+        className="
+          text-slate-300
+          transition
+          group-hover:translate-x-1
+          group-hover:text-blue-600
+        "
+      />
+
     </button>
   );
 }
+
 
 export default AgentDashboard;

@@ -85,15 +85,9 @@ export default function MyLeads() {
     return leads.filter((lead) => {
       const matchesSearch =
         !keyword ||
-        lead.customer_name
-          ?.toLowerCase()
-          .includes(keyword) ||
-        lead.mobile
-          ?.toLowerCase()
-          .includes(keyword) ||
-        lead.destination
-          ?.toLowerCase()
-          .includes(keyword);
+        lead.customer_name?.toLowerCase().includes(keyword) ||
+        lead.mobile?.toLowerCase().includes(keyword) ||
+        lead.destination?.toLowerCase().includes(keyword);
 
       const matchesStatus =
         !statusFilter ||
@@ -101,11 +95,7 @@ export default function MyLeads() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [
-    leads,
-    searchTerm,
-    statusFilter,
-  ]);
+  }, [leads, searchTerm, statusFilter]);
 
   // ==========================================
   // UPDATE STATUS
@@ -116,7 +106,11 @@ export default function MyLeads() {
       const { error } = await supabase
         .from("leads")
         .update({ status })
-        .eq("id", id);
+        .eq("id", id)
+        .eq(
+          "agent_id",
+          (await supabase.auth.getUser()).data.user.id
+        );
 
       if (error) throw error;
 
@@ -128,11 +122,7 @@ export default function MyLeads() {
         )
       );
     } catch (error) {
-      console.error(
-        "Status Update Error:",
-        error
-      );
-
+      console.error("Status Update Error:", error);
       alert("Unable to update lead status.");
     }
   };
@@ -173,11 +163,7 @@ export default function MyLeads() {
 
       setActivities(data || []);
     } catch (error) {
-      console.error(
-        "Activity Fetch Error:",
-        error
-      );
-
+      console.error("Activity Fetch Error:", error);
       setActivities([]);
     } finally {
       setActivityLoading(false);
@@ -216,8 +202,7 @@ export default function MyLeads() {
         .insert({
           lead_id: activityLead.id,
           agent_id: user.id,
-          activity_type:
-            activityForm.activity_type,
+          activity_type: activityForm.activity_type,
           notes: activityForm.notes.trim(),
           next_follow_up_at:
             activityForm.next_follow_up_at
@@ -237,14 +222,9 @@ export default function MyLeads() {
         next_follow_up_at: "",
       });
 
-      await fetchActivities(
-        activityLead.id
-      );
+      await fetchActivities(activityLead.id);
     } catch (error) {
-      console.error(
-        "Add Activity Error:",
-        error
-      );
+      console.error("Add Activity Error:", error);
 
       alert(
         error.message ||
@@ -290,7 +270,7 @@ export default function MyLeads() {
   };
 
   // ==========================================
-  // BUDGET
+  // FORMAT BUDGET
   // ==========================================
 
   const formatBudget = (budget) => {
@@ -302,9 +282,7 @@ export default function MyLeads() {
       return budget;
     }
 
-    return `₹ ${numericBudget.toLocaleString(
-      "en-IN"
-    )}`;
+    return `₹ ${numericBudget.toLocaleString("en-IN")}`;
   };
 
   // ==========================================
@@ -334,6 +312,7 @@ export default function MyLeads() {
   return (
     <Layout>
       {/* HEADER */}
+
       <div className="mb-8">
         <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-600">
           Agent Workspace
@@ -364,6 +343,7 @@ export default function MyLeads() {
       </div>
 
       {/* FILTERS */}
+
       <div className="bg-white border border-slate-200 rounded-2xl p-5 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
@@ -383,30 +363,17 @@ export default function MyLeads() {
             }
             className="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
-            <option value="">
-              All Statuses
-            </option>
-
-            <option value="Contacted">
-              Contacted
-            </option>
-
-            <option value="Follow Up">
-              Follow Up
-            </option>
-
-            <option value="Booked">
-              Booked
-            </option>
-
-            <option value="Lost">
-              Lost
-            </option>
+            <option value="">All Statuses</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Follow Up">Follow Up</option>
+            <option value="Booked">Booked</option>
+            <option value="Lost">Lost</option>
           </select>
         </div>
       </div>
 
       {/* LEADS */}
+
       {filteredLeads.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl py-16 text-center">
           <p className="text-lg font-semibold text-slate-700">
@@ -426,18 +393,17 @@ export default function MyLeads() {
               className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition"
             >
               {/* TOP */}
+
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
                 <div>
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-bold text-slate-900">
-                      {lead.customer_name ||
-                        "Customer"}
+                      {lead.customer_name || "Customer"}
                     </h2>
 
                     <StatusBadge
                       status={
-                        lead.status ||
-                        "Contacted"
+                        lead.status || "Contacted"
                       }
                     />
                   </div>
@@ -448,6 +414,7 @@ export default function MyLeads() {
                 </div>
 
                 {/* QUICK ACTIONS */}
+
                 <div className="flex items-center gap-2">
                   {lead.mobile && (
                     <a
@@ -486,42 +453,34 @@ export default function MyLeads() {
               </div>
 
               {/* DETAILS */}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
                 <Detail
                   icon={<MapPin size={16} />}
                   label="Destination"
-                  value={
-                    lead.destination || "-"
-                  }
+                  value={lead.destination || "-"}
                 />
 
                 <Detail
-                  icon={
-                    <CalendarDays size={16} />
-                  }
+                  icon={<CalendarDays size={16} />}
                   label="Travel Date"
-                  value={formatDate(
-                    lead.travel_date
-                  )}
+                  value={formatDate(lead.travel_date)}
                 />
 
                 <Detail
                   icon={<Users size={16} />}
                   label="Travelers"
-                  value={
-                    lead.travelers || "-"
-                  }
+                  value={lead.travelers || "-"}
                 />
 
                 <Detail
                   label="Budget"
-                  value={formatBudget(
-                    lead.budget
-                  )}
+                  value={formatBudget(lead.budget)}
                 />
               </div>
 
               {/* CONTACT */}
+
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-xl p-4">
                   <p className="text-xs text-slate-400">
@@ -545,6 +504,7 @@ export default function MyLeads() {
               </div>
 
               {/* NOTES */}
+
               {lead.notes && (
                 <div className="mt-5 bg-blue-50 border border-blue-100 rounded-xl p-4">
                   <p className="text-xs font-semibold text-blue-600">
@@ -558,6 +518,7 @@ export default function MyLeads() {
               )}
 
               {/* FOOTER */}
+
               <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <p className="text-xs text-slate-400">
@@ -576,8 +537,7 @@ export default function MyLeads() {
                 <div className="flex items-center gap-3">
                   <select
                     value={
-                      lead.status ||
-                      "Contacted"
+                      lead.status || "Contacted"
                     }
                     onChange={(e) =>
                       updateStatus(
@@ -621,10 +581,13 @@ export default function MyLeads() {
       )}
 
       {/* ACTIVITY MODAL */}
+
       {activityLead && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
             {/* MODAL HEADER */}
+
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
@@ -652,6 +615,7 @@ export default function MyLeads() {
             </div>
 
             {/* ADD ACTIVITY */}
+
             <div className="p-6 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 mb-4">
                 Add Activity
@@ -740,6 +704,7 @@ export default function MyLeads() {
             </div>
 
             {/* ACTIVITY HISTORY */}
+
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Clock
@@ -811,11 +776,7 @@ export default function MyLeads() {
 // DETAIL
 // ==========================================
 
-function Detail({
-  icon,
-  label,
-  value,
-}) {
+function Detail({ icon, label, value }) {
   return (
     <div className="bg-slate-50 rounded-xl p-4">
       <div className="flex items-center gap-2 text-blue-600">

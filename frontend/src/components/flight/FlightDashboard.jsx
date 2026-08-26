@@ -9,32 +9,39 @@ export default function FlightDashboard({ refresh }) {
     pendingPayments: 0,
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     loadDashboard();
   }, [refresh]);
 
   async function loadDashboard() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("flight_bookings")
       .select("*");
 
     if (error) {
-      console.log(error);
+      console.error("FLIGHT DASHBOARD ERROR:", error);
+      setLoading(false);
       return;
     }
 
-    const totalBookings = data.length;
+    const bookings = data || [];
 
-    const totalRevenue = data.reduce(
+    const totalBookings = bookings.length;
+
+    const totalRevenue = bookings.reduce(
       (sum, item) => sum + Number(item.fare || 0),
       0
     );
 
-    const paidBookings = data.filter(
+    const paidBookings = bookings.filter(
       (item) => item.payment_status === "Paid"
     ).length;
 
-    const pendingPayments = data.filter(
+    const pendingPayments = bookings.filter(
       (item) => item.payment_status === "Pending"
     ).length;
 
@@ -44,14 +51,16 @@ export default function FlightDashboard({ refresh }) {
       paidBookings,
       pendingPayments,
     });
+
+    setLoading(false);
   }
 
   const cardStyle = {
     background: "#ffffff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0,0,0,.08)",
-    textAlign: "center",
+    padding: "22px",
+    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    boxShadow: "0 4px 14px rgba(0,0,0,0.06)",
   };
 
   return (
@@ -64,24 +73,143 @@ export default function FlightDashboard({ refresh }) {
         marginBottom: "30px",
       }}
     >
-      <div style={cardStyle}>
-        <h3>Total Flight Bookings</h3>
-        <h1>{stats.totalBookings}</h1>
-      </div>
+      {/* TOTAL BOOKINGS */}
 
       <div style={cardStyle}>
-        <h3>Total Revenue</h3>
-        <h1>₹ {stats.totalRevenue}</h1>
+        <div
+          style={{
+            fontSize: "30px",
+            marginBottom: "8px",
+          }}
+        >
+          ✈️
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            color: "#64748b",
+            fontSize: "14px",
+            fontWeight: "600",
+          }}
+        >
+          Total Flight Bookings
+        </p>
+
+        <h1
+          style={{
+            margin: "8px 0 0",
+            fontSize: "30px",
+            color: "#0f172a",
+          }}
+        >
+          {loading ? "..." : stats.totalBookings}
+        </h1>
       </div>
 
-      <div style={cardStyle}>
-        <h3>Paid Bookings</h3>
-        <h1>{stats.paidBookings}</h1>
-      </div>
+      {/* REVENUE */}
 
       <div style={cardStyle}>
-        <h3>Pending Payments</h3>
-        <h1>{stats.pendingPayments}</h1>
+        <div
+          style={{
+            fontSize: "30px",
+            marginBottom: "8px",
+          }}
+        >
+          💰
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            color: "#64748b",
+            fontSize: "14px",
+            fontWeight: "600",
+          }}
+        >
+          Total Revenue
+        </p>
+
+        <h1
+          style={{
+            margin: "8px 0 0",
+            fontSize: "30px",
+            color: "#16a34a",
+          }}
+        >
+          ₹{" "}
+          {loading
+            ? "..."
+            : stats.totalRevenue.toLocaleString("en-IN")}
+        </h1>
+      </div>
+
+      {/* PAID */}
+
+      <div style={cardStyle}>
+        <div
+          style={{
+            fontSize: "30px",
+            marginBottom: "8px",
+          }}
+        >
+          ✅
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            color: "#64748b",
+            fontSize: "14px",
+            fontWeight: "600",
+          }}
+        >
+          Paid Bookings
+        </p>
+
+        <h1
+          style={{
+            margin: "8px 0 0",
+            fontSize: "30px",
+            color: "#2563eb",
+          }}
+        >
+          {loading ? "..." : stats.paidBookings}
+        </h1>
+      </div>
+
+      {/* PENDING */}
+
+      <div style={cardStyle}>
+        <div
+          style={{
+            fontSize: "30px",
+            marginBottom: "8px",
+          }}
+        >
+          ⏳
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            color: "#64748b",
+            fontSize: "14px",
+            fontWeight: "600",
+          }}
+        >
+          Pending Payments
+        </p>
+
+        <h1
+          style={{
+            margin: "8px 0 0",
+            fontSize: "30px",
+            color: "#dc2626",
+          }}
+        >
+          {loading ? "..." : stats.pendingPayments}
+        </h1>
       </div>
     </div>
   );

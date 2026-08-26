@@ -33,6 +33,10 @@ export default function LeadFollowUps() {
     loadData();
   }, []);
 
+  // ==========================================
+  // LOAD DATA
+  // ==========================================
+
   async function loadData() {
     try {
       setLoading(true);
@@ -52,9 +56,9 @@ export default function LeadFollowUps() {
         return;
       }
 
-      // =========================
+      // ==========================================
       // MY LEADS
-      // =========================
+      // ==========================================
 
       const {
         data: leadData,
@@ -71,9 +75,9 @@ export default function LeadFollowUps() {
 
       setLeads(leadData || []);
 
-      // =========================
+      // ==========================================
       // MY FOLLOW-UPS
-      // =========================
+      // ==========================================
 
       const {
         data: followupData,
@@ -96,26 +100,33 @@ export default function LeadFollowUps() {
     }
   }
 
-  // =========================
+  // ==========================================
   // FORM CHANGE
-  // =========================
+  // ==========================================
 
-  function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   }
 
-  // =========================
+  // ==========================================
   // CREATE FOLLOW-UP
-  // =========================
+  // ==========================================
 
-  async function createFollowup(e) {
-    e.preventDefault();
+  async function createFollowup(event) {
+    event.preventDefault();
 
     if (!form.lead_id) {
       alert("Please select a lead.");
+      return;
+    }
+
+    if (!form.scheduled_at) {
+      alert("Please select a date and time.");
       return;
     }
 
@@ -143,9 +154,10 @@ export default function LeadFollowUps() {
             lead_id: form.lead_id,
             agent_id: user.id,
             followup_type: form.followup_type,
-            scheduled_at:
-              form.scheduled_at || null,
-            notes: form.notes || null,
+            scheduled_at: new Date(
+              form.scheduled_at
+            ).toISOString(),
+            notes: form.notes.trim() || null,
             status: "Pending",
           },
         ]);
@@ -170,15 +182,18 @@ export default function LeadFollowUps() {
         error
       );
 
-      alert("Follow-up creation failed.");
+      alert(
+        error.message ||
+          "Follow-up creation failed."
+      );
     } finally {
       setSaving(false);
     }
   }
 
-  // =========================
+  // ==========================================
   // UPDATE STATUS
-  // =========================
+  // ==========================================
 
   async function updateStatus(id, status) {
     try {
@@ -205,19 +220,26 @@ export default function LeadFollowUps() {
         error
       );
 
-      alert("Unable to update follow-up.");
+      alert(
+        error.message ||
+          "Unable to update follow-up."
+      );
     }
   }
 
-  // =========================
-  // HELPERS
-  // =========================
+  // ==========================================
+  // GET LEAD
+  // ==========================================
 
   function getLead(leadId) {
     return leads.find(
-      (lead) => lead.id === leadId
+      (lead) => String(lead.id) === String(leadId)
     );
   }
+
+  // ==========================================
+  // FORMAT DATE
+  // ==========================================
 
   function formatDate(date) {
     if (!date) return "Not scheduled";
@@ -234,29 +256,52 @@ export default function LeadFollowUps() {
     );
   }
 
-  function getTypeIcon(type) {
-    if (type === "Call") {
-      return <Phone size={17} />;
-    }
+  // ==========================================
+  // WHATSAPP
+  // ==========================================
 
-    if (type === "WhatsApp") {
-      return <MessageCircle size={17} />;
-    }
+  function getWhatsAppUrl(mobile) {
+    if (!mobile) return "#";
 
-    if (type === "Email") {
-      return <Mail size={17} />;
-    }
+    const number = String(mobile).replace(
+      /\D/g,
+      ""
+    );
 
-    if (type === "Meeting") {
-      return <Users size={17} />;
-    }
+    const normalizedNumber =
+      number.length === 10
+        ? `91${number}`
+        : number;
 
-    return <Clock size={17} />;
+    return `https://wa.me/${normalizedNumber}`;
   }
 
-  // =========================
+  // ==========================================
+  // TYPE ICON
+  // ==========================================
+
+  function getTypeIcon(type) {
+    switch (type) {
+      case "Call":
+        return <Phone size={17} />;
+
+      case "WhatsApp":
+        return <MessageCircle size={17} />;
+
+      case "Email":
+        return <Mail size={17} />;
+
+      case "Meeting":
+        return <Users size={17} />;
+
+      default:
+        return <Clock size={17} />;
+    }
+  }
+
+  // ==========================================
   // COUNTS
-  // =========================
+  // ==========================================
 
   const pendingCount = followups.filter(
     (item) => item.status === "Pending"
@@ -270,9 +315,9 @@ export default function LeadFollowUps() {
     (item) => item.status === "Cancelled"
   ).length;
 
-  // =========================
+  // ==========================================
   // LOADING
-  // =========================
+  // ==========================================
 
   if (loading) {
     return (
@@ -290,11 +335,13 @@ export default function LeadFollowUps() {
     );
   }
 
+  // ==========================================
+  // PAGE
+  // ==========================================
+
   return (
     <Layout>
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
         <div>
@@ -314,7 +361,7 @@ export default function LeadFollowUps() {
 
         <button
           onClick={() =>
-            setShowForm(!showForm)
+            setShowForm((previous) => !previous)
           }
           className="
             inline-flex
@@ -337,9 +384,7 @@ export default function LeadFollowUps() {
         </button>
       </div>
 
-      {/* =========================
-          STATS
-      ========================= */}
+      {/* STATS */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         <StatCard
@@ -361,9 +406,7 @@ export default function LeadFollowUps() {
         />
       </div>
 
-      {/* =========================
-          CREATE FORM
-      ========================= */}
+      {/* CREATE FORM */}
 
       {showForm && (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm">
@@ -397,8 +440,11 @@ export default function LeadFollowUps() {
                     key={lead.id}
                     value={lead.id}
                   >
-                    {lead.customer_name} —{" "}
-                    {lead.destination}
+                    {lead.customer_name ||
+                      "Customer"}{" "}
+                    —{" "}
+                    {lead.destination ||
+                      "Destination"}
                   </option>
                 ))}
               </select>
@@ -506,6 +552,7 @@ export default function LeadFollowUps() {
                   text-white
                   font-semibold
                   disabled:opacity-50
+                  disabled:cursor-not-allowed
                 "
               >
                 {saving
@@ -517,9 +564,7 @@ export default function LeadFollowUps() {
         </div>
       )}
 
-      {/* =========================
-          FOLLOW-UP LIST
-      ========================= */}
+      {/* FOLLOW-UP LIST */}
 
       {followups.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl py-16 text-center">
@@ -558,9 +603,9 @@ export default function LeadFollowUps() {
                   transition
                 "
               >
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
-                  {/* LEFT */}
+                {/* TOP */}
 
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
                   <div>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -583,11 +628,10 @@ export default function LeadFollowUps() {
                     </div>
                   </div>
 
-                  {/* STATUS */}
-
                   <StatusBadge
                     status={
-                      followup.status
+                      followup.status ||
+                      "Pending"
                     }
                   />
                 </div>
@@ -646,9 +690,9 @@ export default function LeadFollowUps() {
 
                   {lead?.mobile && (
                     <a
-                      href={`https://wa.me/91${String(
+                      href={getWhatsAppUrl(
                         lead.mobile
-                      ).replace(/\D/g, "")}`}
+                      )}
                       target="_blank"
                       rel="noreferrer"
                       className={smallAction}
@@ -674,50 +718,49 @@ export default function LeadFollowUps() {
 
                   {followup.status ===
                     "Pending" && (
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          followup.id,
-                          "Completed"
-                        )
-                      }
-                      className="
-                        px-4
-                        py-2
-                        rounded-lg
-                        bg-emerald-50
-                        text-emerald-700
-                        text-sm
-                        font-semibold
-                        hover:bg-emerald-100
-                      "
-                    >
-                      Mark Completed
-                    </button>
-                  )}
+                    <>
+                      <button
+                        onClick={() =>
+                          updateStatus(
+                            followup.id,
+                            "Completed"
+                          )
+                        }
+                        className="
+                          px-4
+                          py-2
+                          rounded-lg
+                          bg-emerald-50
+                          text-emerald-700
+                          text-sm
+                          font-semibold
+                          hover:bg-emerald-100
+                        "
+                      >
+                        Mark Completed
+                      </button>
 
-                  {followup.status ===
-                    "Pending" && (
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          followup.id,
-                          "Cancelled"
-                        )
-                      }
-                      className="
-                        px-4
-                        py-2
-                        rounded-lg
-                        bg-red-50
-                        text-red-600
-                        text-sm
-                        font-semibold
-                        hover:bg-red-100
-                      "
-                    >
-                      Cancel
-                    </button>
+                      <button
+                        onClick={() =>
+                          updateStatus(
+                            followup.id,
+                            "Cancelled"
+                          )
+                        }
+                        className="
+                          px-4
+                          py-2
+                          rounded-lg
+                          bg-red-50
+                          text-red-600
+                          text-sm
+                          font-semibold
+                          hover:bg-red-100
+                        "
+                      >
+                        Cancel
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -728,7 +771,6 @@ export default function LeadFollowUps() {
     </Layout>
   );
 }
-
 
 // ==========================================
 // STAT CARD
@@ -760,7 +802,6 @@ function StatCard({
   );
 }
 
-
 // ==========================================
 // DETAIL
 // ==========================================
@@ -782,9 +823,8 @@ function Detail({
   );
 }
 
-
 // ==========================================
-// STATUS
+// STATUS BADGE
 // ==========================================
 
 function StatusBadge({ status }) {
@@ -819,9 +859,8 @@ function StatusBadge({ status }) {
   );
 }
 
-
 // ==========================================
-// STYLES
+// INPUT STYLE
 // ==========================================
 
 const inputStyle = `
@@ -839,6 +878,10 @@ const inputStyle = `
   focus:ring-2
   focus:ring-blue-100
 `;
+
+// ==========================================
+// SMALL ACTION
+// ==========================================
 
 const smallAction = `
   inline-flex

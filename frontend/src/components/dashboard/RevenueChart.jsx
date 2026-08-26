@@ -41,7 +41,7 @@ export default function RevenueChart() {
 
       <div className="h-[260px]">
 
-        <ResponsiveContainer width="40%" height="50%">
+        <ResponsiveContainer width="100%" height="100%">
 
           <LineChart data={data}>
 

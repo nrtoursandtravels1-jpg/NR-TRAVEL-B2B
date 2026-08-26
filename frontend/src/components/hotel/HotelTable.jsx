@@ -10,7 +10,6 @@ import {
   Globe,
 } from "lucide-react";
 import { supabase } from "../../services/supabase";
-import HotelViewModal from "./HotelViewModal";
 
 export default function HotelTable({
   refresh,
@@ -20,7 +19,7 @@ export default function HotelTable({
   const [hotels, setHotels] = useState([]);
   const [filteredHotels, setFilteredHotels] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewHotel, setViewHotel] = useState(null);
+  
 
   useEffect(() => {
     fetchHotels();
@@ -154,11 +153,17 @@ export default function HotelTable({
 
                 <td className="px-5 py-4">
   {hotel.hotel_image ? (
-    <img
-      src={hotel.hotel_image}
-      alt={hotel.hotel_name}
-      className="w-16 h-16 rounded-xl object-cover border"
-    />
+    <a
+  href={hotel.hotel_image}
+  target="_blank"
+  rel="noreferrer"
+>
+  <img
+    src={hotel.hotel_image}
+    alt={hotel.hotel_name}
+    className="w-16 h-16 rounded-xl object-cover border hover:scale-110 transition"
+  />
+</a>
   ) : (
     <div className="w-16 h-16 rounded-xl bg-slate-200 flex items-center justify-center">
       📷

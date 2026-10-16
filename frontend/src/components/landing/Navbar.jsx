@@ -1,175 +1,282 @@
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  Globe2,
+  ArrowRight,
+} from "lucide-react";
 
 function Navbar() {
-  const [mobile, setMobile] = useState(window.innerWidth < 768);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [packagesOpen, setPackagesOpen] = useState(false);
+
+  const location = useLocation();
 
   useEffect(() => {
-    const resize = () => setMobile(window.innerWidth < 768);
+    setMenuOpen(false);
+    setPackagesOpen(false);
+  }, [location.pathname]);
 
-    window.addEventListener("resize", resize);
+  const isActive = (path) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
 
-    return () => window.removeEventListener("resize", resize);
-  }, []);
+    return location.pathname.startsWith(path);
+  };
+
+  const navLink = (path) =>
+    `relative flex items-center gap-1 py-2 text-sm font-semibold transition ${
+      isActive(path)
+        ? "text-blue-400"
+        : "text-slate-200 hover:text-white"
+    }`;
 
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        zIndex: 1000,
-        background: "rgba(15,23,42,.75)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(255,255,255,.1)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "16px 25px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        {/* Logo */}
-
+    <header className="fixed left-0 right-0 top-0 z-[1000] border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
+        {/* ================= LOGO ================= */}
         <Link
           to="/"
-          style={{
-            textDecoration: "none",
-            color: "#fff",
-            fontWeight: "700",
-            fontSize: mobile ? "22px" : "28px",
-            letterSpacing: "1px",
-          }}
+          className="group flex items-center gap-3"
         >
-          🌍 WorldTrip Connect
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition group-hover:bg-blue-500">
+            <Globe2 size={22} />
+          </div>
+
+          <div className="leading-none">
+            <div className="text-base font-extrabold tracking-tight text-white sm:text-lg">
+              WorldTrip
+            </div>
+
+            <div className="text-xs font-semibold tracking-wide text-blue-400">
+              CONNECT
+            </div>
+          </div>
         </Link>
 
-        {/* Mobile Menu Button */}
+        {/* ================= DESKTOP NAV ================= */}
+        <div className="hidden items-center gap-8 lg:flex">
+          <nav className="flex items-center gap-7">
+            <Link to="/" className={navLink("/")}>
+              Home
+            </Link>
 
-        {mobile && (
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{
-              background: "transparent",
-              color: "#fff",
-              border: "none",
-              fontSize: "30px",
-              cursor: "pointer",
-            }}
-          >
-            ☰
-          </button>
-        )}
-
-        {/* Desktop Menu */}
-
-        {!mobile && (
-          <>
-            <nav
-              style={{
-                display: "flex",
-                gap: "30px",
-                alignItems: "center",
-              }}
-            >
-              <Link to="/" style={linkStyle}>Home</Link>
-
-              <Link to="/packages" style={linkStyle}>Packages</Link>
-
-              <Link to="/hotel" style={linkStyle}>Hotels</Link>
-
-              <Link to="/about" style={linkStyle}>About</Link>
-
-              <Link to="/contact" style={linkStyle}>Contact</Link>
-            </nav>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-              }}
-            >
-              <Link
-                to="/login"
-                style={{
-                  textDecoration: "none",
-                  color: "#fff",
-                  border: "1px solid #fff",
-                  padding: "10px 18px",
-                  borderRadius: "8px",
-                }}
+            {/* Packages Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setPackagesOpen(!packagesOpen)}
+                className={navLink("/packages")}
               >
-                Login
-              </Link>
+                Packages
+                <ChevronDown
+                  size={15}
+                  className={`transition-transform ${
+                    packagesOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-              <Link
-                to="/register"
-                style={{
-                  textDecoration: "none",
-                  background: "#2563eb",
-                  color: "#fff",
-                  padding: "10px 18px",
-                  borderRadius: "8px",
-                  fontWeight: "600",
-                }}
-              >
-                Register
-              </Link>
+              {packagesOpen && (
+                <div className="absolute left-1/2 top-full mt-3 w-56 -translate-x-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+                  <Link
+                    to="/packages"
+                    className="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-600"
+                  >
+                    All Packages
+                  </Link>
+
+                  <Link
+                    to="/customer/packages"
+                    className="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-600"
+                  >
+                    Explore Packages
+                  </Link>
+
+                  <a
+                    href="/#domestic-tours"
+                    className="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-600"
+                  >
+                    Domestic Tours
+                  </a>
+
+                  <a
+                    href="/#international-tours"
+                    className="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-600"
+                  >
+                    International Tours
+                  </a>
+                </div>
+              )}
             </div>
-          </>
-        )}
+
+            <Link to="/hotel" className={navLink("/hotel")}>
+              Hotels
+            </Link>
+
+            <Link to="/about" className={navLink("/about")}>
+              About
+            </Link>
+
+            <Link to="/contact" className={navLink("/contact")}>
+              Contact
+            </Link>
+          </nav>
+
+          {/* ================= DESKTOP ACTIONS ================= */}
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/10"
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/register"
+              className="group inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500"
+            >
+              Get Started
+              <ArrowRight
+                size={16}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </Link>
+          </div>
+        </div>
+
+        {/* ================= MOBILE BUTTON ================= */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10 lg:hidden"
+          aria-label="Toggle navigation menu"
+        >
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* ================= MOBILE MENU ================= */}
+      {menuOpen && (
+        <div className="border-t border-white/10 bg-slate-950 px-5 pb-6 pt-4 shadow-2xl lg:hidden">
+          <nav className="flex flex-col gap-1">
+            <Link
+              to="/"
+              className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                isActive("/")
+                  ? "bg-blue-600/15 text-blue-400"
+                  : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              Home
+            </Link>
 
-      {mobile && menuOpen && (
-        <div
-          style={{
-            background: "#0f172a",
-            display: "flex",
-            flexDirection: "column",
-            padding: "20px",
-            gap: "15px",
-          }}
-        >
-          <Link to="/" style={mobileLink}>Home</Link>
+            {/* Mobile Packages */}
+            <button
+              type="button"
+              onClick={() => setPackagesOpen(!packagesOpen)}
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-200 transition hover:bg-white/5"
+            >
+              <span>Packages</span>
 
-          <Link to="/packages" style={mobileLink}>Packages</Link>
+              <ChevronDown
+                size={17}
+                className={`transition-transform ${
+                  packagesOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-          <Link to="/hotel" style={mobileLink}>Hotels</Link>
+            {packagesOpen && (
+              <div className="ml-3 border-l border-white/10 pl-3">
+                <Link
+                  to="/packages"
+                  className="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                  All Packages
+                </Link>
 
-          <Link to="/about" style={mobileLink}>About</Link>
+                <Link
+                  to="/customer/packages"
+                  className="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                  Explore Packages
+                </Link>
 
-          <Link to="/contact" style={mobileLink}>Contact</Link>
+                <a
+                  href="/#domestic-tours"
+                  className="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                  Domestic Tours
+                </a>
 
-          <hr />
+                <a
+                  href="/#international-tours"
+                  className="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                  International Tours
+                </a>
+              </div>
+            )}
 
-          <Link to="/login" style={mobileLink}>Login</Link>
+            <Link
+              to="/hotel"
+              className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                isActive("/hotel")
+                  ? "bg-blue-600/15 text-blue-400"
+                  : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              Hotels
+            </Link>
 
-          <Link to="/register" style={mobileLink}>Register</Link>
+            <Link
+              to="/about"
+              className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                isActive("/about")
+                  ? "bg-blue-600/15 text-blue-400"
+                  : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              About
+            </Link>
+
+            <Link
+              to="/contact"
+              className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                isActive("/contact")
+                  ? "bg-blue-600/15 text-blue-400"
+                  : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              Contact
+            </Link>
+          </nav>
+
+          {/* Mobile Actions */}
+          <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
+            <Link
+              to="/login"
+              className="flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/register"
+              className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
+            >
+              Get Started
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
       )}
     </header>
   );
 }
-
-const linkStyle = {
-  textDecoration: "none",
-  color: "#fff",
-  fontWeight: "500",
-};
-
-const mobileLink = {
-  color: "#fff",
-  textDecoration: "none",
-  fontSize: "18px",
-};
 
 export default Navbar;

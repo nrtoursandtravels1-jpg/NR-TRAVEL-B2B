@@ -33,24 +33,9 @@ function Leads() {
   try {
     setLoading(true);
 
-    const { data: userData, error: userError } =
-      await supabase.auth.getUser();
-
-    if (userError) {
-      throw userError;
-    }
-
-    const user = userData?.user;
-
-    if (!user) {
-      setLeads([]);
-      return;
-    }
-
     const { data, error } = await supabase
       .from("leads")
       .select("*")
-      .eq("agent_id", user.id)
       .order("created_at", {
         ascending: false,
       });
@@ -60,9 +45,8 @@ function Leads() {
     }
 
     setLeads(data || []);
-
   } catch (error) {
-    console.error("My Leads Fetch Error:", error);
+    console.error("Lead Fetch Error:", error);
     setLeads([]);
   } finally {
     setLoading(false);

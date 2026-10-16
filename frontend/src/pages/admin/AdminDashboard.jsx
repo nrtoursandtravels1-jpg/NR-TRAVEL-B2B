@@ -10,12 +10,16 @@ import {
   UserCog,
   Settings,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { supabase } from "../../services/supabase";
 import RevenueChart from "../../components/dashboard/RevenueChart";
-import Layout from "../../components/layout/Layout";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import Loader from "../../components/ui/Loader";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     staff: 0,
     agents: 0,
@@ -35,54 +39,85 @@ function AdminDashboard() {
     try {
       setLoading(true);
 
-      const { count: staff } = await supabase
-        .from("profiles")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .eq("role", "staff");
+      const [
+        staffResult,
+        agentsResult,
+        customersResult,
+        leadsResult,
+        subscriptionsResult,
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("*", {
+            count: "exact",
+            head: true,
+          })
+          .eq("role", "staff"),
 
-      const { count: agents } = await supabase
-        .from("profiles")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .eq("role", "travel_agent");
+        supabase
+          .from("profiles")
+          .select("*", {
+            count: "exact",
+            head: true,
+          })
+          .eq("role", "travel_agent"),
 
-      const { count: customers } = await supabase
-        .from("customers")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+        supabase
+          .from("customers")
+          .select("*", {
+            count: "exact",
+            head: true,
+          }),
 
-      const { count: leads } = await supabase
-        .from("leads")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+        supabase
+          .from("leads")
+          .select("*", {
+            count: "exact",
+            head: true,
+          }),
 
-      const { count: subscriptions } = await supabase
-        .from("subscriptions")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .eq("status", "active");
+        supabase
+          .from("subscriptions")
+          .select("*", {
+            count: "exact",
+            head: true,
+          })
+          .eq("status", "active"),
+      ]);
+
+      if (staffResult.error) {
+        console.error("Staff Stats Error:", staffResult.error);
+      }
+
+      if (agentsResult.error) {
+        console.error("Agent Stats Error:", agentsResult.error);
+      }
+
+      if (customersResult.error) {
+        console.error("Customer Stats Error:", customersResult.error);
+      }
+
+      if (leadsResult.error) {
+        console.error("Lead Stats Error:", leadsResult.error);
+      }
+
+      if (subscriptionsResult.error) {
+        console.error(
+          "Subscription Stats Error:",
+          subscriptionsResult.error
+        );
+      }
 
       setStats({
-        staff: staff || 0,
-        agents: agents || 0,
-        customers: customers || 0,
-        leads: leads || 0,
-        subscriptions: subscriptions || 0,
+        staff: staffResult.count || 0,
+        agents: agentsResult.count || 0,
+        customers: customersResult.count || 0,
+        leads: leadsResult.count || 0,
+        subscriptions: subscriptionsResult.count || 0,
         bookings: 0,
       });
     } catch (error) {
-      console.error("Dashboard Error:", error);
+      console.error("Admin Dashboard Error:", error);
     } finally {
       setLoading(false);
     }
@@ -90,27 +125,23 @@ function AdminDashboard() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex min-h-[500px] items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-
-            <p className="mt-4 text-sm font-medium text-slate-500">
-              Loading WorldTrip Connect...
-            </p>
-          </div>
-        </div>
-      </Layout>
+      <DashboardLayout>
+        <Loader
+          fullScreen={false}
+          text="Loading WorldTrip Connect dashboard..."
+          size="md"
+        />
+      </DashboardLayout>
     );
   }
 
   return (
-    <Layout>
-      <div className="p-6 lg:p-8">
+    <DashboardLayout>
+      <div className="p-1 sm:p-2 lg:p-4">
 
-        {/* ==========================================
+        {/* ==================================================
             HEADER
-        ========================================== */}
+        ================================================== */}
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
 
@@ -123,18 +154,17 @@ function AdminDashboard() {
               WorldTrip Connect Dashboard
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
               Manage your travel business, leads, agents, customers,
               subscriptions and operations from one place.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
 
             <button
-              onClick={() => {
-                window.location.href = "/admin/users";
-              }}
+              type="button"
+              onClick={() => navigate("/admin/users")}
               className="
                 inline-flex
                 items-center
@@ -148,6 +178,7 @@ function AdminDashboard() {
                 text-sm
                 font-semibold
                 text-slate-700
+                shadow-sm
                 transition
                 hover:border-blue-200
                 hover:bg-blue-50
@@ -159,9 +190,8 @@ function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => {
-                window.location.href = "/settings";
-              }}
+              type="button"
+              onClick={() => navigate("/settings")}
               className="
                 inline-flex
                 items-center
@@ -173,6 +203,7 @@ function AdminDashboard() {
                 text-sm
                 font-semibold
                 text-white
+                shadow-sm
                 transition
                 hover:bg-blue-700
               "
@@ -182,15 +213,14 @@ function AdminDashboard() {
             </button>
 
           </div>
-
         </div>
 
 
-        {/* ==========================================
-            COMPANY MANAGEMENT
-        ========================================== */}
+        {/* ==================================================
+            COMPANY OVERVIEW
+        ================================================== */}
 
-        <div className="mt-10">
+        <section className="mt-10">
 
           <div className="mb-4">
             <h2 className="text-lg font-bold text-slate-900">
@@ -201,7 +231,6 @@ function AdminDashboard() {
               Current business activity and CRM overview.
             </p>
           </div>
-
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -231,18 +260,18 @@ function AdminDashboard() {
               value={stats.leads}
               icon={Target}
               description="CRM opportunities"
+              action={() => navigate("/leads")}
             />
 
           </div>
+        </section>
 
-        </div>
 
+        {/* ==================================================
+            BUSINESS & SAAS
+        ================================================== */}
 
-        {/* ==========================================
-            SAAS MANAGEMENT
-        ========================================== */}
-
-        <div className="mt-10">
+        <section className="mt-10">
 
           <div className="mb-4">
             <h2 className="text-lg font-bold text-slate-900">
@@ -254,7 +283,6 @@ function AdminDashboard() {
             </p>
           </div>
 
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
             <DashboardCard
@@ -262,6 +290,7 @@ function AdminDashboard() {
               value={stats.subscriptions}
               icon={CreditCard}
               description="Currently active plans"
+              action={() => navigate("/admin/subscriptions")}
             />
 
             <DashboardCard
@@ -269,6 +298,7 @@ function AdminDashboard() {
               value={stats.bookings}
               icon={CalendarCheck}
               description="Total confirmed bookings"
+              action={() => navigate("/bookings")}
             />
 
             <DashboardCard
@@ -276,21 +306,18 @@ function AdminDashboard() {
               value="Manage"
               icon={CreditCard}
               description="Manage SaaS pricing plans"
-              action={() => {
-                window.location.href = "/admin/subscriptions";
-              }}
+              action={() => navigate("/admin/subscriptions")}
             />
 
           </div>
+        </section>
 
-        </div>
 
-
-        {/* ==========================================
+        {/* ==================================================
             REVENUE
-        ========================================== */}
+        ================================================== */}
 
-        <div className="mt-10">
+        <section className="mt-10">
 
           <div className="mb-4">
             <h2 className="text-lg font-bold text-slate-900">
@@ -306,14 +333,14 @@ function AdminDashboard() {
             <RevenueChart />
           </div>
 
-        </div>
+        </section>
 
 
-        {/* ==========================================
+        {/* ==================================================
             QUICK MANAGEMENT
-        ========================================== */}
+        ================================================== */}
 
-        <div className="mt-10">
+        <section className="mt-10">
 
           <div className="mb-4">
             <h2 className="text-lg font-bold text-slate-900">
@@ -325,49 +352,42 @@ function AdminDashboard() {
             </p>
           </div>
 
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
             <QuickAction
               title="Manage Users"
               description="Manage staff and travel agents"
               icon={Users}
-              onClick={() => {
-                window.location.href = "/admin/users";
-              }}
+              onClick={() => navigate("/admin/users")}
             />
 
             <QuickAction
               title="Manage Customers"
               description="View and manage customers"
               icon={UserRound}
-              onClick={() => {
-                window.location.href = "/admin/customers";
-              }}
+              onClick={() => navigate("/admin/customers")}
             />
 
             <QuickAction
               title="Manage Subscriptions"
               description="Manage plans and subscriptions"
               icon={CreditCard}
-              onClick={() => {
-                window.location.href = "/admin/subscriptions";
-              }}
+              onClick={() => navigate("/admin/subscriptions")}
             />
 
           </div>
 
-        </div>
+        </section>
 
       </div>
-    </Layout>
+    </DashboardLayout>
   );
 }
 
 
-/* ==========================================
+/* ============================================================
    DASHBOARD CARD
-========================================== */
+============================================================ */
 
 function DashboardCard({
   title,
@@ -377,22 +397,26 @@ function DashboardCard({
   action,
 }) {
   return (
-    <div
+    <button
+      type="button"
       onClick={action}
+      disabled={!action}
       className={`
         group
+        w-full
         rounded-2xl
         border
         border-slate-200
         bg-white
         p-5
+        text-left
         shadow-sm
         transition
         duration-200
         ${
           action
             ? "cursor-pointer hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-            : "hover:shadow-md"
+            : "cursor-default hover:shadow-md"
         }
       `}
     >
@@ -417,12 +441,15 @@ function DashboardCard({
         {action && (
           <ArrowUpRight
             size={18}
-            className="text-slate-300 transition group-hover:text-blue-600"
+            className="
+              text-slate-300
+              transition
+              group-hover:text-blue-600
+            "
           />
         )}
 
       </div>
-
 
       <p className="mt-5 text-sm font-medium text-slate-500">
         {title}
@@ -436,14 +463,14 @@ function DashboardCard({
         {description}
       </p>
 
-    </div>
+    </button>
   );
 }
 
 
-/* ==========================================
+/* ============================================================
    QUICK ACTION
-========================================== */
+============================================================ */
 
 function QuickAction({
   title,
@@ -453,6 +480,7 @@ function QuickAction({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="
         group
@@ -495,9 +523,7 @@ function QuickAction({
           <Icon size={20} />
         </div>
 
-
         <div>
-
           <p className="text-sm font-bold text-slate-800">
             {title}
           </p>
@@ -505,11 +531,9 @@ function QuickAction({
           <p className="mt-1 text-xs text-slate-500">
             {description}
           </p>
-
         </div>
 
       </div>
-
 
       <ArrowUpRight
         size={18}

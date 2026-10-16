@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -9,18 +10,31 @@ import {
   SlidersHorizontal,
   PackageOpen,
   X,
+  Send,
+  Building2,
+  Clock3,
+  RefreshCw,
 } from "lucide-react";
 
-import Layout from "../../components/layout/Layout";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import Loader from "../../components/ui/Loader";
+import PageHeader from "../../components/ui/PageHeader";
 import { supabase } from "../../services/supabase";
 
 export default function PackageMarketplace() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const [packages, setPackages] = useState([]);
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [savingBookmark, setSavingBookmark] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(
+    searchParams.get("search") || ""
+  );
   const [destination, setDestination] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -29,23 +43,20 @@ export default function PackageMarketplace() {
     loadMarketplace();
   }, []);
 
-  async function loadMarketplace() {
+  async function loadMarketplace(showRefresh = false) {
     try {
-      setLoading(true);
+      if (showRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      setErrorMessage("");
 
       /*
        * ==========================================
-       * LIVE / APPROVED PACKAGES ONLY
+       * LOAD APPROVED + LIVE PACKAGES
        * ==========================================
-       *
-       * We intentionally don't show:
-       * - Pending packages
-       * - Rejected packages
-       * - Draft packages
-       *
-       * IMPORTANT:
-       * If your package table uses different column
-       * names, adjust them here.
        */
 
       const { data, error } = await supabase
@@ -57,13 +68,15 @@ export default function PackageMarketplace() {
           ascending: false,
         });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setPackages(data || []);
 
       /*
        * ==========================================
-       * CUSTOMER BOOKMARKS
+       * CURRENT CUSTOMER
        * ==========================================
        */
 
@@ -72,7 +85,9 @@ export default function PackageMarketplace() {
         error: userError,
       } = await supabase.auth.getUser();
 
-      if (userError) throw userError;
+      if (userError) {
+        throw userError;
+      }
 
       const user = userData?.user;
 
@@ -81,38 +96,51 @@ export default function PackageMarketplace() {
         return;
       }
 
-      const { data: bookmarkData, error: bookmarkError } =
-        await supabase
-          .from("package_bookmarks")
-          .select("package_id")
-          .eq("customer_id", user.id);
+      /*
+       * ==========================================
+       * LOAD BOOKMARKS
+       * ==========================================
+       */
+
+      const {
+        data: bookmarkData,
+        error: bookmarkError,
+      } = await supabase
+        .from("package_bookmarks")
+        .select("package_id")
+        .eq("customer_id", user.id);
+
+      /*
+       * Bookmark table may not exist yet.
+       * Marketplace should still remain usable.
+       */
 
       if (bookmarkError) {
-        /*
-         * Marketplace should still work if bookmark
-         * table has not been created yet.
-         */
         console.warn(
-          "Bookmark table unavailable:",
+          "Package bookmark table unavailable:",
           bookmarkError.message
         );
 
         setBookmarks([]);
-        return;
+      } else {
+        setBookmarks(
+          (bookmarkData || []).map(
+            (item) => item.package_id
+          )
+        );
       }
-
-      setBookmarks(
-        (bookmarkData || []).map(
-          (item) => item.package_id
-        )
-      );
     } catch (error) {
       console.error(
         "Package Marketplace Error:",
         error
       );
+
+      setErrorMessage(
+        "Unable to load travel packages right now. Please try again."
+      );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
@@ -130,38 +158,49 @@ export default function PackageMarketplace() {
           item.location ||
           ""
       )
+      .map((value) => String(value).trim())
       .filter(Boolean);
 
-    return [...new Set(values)].sort();
+    return [...new Set(values)].sort((a, b) =>
+      a.localeCompare(b)
+    );
   }, [packages]);
 
   /*
    * ==========================================
-   * FILTER
+   * FILTER PACKAGES
    * ==========================================
    */
 
   const filteredPackages = useMemo(() => {
+    const normalizedSearch =
+      search.trim().toLowerCase();
+
     return packages.filter((item) => {
-      const text = `
+      const searchableText = `
         ${item.title || ""}
         ${item.package_name || ""}
         ${item.destination || ""}
         ${item.location || ""}
         ${item.description || ""}
+        ${item.inclusions || ""}
+        ${item.category || ""}
+        ${item.package_type || ""}
       `.toLowerCase();
 
       const searchMatch =
-        !search ||
-        text.includes(search.toLowerCase());
+        !normalizedSearch ||
+        searchableText.includes(normalizedSearch);
+
+      const itemDestination = String(
+        item.destination ||
+          item.location ||
+          ""
+      ).toLowerCase();
 
       const destinationMatch =
         !destination ||
-        (
-          item.destination ||
-          item.location ||
-          ""
-        ).toLowerCase() ===
+        itemDestination ===
           destination.toLowerCase();
 
       const packagePrice = Number(
@@ -203,12 +242,16 @@ export default function PackageMarketplace() {
         error: userError,
       } = await supabase.auth.getUser();
 
-      if (userError) throw userError;
+      if (userError) {
+        throw userError;
+      }
 
       const user = userData?.user;
 
       if (!user) {
-        alert("Please login to bookmark packages.");
+        alert(
+          "Please login to bookmark packages."
+        );
         return;
       }
 
@@ -222,7 +265,9 @@ export default function PackageMarketplace() {
           .eq("customer_id", user.id)
           .eq("package_id", packageId);
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
 
         setBookmarks((previous) =>
           previous.filter(
@@ -237,7 +282,9 @@ export default function PackageMarketplace() {
             package_id: packageId,
           });
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
 
         setBookmarks((previous) => [
           ...previous,
@@ -251,7 +298,7 @@ export default function PackageMarketplace() {
       );
 
       alert(
-        "Unable to update bookmark. Please try again."
+        "Unable to update wishlist. Please try again."
       );
     } finally {
       setSavingBookmark(null);
@@ -272,55 +319,129 @@ export default function PackageMarketplace() {
 
   /*
    * ==========================================
+   * VIEW PACKAGE
+   * ==========================================
+   */
+
+  function viewPackage(packageId) {
+    navigate(`/customer/package/${packageId}`);
+  }
+
+  /*
+   * ==========================================
+   * CUSTOMER REQUIREMENT
+   * ==========================================
+   */
+
+  function requestPackage(packageId) {
+    navigate(
+      `/customer/requirement?package_id=${packageId}`
+    );
+  }
+
+  /*
+   * ==========================================
    * LOADING
    * ==========================================
    */
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex min-h-[500px] items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-
-            <p className="mt-4 text-sm font-medium text-slate-500">
-              Loading travel packages...
-            </p>
-          </div>
-        </div>
-      </Layout>
+      <DashboardLayout>
+        <Loader
+          fullScreen={false}
+          text="Loading travel packages..."
+        />
+      </DashboardLayout>
     );
   }
 
   return (
-    <Layout>
-      <div className="p-5 sm:p-6 lg:p-8">
+    <DashboardLayout>
+      <div className="space-y-6">
 
-        {/* ==========================================
-            HEADER
-        ========================================== */}
+        {/* ========================================
+            PAGE HEADER
+        ======================================== */}
 
-        <div className="mb-8">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">
-            WorldTrip Marketplace
-          </p>
+        <PageHeader
+          title="Travel Package Marketplace"
+          description="Explore verified travel packages from approved travel agents and find your perfect trip."
+          action={
+            <button
+              type="button"
+              onClick={() => loadMarketplace(true)}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <RefreshCw
+                size={16}
+                className={
+                  refreshing
+                    ? "animate-spin"
+                    : ""
+                }
+              />
+              Refresh
+            </button>
+          }
+        />
 
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">
-            Find Your Perfect Travel Package
-          </h1>
+        {/* ========================================
+            MARKETPLACE INTRO
+        ======================================== */}
 
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
-            Explore verified travel packages from
-            approved travel agents and find the right
-            trip for you.
-          </p>
+        <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-6 text-white shadow-sm lg:p-8">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100">
+              WorldTrip Marketplace
+            </p>
+
+            <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Find Your Perfect Travel Package
+            </h1>
+
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-100">
+              Compare verified packages, explore
+              destinations, check pricing and send
+              a travel request directly to the
+              travel team.
+            </p>
+          </div>
         </div>
 
-        {/* ==========================================
-            SEARCH BAR
-        ========================================== */}
+        {/* ========================================
+            ERROR
+        ======================================== */}
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        {errorMessage && (
+          <div className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-red-800">
+                Marketplace unavailable
+              </p>
+
+              <p className="mt-1 text-sm text-red-600">
+                {errorMessage}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => loadMarketplace(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+            >
+              <RefreshCw size={16} />
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* ========================================
+            SEARCH + FILTERS
+        ======================================== */}
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
 
           <div className="flex flex-col gap-3 lg:flex-row">
 
@@ -329,39 +450,17 @@ export default function PackageMarketplace() {
             <div className="relative flex-1">
               <Search
                 size={19}
-                className="
-                  absolute
-                  left-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-slate-400
-                "
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
               />
 
               <input
                 type="text"
                 value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
+                onChange={(event) =>
+                  setSearch(event.target.value)
                 }
-                placeholder="Search destination, package or travel experience..."
-                className="
-                  w-full
-                  rounded-xl
-                  border
-                  border-slate-200
-                  bg-slate-50
-                  py-3
-                  pl-11
-                  pr-4
-                  text-sm
-                  outline-none
-                  transition
-                  focus:border-blue-500
-                  focus:bg-white
-                  focus:ring-2
-                  focus:ring-blue-100
-                "
+                placeholder="Search destination, package or experience..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
@@ -369,22 +468,10 @@ export default function PackageMarketplace() {
 
             <select
               value={destination}
-              onChange={(e) =>
-                setDestination(e.target.value)
+              onChange={(event) =>
+                setDestination(event.target.value)
               }
-              className="
-                rounded-xl
-                border
-                border-slate-200
-                bg-slate-50
-                px-4
-                py-3
-                text-sm
-                text-slate-700
-                outline-none
-                focus:border-blue-500
-                focus:bg-white
-              "
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
             >
               <option value="">
                 All Destinations
@@ -400,28 +487,20 @@ export default function PackageMarketplace() {
               ))}
             </select>
 
-            {/* FILTER BUTTON */}
+            {/* FILTER */}
 
             <button
+              type="button"
               onClick={() =>
-                setShowFilters(!showFilters)
+                setShowFilters(
+                  (previous) => !previous
+                )
               }
-              className="
-                inline-flex
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                border
-                border-slate-200
-                px-5
-                py-3
-                text-sm
-                font-semibold
-                text-slate-700
-                transition
-                hover:bg-slate-50
-              "
+              className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
+                showFilters
+                  ? "border-blue-200 bg-blue-50 text-blue-700"
+                  : "border-slate-200 text-slate-700 hover:bg-slate-50"
+              }`}
             >
               <SlidersHorizontal size={17} />
               Filters
@@ -429,12 +508,14 @@ export default function PackageMarketplace() {
 
           </div>
 
-          {/* ADVANCED FILTER */}
+          {/* ADVANCED FILTERS */}
 
           {showFilters && (
             <div className="mt-4 border-t border-slate-100 pt-4">
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+
+                {/* MAX PRICE */}
 
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-400">
@@ -443,42 +524,44 @@ export default function PackageMarketplace() {
 
                   <input
                     type="number"
+                    min="0"
                     value={maxPrice}
-                    onChange={(e) =>
-                      setMaxPrice(e.target.value)
+                    onChange={(event) =>
+                      setMaxPrice(
+                        event.target.value
+                      )
                     }
                     placeholder="₹ Maximum"
-                    className="
-                      w-full
-                      rounded-xl
-                      border
-                      border-slate-200
-                      bg-slate-50
-                      px-4
-                      py-3
-                      text-sm
-                      outline-none
-                      focus:border-blue-500
-                    "
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
+                {/* ACTIVE FILTER SUMMARY */}
+
+                <div className="flex items-end">
+                  <div className="rounded-xl bg-slate-50 px-4 py-3">
+                    <p className="text-xs font-medium text-slate-400">
+                      Results
+                    </p>
+
+                    <p className="mt-1 text-sm font-bold text-slate-700">
+                      {filteredPackages.length}{" "}
+                      package
+                      {filteredPackages.length !==
+                      1
+                        ? "s"
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+
+                {/* CLEAR */}
+
                 <div className="flex items-end">
                   <button
+                    type="button"
                     onClick={resetFilters}
-                    className="
-                      inline-flex
-                      items-center
-                      gap-2
-                      rounded-xl
-                      bg-slate-100
-                      px-4
-                      py-3
-                      text-sm
-                      font-semibold
-                      text-slate-600
-                      hover:bg-slate-200
-                    "
+                    className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-200"
                   >
                     <X size={16} />
                     Clear Filters
@@ -490,35 +573,48 @@ export default function PackageMarketplace() {
           )}
         </div>
 
-        {/* ==========================================
+        {/* ========================================
             RESULT HEADER
-        ========================================== */}
+        ======================================== */}
 
-        <div className="mb-5 mt-8 flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-bold text-slate-900">
-              Travel Packages
+              Available Travel Packages
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              {filteredPackages.length} package
+              {filteredPackages.length}{" "}
+              package
               {filteredPackages.length !== 1
                 ? "s"
                 : ""}{" "}
               available
             </p>
           </div>
+
+          {(search ||
+            destination ||
+            maxPrice) && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="self-start text-sm font-semibold text-blue-600 hover:text-blue-700 sm:self-auto"
+            >
+              Clear all filters
+            </button>
+          )}
         </div>
 
-        {/* ==========================================
-            EMPTY
-        ========================================== */}
+        {/* ========================================
+            EMPTY STATE
+        ======================================== */}
 
         {filteredPackages.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center">
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-20 text-center shadow-sm">
 
             <PackageOpen
-              size={48}
+              size={52}
               className="mx-auto text-slate-300"
             />
 
@@ -526,34 +622,27 @@ export default function PackageMarketplace() {
               No packages found
             </h2>
 
-            <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
-              Try another destination or clear your
-              filters to discover more travel packages.
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
+              We couldn't find a package matching
+              your search. Try another destination or
+              clear your filters.
             </p>
 
             <button
+              type="button"
               onClick={resetFilters}
-              className="
-                mt-5
-                rounded-xl
-                bg-blue-600
-                px-5
-                py-3
-                text-sm
-                font-semibold
-                text-white
-                hover:bg-blue-700
-              "
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
+              <X size={16} />
               Clear Filters
             </button>
 
           </div>
         ) : (
 
-          /* ========================================
+          /* ======================================
              PACKAGE GRID
-          ======================================== */
+          ====================================== */
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 
@@ -570,29 +659,35 @@ export default function PackageMarketplace() {
                 onBookmark={() =>
                   toggleBookmark(item.id)
                 }
+                onView={() =>
+                  viewPackage(item.id)
+                }
+                onRequest={() =>
+                  requestPackage(item.id)
+                }
               />
             ))}
 
           </div>
         )}
+
       </div>
-    </Layout>
+    </DashboardLayout>
   );
 }
 
-
-/* ==============================================
+/* =================================================
    PACKAGE CARD
-============================================== */
+================================================= */
 
 function PackageCard({
   packageData,
   bookmarked,
   savingBookmark,
   onBookmark,
+  onView,
+  onRequest,
 }) {
-  const packageId = packageData.id;
-
   const title =
     packageData.title ||
     packageData.package_name ||
@@ -619,30 +714,55 @@ function PackageCard({
     packageData.max_travelers ||
     "";
 
+  const description =
+    packageData.short_description ||
+    packageData.description ||
+    "";
+
+  const category =
+    packageData.category ||
+    packageData.package_type ||
+    "";
+
   const image =
     packageData.image_url ||
     packageData.cover_image ||
     packageData.image ||
     "";
 
-  return (
-    <div
-      className="
-        group
-        overflow-hidden
-        rounded-2xl
-        border
-        border-slate-200
-        bg-white
-        shadow-sm
-        transition
-        duration-300
-        hover:-translate-y-1
-        hover:shadow-xl
-      "
-    >
+  /*
+   * Agent/company fields are intentionally flexible
+   * because package schemas can differ.
+   */
 
-      {/* IMAGE */}
+  const companyName =
+    packageData.company_name ||
+    packageData.agency_name ||
+    packageData.agent_name ||
+    packageData.company ||
+    "";
+
+  const inclusions =
+    packageData.inclusions ||
+    packageData.package_inclusions ||
+    "";
+
+  const inclusionList = Array.isArray(
+    inclusions
+  )
+    ? inclusions.slice(0, 3)
+    : String(inclusions)
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+
+  return (
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+      {/* ======================================
+          IMAGE
+      ====================================== */}
 
       <div className="relative h-52 overflow-hidden bg-slate-100">
 
@@ -650,19 +770,13 @@ function PackageCard({
           <img
             src={image}
             alt={title}
-            className="
-              h-full
-              w-full
-              object-cover
-              transition
-              duration-500
-              group-hover:scale-105
-            "
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-slate-100">
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
             <PackageOpen
-              size={42}
+              size={44}
               className="text-slate-300"
             />
           </div>
@@ -670,44 +784,30 @@ function PackageCard({
 
         {/* VERIFIED */}
 
-        <div className="
-          absolute
-          left-4
-          top-4
-          rounded-full
-          bg-emerald-500
-          px-3
-          py-1
-          text-[11px]
-          font-bold
-          text-white
-          shadow
-        ">
+        <div className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-bold text-white shadow">
           Verified Package
         </div>
+
+        {/* CATEGORY */}
+
+        {category && (
+          <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+            {category}
+          </div>
+        )}
 
         {/* BOOKMARK */}
 
         <button
+          type="button"
           onClick={onBookmark}
           disabled={savingBookmark}
-          aria-label="Bookmark package"
-          className="
-            absolute
-            right-4
-            top-4
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-full
-            bg-white/95
-            text-slate-500
-            shadow
-            transition
-            hover:text-red-500
-          "
+          aria-label={
+            bookmarked
+              ? "Remove from wishlist"
+              : "Add to wishlist"
+          }
+          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-500 shadow transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Heart
             size={19}
@@ -726,28 +826,36 @@ function PackageCard({
 
       </div>
 
+      {/* ======================================
+          CONTENT
+      ====================================== */}
 
-      {/* CONTENT */}
+      <div className="flex flex-1 flex-col p-5">
 
-      <div className="p-5">
+        {/* TITLE */}
 
-        <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="line-clamp-2 text-lg font-bold text-slate-900">
+            {title}
+          </h3>
 
-          <div>
-            <h3 className="line-clamp-2 text-lg font-bold text-slate-900">
-              {title}
-            </h3>
-
-            <div className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
-              <MapPin size={15} />
-              {destination}
-            </div>
+          <div className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
+            <MapPin size={15} className="shrink-0" />
+            <span>{destination}</span>
           </div>
-
         </div>
 
+        {/* DESCRIPTION */}
 
-        {/* DETAILS */}
+        {description && (
+          <p className="mt-3 line-clamp-2 text-sm leading-5 text-slate-500">
+            {description}
+          </p>
+        )}
+
+        {/* ==================================
+            PACKAGE DETAILS
+        ================================== */}
 
         <div className="mt-5 grid grid-cols-2 gap-2">
 
@@ -755,6 +863,7 @@ function PackageCard({
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="flex items-center gap-2 text-slate-400">
                 <CalendarDays size={15} />
+
                 <span className="text-xs">
                   Duration
                 </span>
@@ -770,6 +879,7 @@ function PackageCard({
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="flex items-center gap-2 text-slate-400">
                 <Users size={15} />
+
                 <span className="text-xs">
                   Travelers
                 </span>
@@ -783,45 +893,92 @@ function PackageCard({
 
         </div>
 
+        {/* ==================================
+            INCLUSIONS
+        ================================== */}
 
-        {/* PRICE */}
-
-        <div className="mt-5 flex items-end justify-between">
-
-          <div>
-            <p className="text-xs text-slate-400">
-              Starting from
+        {inclusionList.length > 0 && (
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+              Includes
             </p>
 
-            <p className="mt-1 text-xl font-extrabold text-slate-900">
-              ₹{Number(price).toLocaleString(
-                "en-IN"
+            <div className="flex flex-wrap gap-2">
+              {inclusionList.map(
+                (item, index) => (
+                  <span
+                    key={`${item}-${index}`}
+                    className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700"
+                  >
+                    {item}
+                  </span>
+                )
               )}
-            </p>
+            </div>
           </div>
+        )}
+
+        {/* ==================================
+            AGENT / COMPANY
+        ================================== */}
+
+        {companyName && (
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-blue-600 shadow-sm">
+              <Building2 size={16} />
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[11px] text-slate-400">
+                Offered by
+              </p>
+
+              <p className="truncate text-sm font-semibold text-slate-700">
+                {companyName}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================
+            PRICE
+        ================================== */}
+
+        <div className="mt-5 border-t border-slate-100 pt-4">
+          <p className="text-xs text-slate-400">
+            Starting from
+          </p>
+
+          <p className="mt-1 text-2xl font-extrabold text-slate-900">
+            ₹
+            {Number(price).toLocaleString(
+              "en-IN"
+            )}
+          </p>
+        </div>
+
+        {/* ==================================
+            ACTIONS
+        ================================== */}
+
+        <div className="mt-5 grid grid-cols-2 gap-2">
 
           <button
-            onClick={() =>
-              (window.location.href =
-                `/customer/packages/${packageId}`)
-            }
-            className="
-              inline-flex
-              items-center
-              gap-2
-              rounded-xl
-              bg-blue-600
-              px-4
-              py-2.5
-              text-sm
-              font-semibold
-              text-white
-              transition
-              hover:bg-blue-700
-            "
+            type="button"
+            onClick={onView}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
-            View
-            <ArrowRight size={16} />
+            View Details
+            <ArrowRight size={15} />
+          </button>
+
+          <button
+            type="button"
+            onClick={onRequest}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+          >
+            <Send size={15} />
+            Enquire
           </button>
 
         </div>

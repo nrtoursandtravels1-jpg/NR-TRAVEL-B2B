@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Loader2,
   ArrowRight,
+  RefreshCw,
 } from "lucide-react";
 
 import { supabase } from "../services/supabase";
@@ -51,6 +52,7 @@ export default function LeadMarketplace() {
         .from("leads")
         .select("*")
         .eq("status", "Qualified")
+        .is("agent_id", null)
         .order("created_at", {
           ascending: false,
         });
@@ -61,10 +63,8 @@ export default function LeadMarketplace() {
 
       setLeads(data || []);
     } catch (error) {
-      console.error(
-        "Marketplace Lead Error:",
-        error
-      );
+      console.error("Marketplace Lead Error:", error);
+      setLeads([]);
     } finally {
       setLoading(false);
     }
@@ -94,13 +94,20 @@ export default function LeadMarketplace() {
         return;
       }
 
+      // IMPORTANT:
+      // lead_wallets is the live credit balance table.
+      // user_id = logged-in agent
+      // remaining_leads = available credits
+
       const {
         data,
         error,
       } = await supabase
-        .from("lead_credits")
-        .select("credits")
-        .eq("agent_id", user.id)
+        .from("lead_wallets")
+        .select(
+          "id, total_leads, used_leads, remaining_leads"
+        )
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
@@ -108,7 +115,7 @@ export default function LeadMarketplace() {
       }
 
       setCredits(
-        Number(data?.credits || 0)
+        Number(data?.remaining_leads || 0)
       );
     } catch (error) {
       console.error(
@@ -204,17 +211,12 @@ export default function LeadMarketplace() {
       const user = userData?.user;
 
       if (!user) {
-        alert(
-          "Please login as a travel agent."
-        );
+        alert("Please login as a travel agent.");
         return;
       }
 
       // -----------------------------------------------------
-      // Basic UI credit check
-      //
-      // IMPORTANT:
-      // The database RPC remains the real authority.
+      // UI credit check
       // -----------------------------------------------------
 
       if (credits < 1) {
@@ -226,7 +228,10 @@ export default function LeadMarketplace() {
       }
 
       // -----------------------------------------------------
-      // SECURE SUPABASE RPC
+      // SECURE DATABASE RPC
+      //
+      // The RPC uses auth.uid().
+      // Frontend does NOT send agent_id.
       // -----------------------------------------------------
 
       const {
@@ -259,24 +264,47 @@ export default function LeadMarketplace() {
       );
 
       // -----------------------------------------------------
-      // Remove claimed lead from marketplace
+      // RPC returns JSONB
+      //
+      // Example:
+      // {
+      //   success: true,
+      //   message: "Lead claimed successfully"
+      // }
+      // -----------------------------------------------------
+
+      if (!data?.success) {
+        alert(
+          data?.message ||
+            "Lead could not be claimed."
+        );
+
+        // Refresh because another agent may
+        // have claimed it or credits may have changed.
+        await Promise.all([
+          fetchQualifiedLeads(),
+          fetchCredits(),
+        ]);
+
+        return;
+      }
+
+      // -----------------------------------------------------
+      // SUCCESS
       // -----------------------------------------------------
 
       setLeads((currentLeads) =>
         currentLeads.filter(
-          (item) =>
-            item.id !== lead.id
+          (item) => item.id !== lead.id
         )
       );
 
-      // -----------------------------------------------------
-      // Refresh credits from database
-      // -----------------------------------------------------
-
+      // Refresh wallet from database
       await fetchCredits();
 
       alert(
-        "Lead claimed successfully!"
+        data?.message ||
+          "Lead claimed successfully!"
       );
     } catch (error) {
       console.error(
@@ -302,9 +330,7 @@ export default function LeadMarketplace() {
       return "-";
     }
 
-    return new Date(
-      date
-    ).toLocaleDateString(
+    return new Date(date).toLocaleDateString(
       "en-IN",
       {
         day: "2-digit",
@@ -327,8 +353,7 @@ export default function LeadMarketplace() {
       return "Budget not specified";
     }
 
-    const numericBudget =
-      Number(budget);
+    const numericBudget = Number(budget);
 
     if (Number.isNaN(numericBudget)) {
       return budget;
@@ -347,7 +372,6 @@ export default function LeadMarketplace() {
     return (
       <Layout>
         <div className="py-20 text-center">
-
           <Loader2
             size={32}
             className="mx-auto text-blue-600 animate-spin"
@@ -360,7 +384,6 @@ export default function LeadMarketplace() {
           <h1 className="text-2xl font-bold text-slate-900 mt-2">
             Loading available leads...
           </h1>
-
         </div>
       </Layout>
     );
@@ -372,17 +395,13 @@ export default function LeadMarketplace() {
 
   return (
     <Layout>
-
       {/* =====================================================
           HEADER
       ===================================================== */}
 
       <div className="mb-8">
-
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-
           <div>
-
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-600">
               Lead Marketplace
             </p>
@@ -396,9 +415,7 @@ export default function LeadMarketplace() {
               and grow your travel business with
               new opportunities.
             </p>
-
           </div>
-
 
           {/* =================================================
               CREDIT CARD
@@ -414,11 +431,8 @@ export default function LeadMarketplace() {
             shadow-sm
             min-w-[220px]
           ">
-
             <div className="flex items-center justify-between gap-5">
-
               <div>
-
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
                   Lead Credits
                 </p>
@@ -437,7 +451,6 @@ export default function LeadMarketplace() {
                 <p className="text-xs text-slate-400 mt-1">
                   1 credit = 1 lead
                 </p>
-
               </div>
 
               <div className="
@@ -452,22 +465,16 @@ export default function LeadMarketplace() {
               ">
                 <WalletCards size={21} />
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
 
       {/* =====================================================
           MARKETPLACE SUMMARY
       ===================================================== */}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-
         <MarketplaceStat
           label="Available Leads"
           value={filteredLeads.length}
@@ -485,9 +492,7 @@ export default function LeadMarketplace() {
           value="1 Credit"
           icon={<ArrowRight size={19} />}
         />
-
       </div>
-
 
       {/* =====================================================
           FILTER BAR
@@ -502,13 +507,10 @@ export default function LeadMarketplace() {
         mb-8
         shadow-sm
       ">
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
           {/* SEARCH */}
 
           <div className="relative">
-
             <Search
               size={18}
               className="
@@ -525,9 +527,7 @@ export default function LeadMarketplace() {
               placeholder="Search destination, customer, service..."
               value={searchTerm}
               onChange={(e) =>
-                setSearchTerm(
-                  e.target.value
-                )
+                setSearchTerm(e.target.value)
               }
               className="
                 w-full
@@ -545,9 +545,7 @@ export default function LeadMarketplace() {
                 focus:ring-blue-100
               "
             />
-
           </div>
-
 
           {/* DESTINATION */}
 
@@ -573,7 +571,6 @@ export default function LeadMarketplace() {
               focus:ring-blue-100
             "
           >
-
             <option value="">
               All Destinations
             </option>
@@ -588,20 +585,15 @@ export default function LeadMarketplace() {
                 </option>
               )
             )}
-
           </select>
-
         </div>
-
       </div>
-
 
       {/* =====================================================
           NO LEADS
       ===================================================== */}
 
       {filteredLeads.length === 0 ? (
-
         <div className="
           bg-white
           border
@@ -611,7 +603,6 @@ export default function LeadMarketplace() {
           text-center
           shadow-sm
         ">
-
           <CheckCircle2
             size={40}
             className="mx-auto text-slate-300"
@@ -626,23 +617,41 @@ export default function LeadMarketplace() {
             here when they become marketplace-ready.
           </p>
 
+          <button
+            onClick={loadMarketplace}
+            className="
+              inline-flex
+              items-center
+              gap-2
+              mt-6
+              px-5
+              py-2.5
+              rounded-xl
+              border
+              border-slate-200
+              bg-white
+              hover:bg-slate-50
+              text-sm
+              font-semibold
+              text-slate-700
+              transition
+            "
+          >
+            <RefreshCw size={16} />
+            Refresh Marketplace
+          </button>
         </div>
-
       ) : (
-
         /* ===================================================
            LEADS
         =================================================== */
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-
           {filteredLeads.map((lead) => {
-
             const isClaiming =
               claimingLeadId === lead.id;
 
             return (
-
               <div
                 key={lead.id}
                 className="
@@ -657,13 +666,10 @@ export default function LeadMarketplace() {
                   transition
                 "
               >
-
                 {/* TOP */}
 
                 <div className="flex items-start justify-between gap-4">
-
                   <div>
-
                     <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
                       Qualified Lead
                     </p>
@@ -672,9 +678,7 @@ export default function LeadMarketplace() {
                       {lead.destination ||
                         "Travel Enquiry"}
                     </h2>
-
                   </div>
-
 
                   <span className="
                     px-3
@@ -689,20 +693,16 @@ export default function LeadMarketplace() {
                   ">
                     Available
                   </span>
-
                 </div>
-
 
                 {/* DETAILS */}
 
                 <div className="grid grid-cols-2 gap-5 mt-6">
-
                   <LeadDetail
                     icon={<Users size={15} />}
                     label="Customer"
                     value={
-                      lead.customer_name ||
-                      "-"
+                      lead.customer_name || "-"
                     }
                   />
 
@@ -736,8 +736,7 @@ export default function LeadMarketplace() {
                     icon={<MapPin size={15} />}
                     label="Destination"
                     value={
-                      lead.destination ||
-                      "-"
+                      lead.destination || "-"
                     }
                   />
 
@@ -748,14 +747,11 @@ export default function LeadMarketplace() {
                       lead.created_at
                     )}
                   />
-
                 </div>
-
 
                 {/* SERVICE */}
 
                 {lead.service && (
-
                   <div className="
                     mt-5
                     rounded-xl
@@ -765,7 +761,6 @@ export default function LeadMarketplace() {
                     px-4
                     py-3
                   ">
-
                     <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide">
                       Service
                     </p>
@@ -773,23 +768,18 @@ export default function LeadMarketplace() {
                     <p className="text-sm font-bold text-blue-900 mt-1">
                       {lead.service}
                     </p>
-
                   </div>
-
                 )}
-
 
                 {/* NOTES */}
 
                 {lead.notes && (
-
                   <div className="
                     mt-4
                     bg-slate-50
                     rounded-xl
                     p-4
                   ">
-
                     <p className="text-xs font-semibold text-slate-500 mb-1">
                       Requirement
                     </p>
@@ -797,11 +787,8 @@ export default function LeadMarketplace() {
                     <p className="text-sm text-slate-600 leading-6">
                       {lead.notes}
                     </p>
-
                   </div>
-
                 )}
-
 
                 {/* ACTION */}
 
@@ -817,9 +804,7 @@ export default function LeadMarketplace() {
                   sm:justify-between
                   gap-4
                 ">
-
                   <div>
-
                     <p className="text-xs text-slate-400">
                       Claim cost
                     </p>
@@ -827,9 +812,7 @@ export default function LeadMarketplace() {
                     <p className="text-sm font-bold text-slate-800 mt-1">
                       1 Lead Credit
                     </p>
-
                   </div>
-
 
                   <button
                     onClick={() =>
@@ -837,7 +820,8 @@ export default function LeadMarketplace() {
                     }
                     disabled={
                       isClaiming ||
-                      credits < 1
+                      credits < 1 ||
+                      creditsLoading
                     }
                     className="
                       inline-flex
@@ -857,7 +841,6 @@ export default function LeadMarketplace() {
                       transition
                     "
                   >
-
                     {isClaiming ? (
                       <>
                         <Loader2
@@ -871,29 +854,19 @@ export default function LeadMarketplace() {
                     ) : (
                       <>
                         Claim Lead
-                        <ArrowRight
-                          size={16}
-                        />
+                        <ArrowRight size={16} />
                       </>
                     )}
-
                   </button>
-
                 </div>
-
               </div>
-
             );
           })}
-
         </div>
-
       )}
-
     </Layout>
   );
 }
-
 
 // ============================================================
 // MARKETPLACE STAT
@@ -913,11 +886,8 @@ function MarketplaceStat({
       p-5
       shadow-sm
     ">
-
       <div className="flex items-center justify-between">
-
         <div>
-
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             {label}
           </p>
@@ -925,7 +895,6 @@ function MarketplaceStat({
           <p className="text-2xl font-extrabold text-slate-900 mt-2">
             {value}
           </p>
-
         </div>
 
         <div className="
@@ -940,13 +909,10 @@ function MarketplaceStat({
         ">
           {icon}
         </div>
-
       </div>
-
     </div>
   );
 }
-
 
 // ============================================================
 // LEAD DETAIL
@@ -959,21 +925,17 @@ function LeadDetail({
 }) {
   return (
     <div>
-
       <div className="flex items-center gap-1.5 text-slate-400">
-
         {icon}
 
         <p className="text-xs">
           {label}
         </p>
-
       </div>
 
       <p className="text-sm font-semibold text-slate-800 mt-1">
         {value}
       </p>
-
     </div>
   );
 }

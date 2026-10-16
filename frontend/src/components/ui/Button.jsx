@@ -31,10 +31,12 @@ export default function Button({
         opacity: disabled ? 0.6 : 1,
       }}
       onMouseEnter={(e) => {
-        if (!disabled) e.target.style.transform = "translateY(-2px)";
+        if (!disabled) {
+          e.currentTarget.style.transform = "translateY(-2px)";
+        }
       }}
       onMouseLeave={(e) => {
-        e.target.style.transform = "translateY(0)";
+        e.currentTarget.style.transform = "translateY(0)";
       }}
     >
       {children}

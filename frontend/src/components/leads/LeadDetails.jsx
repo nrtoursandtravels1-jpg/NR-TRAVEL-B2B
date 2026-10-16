@@ -7,6 +7,7 @@ import {
   X,
   CalendarPlus,
 } from "lucide-react";
+
 import { supabase } from "../../services/supabase";
 
 export default function LeadDetails({
@@ -30,15 +31,18 @@ export default function LeadDetails({
     New: "#3b82f6",
     Contacted: "#f59e0b",
     "Follow Up": "#8b5cf6",
+    Qualified: "#7c3aed",
+    Proposal: "#0ea5e9",
     Booked: "#16a34a",
+    Won: "#16a34a",
     Lost: "#ef4444",
   };
 
   const handleFollowupChange = (e) => {
-    setFollowup({
-      ...followup,
+    setFollowup((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const saveFollowup = async (e) => {
@@ -52,30 +56,35 @@ export default function LeadDetails({
     try {
       setSavingFollowup(true);
 
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
       if (userError) {
         throw userError;
       }
-
-      const user = userData?.user;
 
       if (!user) {
         alert("Please login first.");
         return;
       }
 
+      /*
+       * IMPORTANT
+       *
+       * FollowUps.jsx reads from lead_activities.
+       * Therefore follow-ups must also be saved here.
+       */
       const { error } = await supabase
-        .from("lead_followups")
+        .from("lead_activities")
         .insert([
           {
             lead_id: lead.id,
             agent_id: user.id,
-            followup_type: followup.followup_type,
-            scheduled_at: followup.scheduled_at,
-            notes: followup.notes,
-            status: "Pending",
+            activity_type: followup.followup_type,
+            notes: followup.notes.trim(),
+            next_follow_up_at: followup.scheduled_at,
           },
         ]);
 
@@ -96,7 +105,7 @@ export default function LeadDetails({
       setShowFollowup(false);
     } catch (error) {
       console.error("Follow-up Error:", error);
-      alert("Something went wrong.");
+      alert(error.message || "Something went wrong.");
     } finally {
       setSavingFollowup(false);
     }
@@ -104,152 +113,175 @@ export default function LeadDetails({
 
   return (
     <div
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        width: "430px",
-        height: "100%",
-        background: "#ffffff",
-        boxShadow: "-10px 0 30px rgba(0,0,0,.15)",
-        padding: "25px",
-        overflowY: "auto",
-        zIndex: 9999,
-      }}
+      className="
+        fixed
+        top-0
+        right-0
+        z-[9999]
+        h-full
+        w-full
+        overflow-y-auto
+        bg-white
+        p-5
+        shadow-2xl
+        sm:w-[430px]
+        sm:p-6
+      "
     >
       {/* HEADER */}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "25px",
-        }}
-      >
-        <h2 style={{ margin: 0 }}>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-slate-900">
           👤 Lead Details
         </h2>
 
         <button
+          type="button"
           onClick={onClose}
-          style={{
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-          }}
+          className="
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-lg
+            text-slate-500
+            transition
+            hover:bg-slate-100
+            hover:text-slate-900
+          "
         >
           <X size={22} />
         </button>
       </div>
 
       {/* CUSTOMER */}
-
-      <div
-        style={{
-          textAlign: "center",
-          marginBottom: "30px",
-        }}
-      >
+      <div className="mb-7 text-center">
         <div
-          style={{
-            width: "90px",
-            height: "90px",
-            margin: "auto",
-            borderRadius: "50%",
-            background: "#2563eb",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "30px",
-            fontWeight: "bold",
-          }}
+          className="
+            mx-auto
+            flex
+            h-20
+            w-20
+            items-center
+            justify-center
+            rounded-full
+            bg-blue-600
+            text-2xl
+            font-bold
+            text-white
+            shadow-lg
+          "
         >
-          {lead.customer_name?.charAt(0)}
+          {lead.customer_name?.charAt(0)?.toUpperCase() || "C"}
         </div>
 
-        <h2>{lead.customer_name}</h2>
+        <h2 className="mt-4 text-xl font-bold text-slate-900">
+          {lead.customer_name || "Customer"}
+        </h2>
 
         <span
+          className="mt-2 inline-block rounded-full px-4 py-1.5 text-xs font-semibold text-white"
           style={{
-            background: statusColors[lead.status] || "#64748b",
-            color: "#fff",
-            padding: "6px 15px",
-            borderRadius: "30px",
-            fontSize: "13px",
+            background:
+              statusColors[lead.status] || "#64748b",
           }}
         >
-          {lead.status}
+          {lead.status || "New"}
         </span>
       </div>
 
       {/* QUICK ACTIONS */}
+      <div className="mb-7 flex justify-between gap-3">
+        {lead.mobile ? (
+          <a
+            href={`tel:${lead.mobile}`}
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-100 text-blue-600 transition hover:bg-blue-50"
+            title="Call"
+          >
+            <Phone size={19} />
+          </a>
+        ) : (
+          <div className="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-50 text-slate-300">
+            <Phone size={19} />
+          </div>
+        )}
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "30px",
-        }}
-      >
-        <a
-          href={`tel:${lead.mobile}`}
-          style={actionButton}
-        >
-          <Phone size={18} />
-        </a>
+        {lead.email ? (
+          <a
+            href={`mailto:${lead.email}`}
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-100 text-blue-600 transition hover:bg-blue-50"
+            title="Email"
+          >
+            <Mail size={19} />
+          </a>
+        ) : (
+          <div className="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-50 text-slate-300">
+            <Mail size={19} />
+          </div>
+        )}
 
-        <a
-          href={`mailto:${lead.email}`}
-          style={actionButton}
-        >
-          <Mail size={18} />
-        </a>
-
-        <a
-          href={`https://wa.me/91${lead.mobile}`}
-          target="_blank"
-          rel="noreferrer"
-          style={actionButton}
-        >
-          <MessageCircle size={18} />
-        </a>
+        {lead.mobile ? (
+          <a
+            href={`https://wa.me/91${String(
+              lead.mobile
+            ).replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-100 text-blue-600 transition hover:bg-blue-50"
+            title="WhatsApp"
+          >
+            <MessageCircle size={19} />
+          </a>
+        ) : (
+          <div className="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-50 text-slate-300">
+            <MessageCircle size={19} />
+          </div>
+        )}
       </div>
 
       {/* LEAD INFORMATION */}
-
-      <Info title="📞 Mobile" value={lead.mobile} />
-      <Info title="📧 Email" value={lead.email} />
-      <Info title="🌍 Destination" value={lead.destination} />
-      <Info title="📅 Travel Date" value={lead.travel_date} />
-      <Info title="👥 Travelers" value={lead.travelers} />
-      <Info
-        title="💰 Budget"
-        value={lead.budget ? `₹ ${lead.budget}` : "-"}
-      />
-      <Info title="📍 Lead Source" value={lead.lead_source} />
-      <Info title="📝 Notes" value={lead.notes} />
+      <div>
+        <Info title="📞 Mobile" value={lead.mobile} />
+        <Info title="📧 Email" value={lead.email} />
+        <Info title="🌍 Destination" value={lead.destination} />
+        <Info title="📅 Travel Date" value={lead.travel_date} />
+        <Info title="👥 Travelers" value={lead.travelers} />
+        <Info
+          title="💰 Budget"
+          value={
+            lead.budget
+              ? `₹ ${Number(lead.budget).toLocaleString("en-IN")}`
+              : "-"
+          }
+        />
+        <Info
+          title="📍 Lead Source"
+          value={lead.lead_source}
+        />
+        <Info title="📝 Notes" value={lead.notes} />
+      </div>
 
       {/* FOLLOW-UP BUTTON */}
-
       <button
-        onClick={() => setShowFollowup(!showFollowup)}
-        style={{
-          width: "100%",
-          marginTop: "20px",
-          padding: "14px",
-          border: "none",
-          borderRadius: "10px",
-          background: "#7c3aed",
-          color: "#fff",
-          fontSize: "16px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "8px",
-        }}
+        type="button"
+        onClick={() => setShowFollowup((prev) => !prev)}
+        className="
+          mt-5
+          flex
+          w-full
+          items-center
+          justify-center
+          gap-2
+          rounded-xl
+          bg-violet-600
+          px-4
+          py-3.5
+          text-sm
+          font-semibold
+          text-white
+          transition
+          hover:bg-violet-700
+        "
       >
         <CalendarPlus size={18} />
 
@@ -259,23 +291,24 @@ export default function LeadDetails({
       </button>
 
       {/* FOLLOW-UP FORM */}
-
       {showFollowup && (
         <form
           onSubmit={saveFollowup}
-          style={{
-            marginTop: "15px",
-            padding: "18px",
-            background: "#f8fafc",
-            borderRadius: "12px",
-            border: "1px solid #e2e8f0",
-          }}
+          className="
+            mt-4
+            rounded-xl
+            border
+            border-slate-200
+            bg-slate-50
+            p-4
+          "
         >
-          <h3 style={{ marginTop: 0 }}>
+          <h3 className="mb-4 text-base font-bold text-slate-900">
             Schedule Follow-up
           </h3>
 
-          <label style={labelStyle}>
+          {/* TYPE */}
+          <label className={labelClass}>
             Follow-up Type
           </label>
 
@@ -283,7 +316,7 @@ export default function LeadDetails({
             name="followup_type"
             value={followup.followup_type}
             onChange={handleFollowupChange}
-            style={inputStyle}
+            className={inputClass}
           >
             <option value="Call">Call</option>
             <option value="WhatsApp">WhatsApp</option>
@@ -291,7 +324,8 @@ export default function LeadDetails({
             <option value="Meeting">Meeting</option>
           </select>
 
-          <label style={labelStyle}>
+          {/* DATE */}
+          <label className={labelClass}>
             Date & Time
           </label>
 
@@ -300,40 +334,46 @@ export default function LeadDetails({
             name="scheduled_at"
             value={followup.scheduled_at}
             onChange={handleFollowupChange}
-            style={inputStyle}
+            className={inputClass}
+            required
           />
 
-          <label style={labelStyle}>
+          {/* NOTES */}
+          <label className={labelClass}>
             Notes
           </label>
 
           <textarea
             name="notes"
-            rows="4"
+            rows={4}
             placeholder="Follow-up notes..."
             value={followup.notes}
             onChange={handleFollowupChange}
-            style={inputStyle}
+            className={inputClass}
           />
 
+          {/* SAVE */}
           <button
             type="submit"
             disabled={savingFollowup}
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginTop: "8px",
-              border: "none",
-              borderRadius: "8px",
-              background: savingFollowup
-                ? "#94a3b8"
-                : "#16a34a",
-              color: "#fff",
-              fontWeight: "600",
-              cursor: savingFollowup
-                ? "not-allowed"
-                : "pointer",
-            }}
+            className="
+              mt-2
+              flex
+              w-full
+              items-center
+              justify-center
+              rounded-xl
+              bg-green-600
+              px-4
+              py-3
+              text-sm
+              font-semibold
+              text-white
+              transition
+              hover:bg-green-700
+              disabled:cursor-not-allowed
+              disabled:bg-slate-400
+            "
           >
             {savingFollowup
               ? "Saving..."
@@ -343,27 +383,28 @@ export default function LeadDetails({
       )}
 
       {/* EDIT */}
-
       <button
+        type="button"
         onClick={() => onEdit(lead)}
-        style={{
-          width: "100%",
-          marginTop: "30px",
-          padding: "14px",
-          border: "none",
-          borderRadius: "10px",
-          background: "#2563eb",
-          color: "#fff",
-          fontSize: "16px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "8px",
-        }}
+        className="
+          mt-6
+          flex
+          w-full
+          items-center
+          justify-center
+          gap-2
+          rounded-xl
+          bg-blue-600
+          px-4
+          py-3.5
+          text-sm
+          font-semibold
+          text-white
+          transition
+          hover:bg-blue-700
+        "
       >
         <Pencil size={18} />
-
         Edit Lead
       </button>
     </div>
@@ -372,60 +413,20 @@ export default function LeadDetails({
 
 function Info({ title, value }) {
   return (
-    <div
-      style={{
-        marginBottom: "18px",
-        paddingBottom: "12px",
-        borderBottom: "1px solid #e5e7eb",
-      }}
-    >
-      <p
-        style={{
-          margin: 0,
-          color: "#64748b",
-          fontSize: "14px",
-        }}
-      >
+    <div className="mb-4 border-b border-slate-100 pb-3">
+      <p className="text-xs font-medium text-slate-400">
         {title}
       </p>
 
-      <h4
-        style={{
-          marginTop: "6px",
-        }}
-      >
+      <p className="mt-1 break-words text-sm font-semibold text-slate-800">
         {value || "-"}
-      </h4>
+      </p>
     </div>
   );
 }
 
-const actionButton = {
-  width: "55px",
-  height: "55px",
-  borderRadius: "12px",
-  background: "#f1f5f9",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  color: "#2563eb",
-  textDecoration: "none",
-};
+const labelClass =
+  "mb-1.5 mt-3 block text-xs font-semibold text-slate-600";
 
-const labelStyle = {
-  display: "block",
-  marginTop: "12px",
-  marginBottom: "6px",
-  fontSize: "13px",
-  fontWeight: "600",
-  color: "#475569",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  border: "1px solid #cbd5e1",
-  borderRadius: "8px",
-  outline: "none",
-  boxSizing: "border-box",
-};
+const inputClass =
+  "box-border w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";

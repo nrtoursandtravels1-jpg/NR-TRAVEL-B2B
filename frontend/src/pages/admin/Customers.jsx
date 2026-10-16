@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import CustomerForm from "../../components/customer/CustomerForm";
 import CustomerTable from "../../components/customer/CustomerTable";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import PageHeader from "../../components/ui/PageHeader";
 
 function Customers() {
   const [refresh, setRefresh] = useState(false);
@@ -13,58 +15,27 @@ function Customers() {
   };
 
   return (
-    <div
-      style={{
-        padding: "30px",
-        background: "#f8fafc",
-        minHeight: "100vh",
-      }}
-    >
-      <div
-        style={{
-          marginBottom: "30px",
-        }}
-      >
-        <h1
-          style={{
-            margin: 0,
-            color: "#0f172a",
-          }}
-        >
-          Customer Management
-        </h1>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <PageHeader
+          title="Customer Management"
+          description="Add, edit and manage all customers."
+        />
 
-        <p
-          style={{
-            color: "#64748b",
-            marginTop: "8px",
-          }}
-        >
-          Add, edit and manage all customers.
-        </p>
-      </div>
-
-      <div
-        style={{
-          background: "#ffffff",
-          padding: "25px",
-          borderRadius: "12px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-        }}
-      >
+        {/* Customer Form */}
         <CustomerForm
           selectedCustomer={selectedCustomer}
           onCustomerAdded={customerSaved}
         />
-      </div>
 
-      <div style={{ marginTop: "30px" }}>
+        {/* Customer Table */}
         <CustomerTable
           refresh={refresh}
           setSelectedCustomer={setSelectedCustomer}
         />
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 

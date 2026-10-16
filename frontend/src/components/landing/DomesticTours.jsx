@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CalendarDays,
   Users,
+  Sparkles,
 } from "lucide-react";
 
 const domesticTours = [
@@ -81,85 +82,143 @@ function DomesticTours() {
   return (
     <section
       id="domestic-tours"
-      className="bg-white px-6 py-20 md:px-10 lg:px-16"
+      className="relative overflow-hidden bg-white px-6 py-20 md:px-10 lg:px-16 lg:py-24"
     >
-      <div className="mx-auto max-w-7xl">
+      {/* Background decoration */}
+      <div className="absolute -right-40 top-20 h-80 w-80 rounded-full bg-blue-50 blur-3xl" />
+      <div className="absolute -left-40 bottom-20 h-80 w-80 rounded-full bg-indigo-50 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl">
 
         {/* HEADER */}
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-600">
-              Explore India
-            </p>
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
 
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-              Popular Domestic Tours
+          <div className="max-w-3xl">
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-blue-600">
+              <Sparkles size={15} />
+              Explore India
+            </div>
+
+            <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl lg:text-5xl">
+              Popular{" "}
+              <span className="text-blue-600">
+                Domestic Tours
+              </span>
             </h2>
 
-            <p className="mt-4 text-base leading-7 text-slate-500 md:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-500 md:text-lg">
               Discover amazing destinations across India with carefully
               planned travel experiences for families, groups and couples.
             </p>
+
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/customer/packages")}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-lg"
           >
             Explore All Tours
             <ArrowRight size={17} />
           </button>
+
         </div>
 
         {/* TOUR GRID */}
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-7 md:grid-cols-2 xl:grid-cols-3">
+
           {domesticTours.map((tour) => (
             <article
               key={tour.id}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-2 hover:border-blue-100 hover:shadow-2xl"
             >
               {/* IMAGE */}
-              <div className="relative h-56 overflow-hidden bg-slate-100">
+              <div className="relative h-60 overflow-hidden bg-slate-100">
+
                 <img
                   src={tour.image}
                   alt={tour.title}
                   loading="lazy"
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                 />
 
-                <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm">
+                {/* Image overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-70" />
+
+                {/* Badge */}
+                <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-xs font-bold text-blue-700 shadow-lg backdrop-blur-sm">
+                  <Sparkles size={13} />
                   Domestic Tour
                 </div>
+
+                {/* Price */}
+                <div className="absolute bottom-4 right-4 rounded-xl bg-slate-950/85 px-3 py-2 text-white backdrop-blur-sm">
+                  <p className="text-[10px] text-slate-300">
+                    Starting from
+                  </p>
+
+                  <p className="text-lg font-extrabold">
+                    {tour.price}
+                  </p>
+                </div>
+
               </div>
 
               {/* CONTENT */}
-              <div className="p-5">
-                <h3 className="text-xl font-extrabold text-slate-900">
+              <div className="p-6">
+
+                <h3 className="text-xl font-extrabold leading-tight text-slate-900">
                   {tour.title}
                 </h3>
 
-                <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
-                  <MapPin size={16} className="text-blue-600" />
-                  <span>{tour.destination}</span>
+                {/* Destination */}
+                <div className="mt-4 flex items-start gap-2 text-sm text-slate-500">
+                  <MapPin
+                    size={17}
+                    className="mt-0.5 shrink-0 text-blue-600"
+                  />
+
+                  <span>
+                    {tour.destination}
+                  </span>
                 </div>
 
-                <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                  <CalendarDays size={16} className="text-blue-600" />
-                  <span>{tour.duration}</span>
+                {/* Duration */}
+                <div className="mt-2.5 flex items-center gap-2 text-sm text-slate-500">
+                  <CalendarDays
+                    size={17}
+                    className="shrink-0 text-blue-600"
+                  />
+
+                  <span>
+                    {tour.duration}
+                  </span>
                 </div>
 
-                <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                  <Users size={16} className="text-blue-600" />
-                  <span>Family, Group & Custom Options</span>
+                {/* Travelers */}
+                <div className="mt-2.5 flex items-center gap-2 text-sm text-slate-500">
+                  <Users
+                    size={17}
+                    className="shrink-0 text-blue-600"
+                  />
+
+                  <span>
+                    Family, Group & Custom Options
+                  </span>
                 </div>
 
-                <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-500">
+                {/* Description */}
+                <p className="mt-5 line-clamp-2 text-sm leading-6 text-slate-500">
                   {tour.description}
                 </p>
 
-                {/* PRICE + BUTTON */}
-                <div className="mt-5 flex items-center justify-between gap-4">
+                {/* Divider */}
+                <div className="my-5 h-px bg-slate-100" />
+
+                {/* Bottom */}
+                <div className="flex items-center justify-between gap-4">
+
                   <div>
                     <p className="text-xs font-medium text-slate-400">
                       Starting from
@@ -178,33 +237,53 @@ function DomesticTours() {
                     className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700"
                   >
                     View Tour
-                    <ArrowRight size={16} />
+                    <ArrowRight
+                      size={16}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
                   </button>
+
                 </div>
+
               </div>
             </article>
           ))}
+
         </div>
 
         {/* CUSTOM TOUR CTA */}
-        <div className="mt-10 rounded-2xl bg-slate-900 px-6 py-8 text-center text-white md:px-10">
-          <h3 className="text-2xl font-extrabold">
-            Can't find your perfect destination?
-          </h3>
+        <div className="relative mt-12 overflow-hidden rounded-3xl bg-slate-950 px-6 py-10 text-center shadow-xl md:px-10 md:py-12">
 
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-            Tell us your travel requirements and our experts will help create
-            a customized package for you.
-          </p>
+          {/* Decoration */}
+          <div className="absolute -left-20 -top-20 h-48 w-48 rounded-full bg-blue-600/20 blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 h-48 w-48 rounded-full bg-indigo-600/20 blur-3xl" />
 
-          <button
-            type="button"
-            onClick={() => navigate("/customer/packages")}
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
-          >
-            Find Your Package
-            <ArrowRight size={17} />
-          </button>
+          <div className="relative">
+
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+              <Sparkles size={22} />
+            </div>
+
+            <h3 className="mt-5 text-2xl font-extrabold text-white md:text-3xl">
+              Can't find your perfect destination?
+            </h3>
+
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-400 md:text-base">
+              Tell us your travel requirements and our experts will help
+              create a customized package just for you.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/customer/packages")}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-amber-400"
+            >
+              Find Your Package
+              <ArrowRight size={17} />
+            </button>
+
+          </div>
+
         </div>
 
       </div>

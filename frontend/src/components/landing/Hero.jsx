@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Building2,
@@ -72,7 +72,7 @@ function Hero() {
       label: "Tour Packages",
     },
     {
-      value: "24×7",
+      value: "24Ã—7",
       label: "Support",
     },
   ];
@@ -116,15 +116,15 @@ function Hero() {
 
             {/* Powered By */}
             <p className="mt-5 text-base font-semibold text-amber-300 sm:text-lg">
-              Powered by NR Tours &amp; Travels
+              Your Trusted Travel Business Partner
             </p>
 
             {/* Description */}
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-200 sm:text-lg sm:leading-8">
               Connecting Travelers, Agents &amp; Businesses Worldwide.
               <br className="hidden sm:block" />
-              Domestic Tours • International Tours • Hotels • Flights • Visa
-              • Transport • Holiday Packages
+              Domestic Tours â€¢ International Tours â€¢ Hotels â€¢ Flights â€¢ Visa
+              â€¢ Transport â€¢ Holiday Packages
             </p>
 
             {/* Buttons */}
@@ -172,7 +172,7 @@ function Hero() {
                   size={17}
                   className="text-emerald-400"
                 />
-                24×7 Support
+                24Ã—7 Support
               </div>
             </div>
 
@@ -308,7 +308,7 @@ function Hero() {
                   </p>
 
                   <p className="text-sm font-bold">
-                    Available 24×7
+                    Available 24Ã—7
                   </p>
                 </div>
               </div>

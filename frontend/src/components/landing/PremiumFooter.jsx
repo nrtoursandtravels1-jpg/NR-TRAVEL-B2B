@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Bus,
@@ -59,7 +59,7 @@ function PremiumFooter() {
             </Link>
 
             <p className="mt-6 max-w-sm text-sm leading-7 text-slate-400">
-              Powered by NR Tours & Travels. Connecting travelers, travel
+              Connecting travelers, travel
               agents and businesses through one powerful travel platform.
             </p>
 
@@ -231,7 +231,7 @@ function PremiumFooter() {
         <div className="border-t border-slate-800 py-6">
           <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
             <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} WorldTrip Connect. All Rights
+              Â© {new Date().getFullYear()} WorldTrip Connect. All Rights
               Reserved.
             </p>
 
@@ -260,7 +260,7 @@ function PremiumFooter() {
           </div>
 
           <p className="mt-4 text-center text-xs text-slate-600">
-            Powered by NR Tours & Travels
+            WorldTrip Connect
           </p>
         </div>
       </div>
